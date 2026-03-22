@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"os"
+	"path/filepath"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/go-rod/rod"
@@ -17,26 +18,28 @@ type RodSuite struct {
 }
 
 func (suite *RodSuite) SetupSuite() {
-	// Load .env file if it exists; optional and safe to ignore error
-	_ = godotenv.Load()
+	envPath, _ := filepath.Abs("../.env")
+	err := godotenv.Load(envPath)
+	if err != nil {
+		panic(err)
+	}
 
 	// Optional execution guard for network-dependent integration tests
 	if os.Getenv("REG_E2E") != "1" {
 		suite.T().Skip("Skipping rod-based tests; set REG_E2E=1 to run")
 	}
 
-	headless := true
-	if os.Getenv("REG_HEADLESS") == "0" || os.Getenv("REG_HEADLESS") == "false" {
-		headless = false
-	}
+	rootDir := filepath.Dir(envPath)
 
 	l := launcher.New().
-		Headless(headless).
+		Headless(os.Getenv("REG_HEADLESS") == "1").
 		Devtools(false).
-		Leakless(false)
+		Leakless(false).
+		UserDataDir(filepath.Join(rootDir, "rod_data"))
 
 	browser := rod.New().
 		ControlURL(l.MustLaunch()).
+		Trace(os.Getenv("REG_ROD_VERBOSE") == "1").
 		MustConnect()
 
 	suite.Browser = browser
@@ -52,7 +55,7 @@ func (suite *RodSuite) SetupTest() {
 	// Open a fresh page for each test.
 	if suite.Browser != nil {
 		suite.Page = suite.Browser.MustPage()
-		suite.Page.MustNavigate(c.LoginURL)
+		suite.Page.MustNavigate(c.BaseURL)
 	}
 }
 

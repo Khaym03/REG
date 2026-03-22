@@ -21,7 +21,7 @@ To avoid running browser tests unintentionally (offline or pure unit test passes
 You can control headless mode with:
 
 - `REG_HEADLESS=1` (default if not set)
-- `REG_HEADLESS=0` or `REG_HEADLESS=false` (for debugging with visible browser)
+- `REG_HEADLESS=0` (for debugging with visible browser)
 
 If not set, Rod suite is skipped.
 
@@ -30,14 +30,5 @@ If not set, Rod suite is skipped.
 ```bash
 # set credentials in .env (or environment)
 # run integration tests (rod-based) explicitly:
-REG_E2E=1 go test ./... -v
-
-# or on Windows PowerShell:
-$env:REG_E2E = "1"
 go test ./... -v
-```
-
-## Notes
-
-- `testutil/rod_suite.go` keeps the browser session shared across suite and page per test.
 

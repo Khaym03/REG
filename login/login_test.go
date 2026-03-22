@@ -15,7 +15,7 @@ type LoginTestSuite struct {
 	testutil.RodSuite
 }
 
-func (suite *LoginTestSuite) TestLogin_Success() {
+func (suite *LoginTestSuite) TestLoginSuccess() {
 	username, password := suite.LoadCredential()
 	if username == "" || password == "" {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set in .env file")
@@ -24,9 +24,6 @@ func (suite *LoginTestSuite) TestLogin_Success() {
 	user := User{Username: username, Password: password}
 
 	closeSession, err := Login(suite.Page, user)
-
-	currentURL := suite.Page.MustInfo().URL
-	suite.T().Logf("Current URL after login attempt: %s", currentURL)
 
 	require.NoError(suite.T(), err)
 	assert.NotNil(suite.T(), closeSession)
@@ -37,7 +34,7 @@ func (suite *LoginTestSuite) TestLogin_Success() {
 	time.Sleep(time.Second)
 }
 
-func (suite *LoginTestSuite) TestLogin_Failure_FakeUser() {
+func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 	user := User{Username: "fake@example.com", Password: "fakepassword"}
 	closeSession, err := Login(suite.Page, user)
 

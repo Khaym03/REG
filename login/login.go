@@ -2,12 +2,17 @@ package login
 
 import (
 	"fmt"
+	"log"
 	"regexp"
+	"time"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
 )
+
+// Regex: Matches exactly 6 digits isolated by word boundaries
+var verificationRegex = regexp.MustCompile(`\b\d{6}\b`)
 
 type User struct {
 	Username string
@@ -17,64 +22,65 @@ type User struct {
 type CloseSession func()
 
 func Login(page *rod.Page, user User) (CloseSession, error) {
-	page.MustNavigate(c.LoginURL)
-	page.MustWaitLoad()
+	// Use Try to catch panics from "Must" calls and return them as errors
+	err := rod.Try(func() {
+		page.MustNavigate(c.LoginURL).MustWaitLoad()
 
-	page.MustElementX(makeInteracteableButtonSelector).MustClick()
-	page.MustElement(emailInputSelector).MustClick().MustInput(user.Username)
-	page.MustElement(passwordInputSelector).MustInput(user.Password)
-	page.MustElement(loginButtonSelector).MustClick()
-	page.MustWaitLoad()
-
-	errorElements := page.MustElements(`.error, .alert, .alert-danger`)
-	if len(errorElements) > 0 {
-		errorText := errorElements.First().MustText()
-		if errorText != "" {
-			return nil, fmt.Errorf("login failed: %s", errorText)
+		// Handle optional modal
+		if el, err := page.Timeout(1 * time.Second).ElementX(makeInteracteableButtonSelector); err == nil {
+			log.Println("Random modal detected, dismissing...")
+			el.MustClick()
 		}
-	}
 
-	// Check if verification code input is present (indicates login step succeeded)
-	verifyElements := page.MustElementsX(verifyInputSelector)
-	if len(verifyElements) == 0 {
-		return nil, fmt.Errorf("login failed: verification input not found")
-	}
+		page.MustElement(emailInputSelector).MustClick().MustInput(user.Username)
+		page.MustElement(passwordInputSelector).MustInput(user.Password)
+		page.MustElement(loginButtonSelector).MustClick()
+		page.MustWaitLoad()
 
-	code := extractVerificationCode(page.MustElementX(codeTextSelector).MustText())
-	if code == "" {
-		return nil, fmt.Errorf("verification code not found")
-	}
-	page.MustElementX(verifyInputSelector).MustClick().MustInput(code)
-	if err := page.Keyboard.Press(input.Enter); err != nil {
+		// Check for explicit error messages from the UI
+		if errorElements := page.MustElements(`.alert-danger`); len(errorElements) > 0 {
+			errorText := errorElements.First().MustText()
+			if errorText != "" {
+				panic(fmt.Errorf("login failed: %s", errorText))
+			}
+		}
+
+		// Handle 2FA/Verification
+		verifyElements := page.MustElementsX(verifyInputSelector)
+		if len(verifyElements) > 0 {
+			log.Println("Verification step triggered")
+			code := extractVerificationCode(page.MustElementX(codeTextSelector).MustText())
+			if code == "" {
+				panic("verification code not found in text")
+			}
+
+			page.MustElementX(verifyInputSelector).MustClick().MustInput(code)
+			page.Keyboard.MustType(input.Enter)
+			page.MustWaitLoad()
+		}
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
-	page.MustWaitLoad()
-
-	// Verify successful login by checking for profile dropdown
-	profileElements := page.MustElementsX(profileDropdownSelector)
-	if len(profileElements) == 0 {
-		return nil, fmt.Errorf("login verification failed: profile dropdown not found")
-	}
-
+	// Return a closure that handles its own potential failures
 	return func() {
-		page.MustNavigate(c.BaseURL)
-		page.MustElementX(profileDropdownSelector).MustClick()
-		page.MustElementX(logoutSelector).MustClick()
+		_ = rod.Try(func() {
+			page.MustNavigate(c.BaseURL)
+			page.MustElementX(profileDropdownSelector).MustClick()
+			page.MustElementX(logoutSelector).MustClick()
+		})
 	}, nil
 }
 
 func extractVerificationCode(text string) string {
-	// Regex: Matches exactly 6 digits isolated by word boundaries
-	re := regexp.MustCompile(`\b\d{6}\b`)
-
-	// Find the first match
-	result := re.FindString(text)
+	result := verificationRegex.FindString(text)
 
 	if result != "" {
-		fmt.Printf("Sequence found: %s\n", result)
+		log.Printf("Verification sequence found: %s", result)
 	} else {
-		fmt.Println("No 6-digit sequence was found.")
+		log.Println("No 6-digit sequence was found in the provided text.")
 	}
 	return result
 }
