@@ -1,7 +1,6 @@
 package receiver
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/Khaym03/REG/utils"
@@ -53,7 +52,7 @@ func CollectGuidesIDs(page *rod.Page) []string {
 	log.Printf("Found %d rows. Processing...", len(rows))
 
 	for i, row := range rows {
-		// 2. Check if the row actually has the data-id_ column.
+		// Check if the row actually has the data-id_ column.
 		// We use ElementX here too to avoid panicking on a weirdly formatted row.
 		column, err := row.ElementX(dataIDColumnSelector)
 		if err != nil {
@@ -61,13 +60,13 @@ func CollectGuidesIDs(page *rod.Page) []string {
 			continue
 		}
 
-		// 3. Extract the attribute
+		// Extract the attribute
 		idValue, err := column.Attribute("data-id_")
 		if err != nil || idValue == nil {
 			continue
 		}
 
-		fmt.Printf("Found ID: %s\n", *idValue)
+		log.Printf("Found ID: %s\n", *idValue)
 		ids = append(ids, *idValue)
 	}
 

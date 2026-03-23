@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/login"
 	"github.com/Khaym03/REG/testutil"
 )
@@ -34,7 +35,7 @@ func (suite *ReceiverTestSuite) TestGuidesIDGatherer() {
 	defer closeSession()
 
 	// Navigate to reception page
-	suite.Page.MustNavigate("https://sica.sunagro.gob.ve/despachos/recepcion")
+	suite.Page.MustNavigate(c.ReceptionURL)
 
 	gatherer := &GuidesIDGatherer{
 		monthlyGuideIDs: make(monthlyGuideIDs),
@@ -62,7 +63,7 @@ func (suite *ReceiverTestSuite) TestGuidesIDGathererWithExistingData() {
 	defer closeSession()
 
 	// Navigate to reception page
-	suite.Page.MustNavigate("https://sica.sunagro.gob.ve/despachos/recepcion")
+	suite.Page.MustNavigate(c.ReceptionURL)
 
 	gatherer := &GuidesIDGatherer{
 		monthlyGuideIDs: monthlyGuideIDs{
