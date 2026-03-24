@@ -1,6 +1,7 @@
 package receiver
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,6 +47,34 @@ func (suite *ReceiverTestSuite) TestGuidesIDGatherer() {
 
 	// Assert that some guides were collected
 	assert.NotEmpty(suite.T(), gatherer.monthlyGuideIDs)
+}
+
+func (suite *ReceiverTestSuite) TestExtractRubrosFromGuide() {
+	absPath, err := filepath.Abs("guide-sample.html")
+	require.NoError(suite.T(), err)
+
+	suite.Page.MustNavigate("file://" + absPath)
+
+	rubros := ExtractRubrosFromGuide(suite.Page)
+
+	require.NotEmpty(suite.T(), rubros, "The list of extracted rubros should not be empty")
+
+	expectedFirst := Rubro{
+		Nombre:   "ACEITE PARA MANUFACTURA",
+		Cantidad: "0,050 TM",
+		// PrecioVenta:  "1,00 BS",
+		// Presentacion: "OTROS",
+		Marca: "OTROS",
+	}
+
+	assert.Equal(suite.T(), expectedFirst.Nombre, rubros[0].Nombre)
+	assert.Equal(suite.T(), expectedFirst.Cantidad, rubros[0].Cantidad)
+	assert.Equal(suite.T(), expectedFirst.Marca, rubros[0].Marca)
+
+	if len(rubros) > 1 {
+		assert.Equal(suite.T(), "EDULCORANTES IMPORTADOS", rubros[1].Nombre)
+		assert.Equal(suite.T(), "0,002 TM", rubros[1].Cantidad)
+	}
 }
 
 func (suite *ReceiverTestSuite) TestGuidesIDGathererWithExistingData() {
