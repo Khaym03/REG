@@ -16,13 +16,13 @@ import (
 var _ domain.AuthService = (*LoginScraper)(nil)
 
 type LoginScraper struct {
-	browser *rod.Browser
+	Browser *rod.Browser
 }
 
 func (l *LoginScraper) Login(ctx context.Context, user domain.User) error {
 	// Use Try to catch panics from "Must" calls and return them as errors
 	return rod.Try(func() {
-		page := l.browser.MustPage()
+		page := l.Browser.MustPage()
 		defer page.Close()
 
 		page.MustNavigate(c.LoginURL).MustWaitLoad()
@@ -64,7 +64,7 @@ func (l *LoginScraper) Login(ctx context.Context, user domain.User) error {
 
 func (l *LoginScraper) Logout(ctx context.Context) error {
 	return rod.Try(func() {
-		page := l.browser.MustPage()
+		page := l.Browser.MustPage()
 		defer page.Close()
 
 		page.MustNavigate(c.BaseURL)
