@@ -16,6 +16,10 @@ type RodRubroWorker struct {
 	workers int
 }
 
+func NewRodRubroWorker(b *rod.Browser, workers int) *RodRubroWorker {
+	return &RodRubroWorker{browser: b, workers: workers}
+}
+
 func (w *RodRubroWorker) Process(ctx context.Context, ids []string) ([]domain.Rubro, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex

@@ -9,14 +9,18 @@ import (
 	"github.com/Khaym03/REG/utils"
 )
 
+type repositoryData struct {
+	Months map[string][]string     `json:"months"`
+	Rubros map[string]domain.Rubro `json:"rubros"`
+}
+
 type JSONGuideRepository struct {
 	filePath string
 	mu       sync.Mutex
 }
 
-type repositoryData struct {
-	Months map[string][]string     `json:"months"`
-	Rubros map[string]domain.Rubro `json:"rubros"`
+func NewJSONGuideRepository(filePath string) *JSONGuideRepository {
+	return &JSONGuideRepository{filePath: filePath, mu: sync.Mutex{}}
 }
 
 func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {

@@ -19,6 +19,18 @@ type GatherGuidesHandler struct {
 	workers domain.RubroWorker
 }
 
+func NewGatherGuidesHandler(
+	repo domain.GuideRepository,
+	scraper domain.GuideScraper,
+	workers domain.RubroWorker,
+) *GatherGuidesHandler {
+	return &GatherGuidesHandler{
+		repo:    repo,
+		scraper: scraper,
+		workers: workers,
+	}
+}
+
 func (h GatherGuidesHandler) Handle(ctx context.Context, cmd GatherGuidesCommand) error {
 	dates := utils.MonthlyDateRanges(cmd.From, cmd.To)
 

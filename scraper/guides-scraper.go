@@ -17,6 +17,10 @@ type GuidesScraper struct {
 	browser *rod.Browser
 }
 
+func NewGuidesScraper(b *rod.Browser) *GuidesScraper {
+	return &GuidesScraper{browser: b}
+}
+
 func (g GuidesScraper) CollectIDs(ctx context.Context, date utils.DateRange) ([]string, error) {
 
 	page, err := g.browser.Page(proto.TargetCreateTarget{URL: constants.ReceptionURL})
