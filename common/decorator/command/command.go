@@ -1,4 +1,4 @@
-package decorator
+package command
 
 import "context"
 
