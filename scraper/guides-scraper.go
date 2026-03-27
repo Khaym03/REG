@@ -1,0 +1,95 @@
+package scraper
+
+import (
+	"context"
+	"log"
+
+	"github.com/Khaym03/REG/constants"
+	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/utils"
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/proto"
+)
+
+var _ domain.GuideScraper = (*GuidesScraper)(nil)
+
+type GuidesScraper struct {
+	browser *rod.Browser
+}
+
+func (g GuidesScraper) CollectIDs(ctx context.Context, date utils.DateRange) ([]string, error) {
+
+	page, err := g.browser.Page(proto.TargetCreateTarget{URL: constants.ReceptionURL})
+	if err != nil {
+		return nil, err
+	}
+
+	defer page.Close()
+
+	err = g.applyFiltersToGuideReceiver(page, date)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.collectIDs(page)
+}
+
+func (g GuidesScraper) applyFiltersToGuideReceiver(page *rod.Page, date utils.DateRange) error {
+	page.MustElementX(filterAccordionSelector).MustClick()
+	page.MustWaitDOMStable()
+
+	utils.SelectOption(page, selectStatusSelector, selectStatusOption)
+	utils.SelectOption(page, selectReceptionStatus, selectReceptionOption)
+
+	page.MustElementX(inputDateFromSelector).MustInputTime(date.From)
+	page.MustElementX(inputDateToSelector).MustInputTime(date.To)
+	page.MustElementX(filterButtonSelector).MustClick()
+	page.MustWaitDOMStable()
+
+	return nil
+}
+
+func (g GuidesScraper) collectIDs(page *rod.Page) ([]string, error) {
+	var ids []string
+
+	rows, err := page.ElementsX(tableRowSelector)
+	if err != nil || len(rows) == 0 {
+		log.Println("No rows found in the table. Continuing...")
+		return ids, err
+	}
+	log.Printf("Found %d rows. Processing...", len(rows))
+
+	for i, row := range rows {
+		// Check if the row actually has the data-id_ column.
+		// We use ElementX here too to avoid panicking on a weirdly formatted row.
+		column, err := row.ElementX(dataIDColumnSelector)
+		if err != nil {
+			log.Printf("Row %d does not contain a data-id_ attribute. Skipping.", i)
+			continue
+		}
+
+		// Extract the attribute
+		idValue, err := column.Attribute("data-id_")
+		if err != nil || idValue == nil {
+			continue
+		}
+
+		log.Printf("Found ID: %s\n", *idValue)
+		ids = append(ids, *idValue)
+	}
+
+	return ids, nil
+}
+
+const (
+	filterAccordionSelector = `//*[@id="accordion-filtros"]/div/div[1]/a`
+	selectStatusSelector    = `//*[@id="select2-estatus_-container"]/..`
+	selectReceptionStatus   = `//*[@id="select2-recepcion-container"]/..`
+	selectStatusOption      = `//li[contains(text(), "APROBADA")]`
+	selectReceptionOption   = `//li[contains(@id, "SIN_RECEPCIONAR")]`
+	inputDateFromSelector   = `//*[@id="desde"]`
+	inputDateToSelector     = `//*[@id="hasta"]`
+	filterButtonSelector    = `//*[@id="collapse-filtro"]/div/form/div[3]/button`
+	tableRowSelector        = `//table[@id="tabla-component"]/tbody/tr`
+	dataIDColumnSelector    = `./td[@data-id_]`
+)
