@@ -31,6 +31,8 @@ type GuideRepository interface {
 	Exists(date utils.DateRange) bool
 	SaveGuides(utils.DateRange, []Guide)
 	GetGuides(date utils.DateRange) []Guide
+	HasBeenReceived(Guide) bool
+	SaveReceivedGuide(Guide)
 
 	SaveRubros([]Rubro)
 	GetRubros() []Rubro

@@ -12,8 +12,9 @@ import (
 var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
 
 type repositoryData struct {
-	Months map[string][]domain.Guide `json:"months"`
-	Rubros map[string]domain.Rubro   `json:"rubros"`
+	Months         map[string][]domain.Guide `json:"months"`
+	Rubros         map[string]domain.Rubro   `json:"rubros"`
+	ReceivedGuides map[string]domain.Guide   `json:"received_guides"`
 }
 
 type JSONGuideRepository struct {
@@ -38,6 +39,34 @@ func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
 	_, exists := data.Months[key]
 
 	return exists
+}
+
+func (r *JSONGuideRepository) HasBeenReceived(guide domain.Guide) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := r.load()
+	if err != nil {
+		return false
+	}
+
+	_, exists := data.ReceivedGuides[guide.ID]
+
+	return exists
+}
+
+func (r *JSONGuideRepository) SaveReceivedGuide(guide domain.Guide) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := r.load()
+	if err != nil {
+		return
+	}
+
+	data.ReceivedGuides[guide.ID] = guide
+
+	_ = r.save(data)
 }
 
 func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.Guide) {
@@ -108,8 +137,9 @@ func (r *JSONGuideRepository) load() (repositoryData, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return repositoryData{
-				Months: make(map[string][]domain.Guide),
-				Rubros: make(map[string]domain.Rubro),
+				Months:         make(map[string][]domain.Guide),
+				Rubros:         make(map[string]domain.Rubro),
+				ReceivedGuides: make(map[string]domain.Guide),
 			}, nil
 		}
 		return data, err
