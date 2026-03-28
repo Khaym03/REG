@@ -28,11 +28,17 @@ type RubroWorker interface {
 }
 
 type GuideRepository interface {
-	Exists(date utils.DateRange) bool
+	Exists(utils.DateRange) bool
 	SaveGuides(utils.DateRange, []Guide)
-	GetGuides(date utils.DateRange) []Guide
-	HasBeenReceived(Guide) bool
-	SaveReceivedGuide(Guide)
+	GetGuides(utils.DateRange) []Guide
+
+	// Progress
+	SaveReceptionProgress(utils.DateRange, ReceptionResult)
+	GetReceptionProgress(utils.DateRange) ReceptionResult
+
+	// Final state
+	MarkReceptionCompleted(utils.DateRange)
+	IsReceptionCompleted(utils.DateRange) bool
 
 	SaveRubros([]Rubro)
 	GetRubros() []Rubro
@@ -41,4 +47,14 @@ type GuideRepository interface {
 type InventoryScraper interface {
 	RubrosSnapshot(context.Context) ([]Rubro, error)
 	Insert(context.Context, Rubro) error
+}
+
+type Receptionist interface {
+	// Receive all the expired [Guide] in a given [utils.DateRange]
+	Receive(context.Context, utils.DateRange) (ReceptionResult, error)
+}
+
+type ReceptionResult struct {
+	Processed int
+	Completed bool
 }

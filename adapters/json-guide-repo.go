@@ -11,10 +11,12 @@ import (
 
 var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
 
+const dateKeyFormat = "2006-01"
+
 type repositoryData struct {
-	Months         map[string][]domain.Guide `json:"months"`
-	Rubros         map[string]domain.Rubro   `json:"rubros"`
-	ReceivedGuides map[string]domain.Guide   `json:"received_guides"`
+	Months         map[string][]domain.Guide         `json:"months"`
+	Rubros         map[string]domain.Rubro           `json:"rubros"`
+	ReceptionState map[string]domain.ReceptionResult `json:"reception_state"`
 }
 
 type JSONGuideRepository struct {
@@ -35,27 +37,13 @@ func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
 		return false
 	}
 
-	key := date.From.Format("2006-01")
+	key := date.From.Format(dateKeyFormat)
 	_, exists := data.Months[key]
 
 	return exists
 }
 
-func (r *JSONGuideRepository) HasBeenReceived(guide domain.Guide) bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	data, err := r.load()
-	if err != nil {
-		return false
-	}
-
-	_, exists := data.ReceivedGuides[guide.ID]
-
-	return exists
-}
-
-func (r *JSONGuideRepository) SaveReceivedGuide(guide domain.Guide) {
+func (r *JSONGuideRepository) SaveReceptionProgress(date utils.DateRange, result domain.ReceptionResult) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -64,9 +52,64 @@ func (r *JSONGuideRepository) SaveReceivedGuide(guide domain.Guide) {
 		return
 	}
 
-	data.ReceivedGuides[guide.ID] = guide
+	prev := data.ReceptionState[date.Key()]
+
+	prev.Processed += result.Processed
+
+	// if is already completed, do not broke it
+	if result.Completed {
+		prev.Completed = true
+	}
+
+	data.ReceptionState[date.Key()] = prev
 
 	_ = r.save(data)
+}
+
+func (r *JSONGuideRepository) MarkReceptionCompleted(date utils.DateRange) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := r.load()
+	if err != nil {
+		return
+	}
+
+	result := data.ReceptionState[date.Key()]
+	result.Completed = true
+
+	data.ReceptionState[date.Key()] = result
+
+	_ = r.save(data)
+}
+
+func (r *JSONGuideRepository) IsReceptionCompleted(date utils.DateRange) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := r.load()
+	if err != nil {
+		return false
+	}
+
+	result, exists := data.ReceptionState[date.Key()]
+	if !exists {
+		return false
+	}
+
+	return result.Completed
+}
+
+func (r *JSONGuideRepository) GetReceptionProgress(date utils.DateRange) domain.ReceptionResult {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := r.load()
+	if err != nil {
+		return domain.ReceptionResult{}
+	}
+
+	return data.ReceptionState[date.Key()]
 }
 
 func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.Guide) {
@@ -139,7 +182,7 @@ func (r *JSONGuideRepository) load() (repositoryData, error) {
 			return repositoryData{
 				Months:         make(map[string][]domain.Guide),
 				Rubros:         make(map[string]domain.Rubro),
-				ReceivedGuides: make(map[string]domain.Guide),
+				ReceptionState: make(map[string]domain.ReceptionResult),
 			}, nil
 		}
 		return data, err
