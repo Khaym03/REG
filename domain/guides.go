@@ -25,3 +25,8 @@ type GuideRepository interface {
 	SaveRubros([]Rubro)
 	GetRubros() []Rubro
 }
+
+type InventoryScraper interface {
+	RubrosSnapshot(context.Context) ([]Rubro, error)
+	Insert(context.Context, Rubro) error
+}
