@@ -30,27 +30,12 @@ func (g GuidesScraper) CollectIDs(ctx context.Context, date utils.DateRange) ([]
 
 	defer page.Close()
 
-	err = g.applyFiltersToGuideReceiver(page, date)
+	err = applyFiltersToGuideReceiver(page, date)
 	if err != nil {
 		return nil, err
 	}
 
 	return g.collectIDs(page)
-}
-
-func (g GuidesScraper) applyFiltersToGuideReceiver(page *rod.Page, date utils.DateRange) error {
-	page.MustElementX(filterAccordionSelector).MustClick()
-	page.MustWaitDOMStable()
-
-	utils.SelectOption(page, selectStatusSelector, selectStatusOption)
-	utils.SelectOption(page, selectReceptionStatus, selectReceptionOption)
-
-	page.MustElementX(inputDateFromSelector).MustInputTime(date.From)
-	page.MustElementX(inputDateToSelector).MustInputTime(date.To)
-	page.MustElementX(filterButtonSelector).MustClick()
-	page.MustWaitDOMStable()
-
-	return nil
 }
 
 func (g GuidesScraper) collectIDs(page *rod.Page) ([]string, error) {
