@@ -11,17 +11,17 @@ import (
 type SyncInventoryCommand struct{}
 
 type SyncInventoryHandler struct {
-	scraper domain.InventoryScraper
 	repo    domain.GuideRepository
+	scraper domain.InventoryScraper
 }
 
 func NewInventoryHandler(
-	scraper domain.InventoryScraper,
 	repo domain.GuideRepository,
+	scraper domain.InventoryScraper,
 ) *SyncInventoryHandler {
 	return &SyncInventoryHandler{
-		scraper: scraper,
 		repo:    repo,
+		scraper: scraper,
 	}
 }
 
