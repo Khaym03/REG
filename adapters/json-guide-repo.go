@@ -9,9 +9,11 @@ import (
 	"github.com/Khaym03/REG/utils"
 )
 
+var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
+
 type repositoryData struct {
-	Months map[string][]string     `json:"months"`
-	Rubros map[string]domain.Rubro `json:"rubros"`
+	Months map[string][]domain.Guide `json:"months"`
+	Rubros map[string]domain.Rubro   `json:"rubros"`
 }
 
 type JSONGuideRepository struct {
@@ -38,7 +40,7 @@ func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
 	return exists
 }
 
-func (r *JSONGuideRepository) SaveIDs(date utils.DateRange, ids []string) {
+func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.Guide) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -48,12 +50,12 @@ func (r *JSONGuideRepository) SaveIDs(date utils.DateRange, ids []string) {
 	}
 
 	key := date.From.Format("2006-01")
-	data.Months[key] = ids
+	data.Months[key] = guides
 
 	_ = r.save(data)
 }
 
-func (r *JSONGuideRepository) GetIDs(date utils.DateRange) []string {
+func (r *JSONGuideRepository) GetGuides(date utils.DateRange) []domain.Guide {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -106,7 +108,7 @@ func (r *JSONGuideRepository) load() (repositoryData, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return repositoryData{
-				Months: make(map[string][]string),
+				Months: make(map[string][]domain.Guide),
 				Rubros: make(map[string]domain.Rubro),
 			}, nil
 		}

@@ -40,14 +40,14 @@ func (h GatherGuidesHandler) Handle(ctx context.Context, cmd GatherGuidesCommand
 			continue
 		}
 
-		ids, err := h.scraper.CollectIDs(ctx, d)
+		guides, err := h.scraper.CollectGuides(ctx, d)
 		if err != nil {
 			return err
 		}
 
-		h.repo.SaveIDs(d, ids)
+		h.repo.SaveGuides(d, guides)
 
-		rubros, err := h.workers.Process(ctx, ids)
+		rubros, err := h.workers.Process(ctx, guides)
 		if err != nil {
 			return err
 		}

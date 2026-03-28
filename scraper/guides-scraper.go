@@ -21,7 +21,7 @@ func NewGuidesScraper(b *rod.Browser) *GuidesScraper {
 	return &GuidesScraper{browser: b}
 }
 
-func (g GuidesScraper) CollectIDs(ctx context.Context, date utils.DateRange) ([]string, error) {
+func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) ([]domain.Guide, error) {
 
 	page, err := g.browser.Page(proto.TargetCreateTarget{URL: constants.ReceptionURL})
 	if err != nil {
@@ -38,13 +38,13 @@ func (g GuidesScraper) CollectIDs(ctx context.Context, date utils.DateRange) ([]
 	return g.collectIDs(page)
 }
 
-func (g GuidesScraper) collectIDs(page *rod.Page) ([]string, error) {
-	var ids []string
+func (g GuidesScraper) collectIDs(page *rod.Page) ([]domain.Guide, error) {
+	var guides []domain.Guide
 
 	rows, err := page.ElementsX(tableRowSelector)
 	if err != nil || len(rows) == 0 {
 		log.Println("No rows found in the table. Continuing...")
-		return ids, err
+		return guides, err
 	}
 	log.Printf("Found %d rows. Processing...", len(rows))
 
@@ -64,10 +64,10 @@ func (g GuidesScraper) collectIDs(page *rod.Page) ([]string, error) {
 		}
 
 		log.Printf("Found ID: %s\n", *idValue)
-		ids = append(ids, *idValue)
+		guides = append(guides, domain.Guide{ID: *idValue})
 	}
 
-	return ids, nil
+	return guides, nil
 }
 
 const (

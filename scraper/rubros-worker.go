@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
 )
@@ -20,11 +19,11 @@ func NewRodRubroWorker(b *rod.Browser, workers int) *RodRubroWorker {
 	return &RodRubroWorker{browser: b, workers: workers}
 }
 
-func (w *RodRubroWorker) Process(ctx context.Context, ids []string) ([]domain.Rubro, error) {
+func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]domain.Rubro, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	jobs := make(chan string)
+	jobs := make(chan domain.Guide)
 	rubrosMap := make(map[string]domain.Rubro)
 
 	// workers
@@ -37,7 +36,7 @@ func (w *RodRubroWorker) Process(ctx context.Context, ids []string) ([]domain.Ru
 			page := w.browser.MustPage()
 			defer page.Close()
 
-			for id := range jobs {
+			for guide := range jobs {
 
 				select {
 				case <-ctx.Done():
@@ -45,9 +44,9 @@ func (w *RodRubroWorker) Process(ctx context.Context, ids []string) ([]domain.Ru
 				default:
 				}
 
-				url := fmt.Sprintf("%s/%s", constants.GuidesURL, id)
+				// url := fmt.Sprintf("%s/%s", constants.GuidesURL, id)
 
-				page.MustNavigate(url)
+				page.MustNavigate(guide.URL())
 				page.MustWaitLoad()
 
 				rubros := extractRubrosFromGuide(page)
@@ -64,8 +63,8 @@ func (w *RodRubroWorker) Process(ctx context.Context, ids []string) ([]domain.Ru
 	// feed jobs
 	go func() {
 		defer close(jobs)
-		for _, id := range ids {
-			jobs <- id
+		for _, guide := range guides {
+			jobs <- guide
 		}
 	}()
 
