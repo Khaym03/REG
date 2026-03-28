@@ -2,15 +2,13 @@ package command
 
 import (
 	"context"
-	"time"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/utils"
 )
 
 type GatherGuidesCommand struct {
-	From time.Time
-	To   time.Time
+	utils.DateRange
 }
 
 type GatherGuidesHandler struct {
