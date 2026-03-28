@@ -7,6 +7,10 @@ type DateRange struct {
 	To   time.Time
 }
 
+func (d DateRange) Key() string {
+	return d.From.Format("2006/01")
+}
+
 func MonthlyDateRanges(from, to time.Time) []DateRange {
 	var ranges []DateRange
 
