@@ -32,22 +32,30 @@ func main() {
 	var authService domain.AuthService = scraper.NewLoginScraper(browser)
 	var guideScraper domain.GuideScraper = scraper.NewGuidesScraper(browser)
 	var rubroWorker domain.RubroWorker = scraper.NewRodRubroWorker(browser, 1)
+	var inventoryScraper domain.InventoryScraper = scraper.NewInventoryScraper(browser)
+	var receptionistScraper domain.Receptionist = scraper.NewReceptionistScraper(browser)
 
 	// --- handlers ---
 	loginHandler := command.NewLoginHandler(authService)
 	logoutHandler := command.NewLogoutHandler(authService)
 	gatherHandler := command.NewGatherGuidesHandler(repo, guideScraper, rubroWorker)
+	syncInventoryHandler := command.NewInventoryHandler(repo, inventoryScraper)
+	receptionistHandler := command.NewReceptionistHandler(repo, receptionistScraper)
 
 	// --- decorators ---
 	loginH := decorator.NewLoggingDecorator(loginHandler)
 	logoutH := decorator.NewLoggingDecorator(logoutHandler)
 	gatherH := decorator.NewLoggingDecorator(gatherHandler)
+	syncInventoryH := decorator.NewLoggingDecorator(syncInventoryHandler)
+	receptionistH := decorator.NewLoggingDecorator(receptionistHandler)
 
 	// --- workflow ---
 	workflow := app.NewReceptionWorkflow(
 		loginH,
 		logoutH,
 		gatherH,
+		syncInventoryH,
+		receptionistH,
 	)
 
 	if err := workflow.Run(context.Background(), app.WorkFlowInput{
