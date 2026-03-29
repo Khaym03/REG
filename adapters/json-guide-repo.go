@@ -11,8 +11,6 @@ import (
 
 var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
 
-const dateKeyFormat = "2006-01"
-
 type repositoryData struct {
 	Months         map[string][]domain.Guide         `json:"months"`
 	Rubros         map[string]domain.Rubro           `json:"rubros"`
@@ -37,8 +35,7 @@ func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
 		return false
 	}
 
-	key := date.From.Format(dateKeyFormat)
-	_, exists := data.Months[key]
+	_, exists := data.Months[date.Key()]
 
 	return exists
 }
@@ -121,8 +118,7 @@ func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.G
 		return
 	}
 
-	key := date.From.Format("2006-01")
-	data.Months[key] = guides
+	data.Months[date.Key()] = guides
 
 	_ = r.save(data)
 }
@@ -136,8 +132,7 @@ func (r *JSONGuideRepository) GetGuides(date utils.DateRange) []domain.Guide {
 		return nil
 	}
 
-	key := date.From.Format("2006-01")
-	return data.Months[key]
+	return data.Months[date.Key()]
 }
 
 func (r *JSONGuideRepository) SaveRubros(rubros []domain.Rubro) {

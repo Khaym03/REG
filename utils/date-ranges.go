@@ -1,6 +1,10 @@
 package utils
 
-import "time"
+import (
+	"time"
+
+	c "github.com/Khaym03/REG/constants"
+)
 
 type DateRange struct {
 	From time.Time
@@ -8,7 +12,7 @@ type DateRange struct {
 }
 
 func (d DateRange) Key() string {
-	return d.From.Format("2006/01")
+	return d.From.Format(c.DateKeyFormat)
 }
 
 func MonthlyDateRanges(from, to time.Time) []DateRange {
