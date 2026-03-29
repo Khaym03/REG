@@ -1,4 +1,4 @@
-package testutil
+package e2e
 
 import (
 	"os"
