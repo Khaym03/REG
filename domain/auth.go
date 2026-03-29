@@ -1,8 +1,12 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/go-rod/rod"
+)
 
 type AuthService interface {
-	Login(context.Context, User) error
-	Logout(context.Context) error
+	Login(context.Context, *rod.Page, User) error
+	Logout(context.Context, *rod.Page) error
 }
