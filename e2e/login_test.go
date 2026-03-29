@@ -27,7 +27,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
 	}
 
-	scraper := scraper.NewLoginScraper(suite.Browser)
+	scraper := scraper.NewLoginScraper()
 
 	loginHandler := command.NewLoginHandler(scraper)
 	logoutHandler := command.NewLogoutHandler(scraper)
@@ -37,17 +37,20 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 			Username: username,
 			Password: password,
 		},
+		Page: suite.Page,
 	}
 
 	err := loginHandler.Handle(suite.T().Context(), loginCmd)
 	require.NoError(suite.T(), err)
 
-	err = logoutHandler.Handle(suite.T().Context(), command.LogoutCommand{})
+	err = logoutHandler.Handle(suite.T().Context(), command.LogoutCommand{
+		Page: suite.Page,
+	})
 	require.NoError(suite.T(), err)
 }
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
-	scraper := scraper.NewLoginScraper(suite.Browser)
+	scraper := scraper.NewLoginScraper()
 
 	handler := command.NewLoginHandler(scraper)
 
@@ -56,6 +59,7 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 			Username: "fake@example.com",
 			Password: "fakepassword",
 		},
+		Page: suite.Page,
 	}
 
 	err := handler.Handle(context.Background(), cmd)
