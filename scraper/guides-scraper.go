@@ -14,16 +14,15 @@ import (
 var _ domain.GuideScraper = (*GuidesScraper)(nil)
 
 type GuidesScraper struct {
-	session *session.Provider
 }
 
-func NewGuidesScraper(s *session.Provider) *GuidesScraper {
-	return &GuidesScraper{session: s}
+func NewGuidesScraper() *GuidesScraper {
+	return &GuidesScraper{}
 }
 
 func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) ([]domain.Guide, error) {
 
-	page := g.session.Get().MainPage()
+	page := session.FromContext(ctx).MainPage()
 	page.MustNavigate(c.ReceptionURL)
 	page.MustWaitLoad()
 

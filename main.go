@@ -32,32 +32,29 @@ func main() {
 
 	var authService domain.AuthService = scraper.NewLoginScraper()
 
-	sessionProvider := session.NewProvider(
-		browser,
-		decorator.NewLoggingDecorator(command.NewLoginHandler(authService)),
-		decorator.NewLoggingDecorator(command.NewLogoutHandler(authService)),
-	)
-
-	// --- workflow ---
 	workflow := app.NewReceptionWorkflow(
-		sessionProvider,
+		session.NewProvider(
+			browser,
+			decorator.NewLoggingDecorator(command.NewLoginHandler(authService)),
+			decorator.NewLoggingDecorator(command.NewLogoutHandler(authService)),
+		),
 		decorator.NewLoggingDecorator(
 			command.NewGatherGuidesHandler(
 				repo,
-				scraper.NewGuidesScraper(sessionProvider),
-				scraper.NewRodRubroWorker(sessionProvider, 1),
+				scraper.NewGuidesScraper(),
+				scraper.NewRodRubroWorker(1),
 			),
 		),
 		decorator.NewLoggingDecorator(
 			command.NewInventoryHandler(
 				repo,
-				scraper.NewInventoryScraper(sessionProvider),
+				scraper.NewInventoryScraper(),
 			),
 		),
 		decorator.NewLoggingDecorator(
 			command.NewReceptionistHandler(
 				repo,
-				scraper.NewReceptionistScraper(sessionProvider),
+				scraper.NewReceptionistScraper(),
 			),
 		),
 	)

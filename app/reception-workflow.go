@@ -38,26 +38,14 @@ func NewReceptionWorkflow(
 }
 
 func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err error) {
-	session, err := w.sessionProvider.Start(ctx, input.User)
+	ctx, err = w.sessionProvider.Start(ctx, input.User)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		if closeErr := session.Close(); closeErr != nil {
-			if err != nil {
-				log.Printf("session close failed: %v", closeErr)
-			} else {
-				err = closeErr
-			}
-		}
-
-		if logoutErr := w.sessionProvider.End(ctx); logoutErr != nil {
-			if err != nil {
-				log.Printf("logout failed: %v", logoutErr)
-			} else {
-				err = logoutErr
-			}
+		if cerr := w.sessionProvider.End(ctx); cerr != nil {
+			log.Println("cleanup error:", cerr)
 		}
 	}()
 

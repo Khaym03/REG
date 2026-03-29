@@ -16,15 +16,14 @@ import (
 var _ domain.Receptionist = (*ReceptionistScraper)(nil)
 
 type ReceptionistScraper struct {
-	session *session.Provider
 }
 
-func NewReceptionistScraper(s *session.Provider) *ReceptionistScraper {
-	return &ReceptionistScraper{session: s}
+func NewReceptionistScraper() *ReceptionistScraper {
+	return &ReceptionistScraper{}
 }
 
 func (r *ReceptionistScraper) Receive(ctx context.Context, date utils.DateRange) (domain.ReceptionResult, error) {
-	page := r.session.Get().MainPage()
+	page := session.FromContext(ctx).MainPage()
 
 	result := domain.ReceptionResult{}
 

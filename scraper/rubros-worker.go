@@ -12,12 +12,11 @@ import (
 )
 
 type RodRubroWorker struct {
-	session *session.Provider
 	workers int
 }
 
-func NewRodRubroWorker(s *session.Provider, workers int) *RodRubroWorker {
-	return &RodRubroWorker{session: s, workers: workers}
+func NewRodRubroWorker(workers int) *RodRubroWorker {
+	return &RodRubroWorker{workers: workers}
 }
 
 func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]domain.Rubro, error) {
@@ -28,7 +27,7 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 	rubrosMap := make(map[string]domain.Rubro)
 
 	// Fork the original browser at this point is assume the cookies are set
-	tempBrowser := w.session.Get().Browser().MustIncognito()
+	tempBrowser := session.FromContext(ctx).Browser().MustIncognito()
 	defer tempBrowser.Close()
 	// workers
 	for i := 0; i < w.workers; i++ {

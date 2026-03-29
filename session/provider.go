@@ -6,12 +6,13 @@ import (
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
+
 	"github.com/go-rod/rod"
 )
 
 type Provider struct {
-	browser       *rod.Browser
-	session       Session
+	browser *rod.Browser
+	// session       Session
 	loginHandler  dcommand.CommandHandler[command.LoginCommand]
 	logoutHandler dcommand.CommandHandler[command.LogoutCommand]
 }
@@ -28,37 +29,38 @@ func NewProvider(
 	}
 }
 
-func (p *Provider) Start(ctx context.Context, user domain.User) (Session, error) {
-	session, err := NewRodSession(p.browser)
+func (p *Provider) Start(ctx context.Context, user domain.User) (context.Context, error) {
+	s, err := NewRodSession(p.browser)
 	if err != nil {
 		return nil, err
 	}
 
 	err = p.loginHandler.Handle(ctx, command.LoginCommand{
 		User: user,
-		Page: session.MainPage(),
+		Page: s.MainPage(),
 	})
-
 	if err != nil {
-		session.Close()
+		s.Close()
 		return nil, err
 	}
 
-	p.session = session
+	ctx = WithSession(ctx, s)
 
-	return session, nil
+	return ctx, nil
 }
 
 func (p *Provider) End(ctx context.Context) error {
-	if p.session == nil {
-		return nil
-	}
-	return p.logoutHandler.Handle(ctx, command.LogoutCommand{Page: p.session.MainPage()})
-}
+	s := FromContext(ctx)
 
-func (p *Provider) Get() Session {
-	if p.session == nil {
-		panic("session not started: call Provider.Start() first")
+	err := p.logoutHandler.Handle(ctx, command.LogoutCommand{
+		Page: s.MainPage(),
+	})
+
+	// ensure cleanup even if logout fails
+	closeErr := s.Close()
+
+	if err != nil {
+		return err
 	}
-	return p.session
+	return closeErr
 }

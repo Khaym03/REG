@@ -13,18 +13,14 @@ import (
 var _ domain.InventoryScraper = (*InventoryScraper)(nil)
 
 type InventoryScraper struct {
-	session *session.Provider
 }
 
-func NewInventoryScraper(
-	s *session.Provider,
-) *InventoryScraper {
-	return &InventoryScraper{session: s}
+func NewInventoryScraper() *InventoryScraper {
+	return &InventoryScraper{}
 }
 
 func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) error {
-	// page := i.session.Get().MainPage()
-	page := i.session.Get().NewPage()
+	page := session.FromContext(ctx).MainPage()
 	defer page.Close()
 
 	page.MustNavigate((c.InventoryURL))
@@ -52,7 +48,7 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) err
 func (i InventoryScraper) RubrosSnapshot(ctx context.Context) ([]domain.Rubro, error) {
 	var existingOnes []domain.Rubro
 
-	page := i.session.Get().MainPage()
+	page := session.FromContext(ctx).MainPage()
 
 	page.MustNavigate((c.InventoryURL))
 	page.MustWaitLoad()
