@@ -7,14 +7,13 @@ import (
 	"github.com/Khaym03/REG/app/command"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper"
-	"github.com/Khaym03/REG/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
 type LoginTestSuite struct {
-	testutil.RodSuite
+	RodSuite
 }
 
 func TestLoginSuite(t *testing.T) {
