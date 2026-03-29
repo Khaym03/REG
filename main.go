@@ -12,6 +12,7 @@ import (
 	"github.com/Khaym03/REG/common/decorator"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper"
+	"github.com/Khaym03/REG/session"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/joho/godotenv"
@@ -29,33 +30,36 @@ func main() {
 
 	repo := adapters.NewJSONGuideRepository("state.json")
 
-	var authService domain.AuthService = scraper.NewLoginScraper(browser)
-	var guideScraper domain.GuideScraper = scraper.NewGuidesScraper(browser)
-	var rubroWorker domain.RubroWorker = scraper.NewRodRubroWorker(browser, 1)
-	var inventoryScraper domain.InventoryScraper = scraper.NewInventoryScraper(browser)
-	var receptionistScraper domain.Receptionist = scraper.NewReceptionistScraper(browser)
+	var authService domain.AuthService = scraper.NewLoginScraper()
 
-	// --- handlers ---
-	loginHandler := command.NewLoginHandler(authService)
-	logoutHandler := command.NewLogoutHandler(authService)
-	gatherHandler := command.NewGatherGuidesHandler(repo, guideScraper, rubroWorker)
-	syncInventoryHandler := command.NewInventoryHandler(repo, inventoryScraper)
-	receptionistHandler := command.NewReceptionistHandler(repo, receptionistScraper)
-
-	// --- decorators ---
-	loginH := decorator.NewLoggingDecorator(loginHandler)
-	logoutH := decorator.NewLoggingDecorator(logoutHandler)
-	gatherH := decorator.NewLoggingDecorator(gatherHandler)
-	syncInventoryH := decorator.NewLoggingDecorator(syncInventoryHandler)
-	receptionistH := decorator.NewLoggingDecorator(receptionistHandler)
+	sessionProvider := session.NewProvider(
+		browser,
+		decorator.NewLoggingDecorator(command.NewLoginHandler(authService)),
+		decorator.NewLoggingDecorator(command.NewLogoutHandler(authService)),
+	)
 
 	// --- workflow ---
 	workflow := app.NewReceptionWorkflow(
-		loginH,
-		logoutH,
-		gatherH,
-		syncInventoryH,
-		receptionistH,
+		sessionProvider,
+		decorator.NewLoggingDecorator(
+			command.NewGatherGuidesHandler(
+				repo,
+				scraper.NewGuidesScraper(sessionProvider),
+				scraper.NewRodRubroWorker(sessionProvider, 1),
+			),
+		),
+		decorator.NewLoggingDecorator(
+			command.NewInventoryHandler(
+				repo,
+				scraper.NewInventoryScraper(sessionProvider),
+			),
+		),
+		decorator.NewLoggingDecorator(
+			command.NewReceptionistHandler(
+				repo,
+				scraper.NewReceptionistScraper(sessionProvider),
+			),
+		),
 	)
 
 	if err := workflow.Run(context.Background(), app.WorkFlowInput{
