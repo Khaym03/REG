@@ -8,6 +8,7 @@ import (
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/session"
 	"github.com/Khaym03/REG/utils"
 )
 
@@ -16,23 +17,20 @@ type WorkFlowInput struct {
 }
 
 type ReceptionWorkflow struct {
-	loginHandler         dcommand.CommandHandler[command.LoginCommand]
-	logoutHandler        dcommand.CommandHandler[command.LogoutCommand]
+	sessionProvider      *session.Provider
 	gatherHandler        dcommand.CommandHandler[command.GatherGuidesCommand]
 	syncInventoryHandler dcommand.CommandHandler[command.SyncInventoryCommand]
 	receptionistHandler  dcommand.CommandHandler[command.ReceptionistCommand]
 }
 
 func NewReceptionWorkflow(
-	loginH dcommand.CommandHandler[command.LoginCommand],
-	logoutH dcommand.CommandHandler[command.LogoutCommand],
+	sp *session.Provider,
 	gatherH dcommand.CommandHandler[command.GatherGuidesCommand],
 	syncInventoryH dcommand.CommandHandler[command.SyncInventoryCommand],
 	receptionistH dcommand.CommandHandler[command.ReceptionistCommand],
 ) *ReceptionWorkflow {
 	return &ReceptionWorkflow{
-		loginHandler:         loginH,
-		logoutHandler:        logoutH,
+		sessionProvider:      sp,
 		gatherHandler:        gatherH,
 		syncInventoryHandler: syncInventoryH,
 		receptionistHandler:  receptionistH,
@@ -40,23 +38,26 @@ func NewReceptionWorkflow(
 }
 
 func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err error) {
-	err = w.loginHandler.Handle(ctx, command.LoginCommand{
-		User: input.User,
-	})
+	session, err := w.sessionProvider.Start(ctx, input.User)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		logoutErr := w.logoutHandler.Handle(ctx, command.LogoutCommand{})
+		if closeErr := session.Close(); closeErr != nil {
+			if err != nil {
+				log.Printf("session close failed: %v", closeErr)
+			} else {
+				err = closeErr
+			}
+		}
 
-		if logoutErr != nil {
+		if logoutErr := w.sessionProvider.End(ctx); logoutErr != nil {
 			if err != nil {
 				log.Printf("logout failed: %v", logoutErr)
-				return
+			} else {
+				err = logoutErr
 			}
-
-			err = logoutErr
 		}
 	}()
 

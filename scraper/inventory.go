@@ -7,24 +7,27 @@ import (
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
-	"github.com/go-rod/rod"
+	"github.com/Khaym03/REG/session"
 )
 
 var _ domain.InventoryScraper = (*InventoryScraper)(nil)
 
 type InventoryScraper struct {
-	browser *rod.Browser
+	session *session.Provider
 }
 
 func NewInventoryScraper(
-	browser *rod.Browser,
+	s *session.Provider,
 ) *InventoryScraper {
-	return &InventoryScraper{browser: browser}
+	return &InventoryScraper{session: s}
 }
 
 func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) error {
-	page := i.browser.MustPage(c.InventoryURL)
+	// page := i.session.Get().MainPage()
+	page := i.session.Get().NewPage()
 	defer page.Close()
+
+	page.MustNavigate((c.InventoryURL))
 	page.MustWaitLoad()
 
 	// click the Select2 container to open the dropdown
@@ -49,8 +52,9 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) err
 func (i InventoryScraper) RubrosSnapshot(ctx context.Context) ([]domain.Rubro, error) {
 	var existingOnes []domain.Rubro
 
-	page := i.browser.MustPage(c.InventoryURL)
-	defer page.Close()
+	page := i.session.Get().MainPage()
+
+	page.MustNavigate((c.InventoryURL))
 	page.MustWaitLoad()
 
 	rows := page.MustElements("table tbody tr")

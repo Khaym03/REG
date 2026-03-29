@@ -8,6 +8,7 @@ import (
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/session"
 	"github.com/Khaym03/REG/utils"
 	"github.com/go-rod/rod"
 )
@@ -15,16 +16,15 @@ import (
 var _ domain.Receptionist = (*ReceptionistScraper)(nil)
 
 type ReceptionistScraper struct {
-	browser *rod.Browser
+	session *session.Provider
 }
 
-func NewReceptionistScraper(b *rod.Browser) *ReceptionistScraper {
-	return &ReceptionistScraper{browser: b}
+func NewReceptionistScraper(s *session.Provider) *ReceptionistScraper {
+	return &ReceptionistScraper{session: s}
 }
 
 func (r *ReceptionistScraper) Receive(ctx context.Context, date utils.DateRange) (domain.ReceptionResult, error) {
-	page := r.browser.MustPage()
-	defer page.Close()
+	page := r.session.Get().MainPage()
 
 	result := domain.ReceptionResult{}
 

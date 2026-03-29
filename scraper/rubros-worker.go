@@ -7,16 +7,17 @@ import (
 	"sync"
 
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/session"
 	"github.com/go-rod/rod"
 )
 
 type RodRubroWorker struct {
-	browser *rod.Browser
+	session *session.Provider
 	workers int
 }
 
-func NewRodRubroWorker(b *rod.Browser, workers int) *RodRubroWorker {
-	return &RodRubroWorker{browser: b, workers: workers}
+func NewRodRubroWorker(s *session.Provider, workers int) *RodRubroWorker {
+	return &RodRubroWorker{session: s, workers: workers}
 }
 
 func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]domain.Rubro, error) {
@@ -26,6 +27,9 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 	jobs := make(chan domain.Guide)
 	rubrosMap := make(map[string]domain.Rubro)
 
+	// Fork the original browser at this point is assume the cookies are set
+	tempBrowser := w.session.Get().Browser().MustIncognito()
+	defer tempBrowser.Close()
 	// workers
 	for i := 0; i < w.workers; i++ {
 		wg.Add(1)
@@ -33,7 +37,7 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 		go func(workerID int) {
 			defer wg.Done()
 
-			page := w.browser.MustPage()
+			page := tempBrowser.MustPage()
 			defer page.Close()
 
 			for guide := range jobs {
@@ -43,8 +47,6 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 					return
 				default:
 				}
-
-				// url := fmt.Sprintf("%s/%s", constants.GuidesURL, id)
 
 				page.MustNavigate(guide.URL())
 				page.MustWaitLoad()

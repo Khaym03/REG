@@ -4,33 +4,30 @@ import (
 	"context"
 	"log"
 
-	"github.com/Khaym03/REG/constants"
+	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/session"
 	"github.com/Khaym03/REG/utils"
 	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/proto"
 )
 
 var _ domain.GuideScraper = (*GuidesScraper)(nil)
 
 type GuidesScraper struct {
-	browser *rod.Browser
+	session *session.Provider
 }
 
-func NewGuidesScraper(b *rod.Browser) *GuidesScraper {
-	return &GuidesScraper{browser: b}
+func NewGuidesScraper(s *session.Provider) *GuidesScraper {
+	return &GuidesScraper{session: s}
 }
 
 func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) ([]domain.Guide, error) {
 
-	page, err := g.browser.Page(proto.TargetCreateTarget{URL: constants.ReceptionURL})
-	if err != nil {
-		return nil, err
-	}
+	page := g.session.Get().MainPage()
+	page.MustNavigate(c.ReceptionURL)
+	page.MustWaitLoad()
 
-	defer page.Close()
-
-	err = applyFiltersToGuideReceiver(page, date)
+	err := applyFiltersToGuideReceiver(page, date)
 	if err != nil {
 		return nil, err
 	}
