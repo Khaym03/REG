@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"github.com/Khaym03/REG/adapters"
 	"github.com/Khaym03/REG/app"
@@ -19,6 +21,9 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
@@ -35,8 +40,18 @@ func main() {
 	workflow := app.NewReceptionWorkflow(
 		session.NewProvider(
 			browser,
-			decorator.NewLoggingDecorator(command.NewLoginHandler(authService)),
-			decorator.NewLoggingDecorator(command.NewLogoutHandler(authService)),
+			decorator.NewLoggingDecorator(
+				decorator.NewRetryDecorator(
+					command.NewLoginHandler(authService),
+					decorator.DefaultRetryConfig,
+				),
+			),
+			decorator.NewLoggingDecorator(
+				decorator.NewRetryDecorator(
+					command.NewLogoutHandler(authService),
+					decorator.DefaultRetryConfig,
+				),
+			),
 		),
 		decorator.NewLoggingDecorator(
 			command.NewGatherGuidesHandler(
@@ -59,10 +74,24 @@ func main() {
 		),
 	)
 
-	if err := workflow.Run(context.Background(), app.WorkFlowInput{
-		User: user,
-	}); err != nil {
-		log.Fatal(err)
+	go func() {
+		if err := workflow.Run(context.Background(), app.WorkFlowInput{
+			User: user,
+		}); err != nil {
+			log.Println(err)
+		}
+
+		cancel()
+	}()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case sig := <-sigChan:
+		log.Printf("Interruption signal received (%v). Shutting down...", sig)
+	case <-ctx.Done():
+		log.Printf("The scraping process completed its normal execution.")
 	}
 }
 
