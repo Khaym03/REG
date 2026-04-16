@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"time"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
@@ -25,12 +24,17 @@ func NewLoginScraper() *LoginScraper {
 func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.User) error {
 	// Use Try to catch panics from "Must" calls and return them as errors
 	return rod.Try(func() {
+		page = page.Context(ctx)
 		page.MustNavigate(c.LoginURL).MustWaitLoad()
 
 		// Handle optional modal
-		if el, err := page.Timeout(1 * time.Second).ElementX(makeInteracteableButtonSelector); err == nil {
+		if el, err := page.ElementX(makeInteracteableButtonSelector); err == nil {
 			log.Println("Random modal detected, dismissing...")
 			el.MustClick()
+
+			//
+			el.MustWaitInvisible()
+			page.MustWaitIdle()
 		}
 
 		page.MustElement(emailInputSelector).MustClick().MustInput(user.Username)
