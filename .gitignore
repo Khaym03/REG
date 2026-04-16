@@ -1,3 +1,4 @@
 *.env
 rod_data/
 state.json
+bin/
