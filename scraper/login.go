@@ -28,13 +28,13 @@ func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.Us
 		page.MustNavigate(c.LoginURL).MustWaitLoad()
 
 		// Handle optional modal
-		if el, err := page.ElementX(makeInteracteableButtonSelector); err == nil {
+		if els := page.MustElementsX(makeInteracteableButtonSelector); !els.Empty() {
 			log.Println("Random modal detected, dismissing...")
-			el.MustClick()
+			els.First().MustClick()
 
-			//
-			el.MustWaitInvisible()
+			els.First().MustWaitInvisible()
 			page.MustWaitIdle()
+
 		}
 
 		page.MustElement(emailInputSelector).MustClick().MustInput(user.Username)
