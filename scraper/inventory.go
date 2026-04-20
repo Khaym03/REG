@@ -8,6 +8,7 @@ import (
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/session"
+	"github.com/go-rod/rod/lib/proto"
 )
 
 var _ domain.InventoryScraper = (*InventoryScraper)(nil)
@@ -19,15 +20,25 @@ func NewInventoryScraper() *InventoryScraper {
 	return &InventoryScraper{}
 }
 
-func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) error {
-	page := session.FromContext(ctx).MainPage()
+func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) (err error) {
+	page := session.FromContext(ctx).MainPage().Context(ctx)
 	defer page.Close()
 
-	page.MustNavigate((c.InventoryURL))
-	page.MustWaitLoad()
+	if err := page.Navigate(c.InventoryURL); err != nil {
+		return fmt.Errorf("failed to navigate to inventory: %w", err)
+	}
+	if err = page.WaitLoad(); err != nil {
+		return fmt.Errorf("wait load failed: %w", err)
+	}
 
 	// click the Select2 container to open the dropdown
-	page.MustElement(".select2-selection").MustClick()
+	selection, err := page.Element(".select2-selection")
+	if err != nil {
+		return fmt.Errorf("select2 container not found: %w", err)
+	}
+	if err := selection.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click select2: %w", err)
+	}
 
 	xpathOption := fmt.Sprintf(
 		`//li[contains(translate(text(), "%s", "%s"), translate("%s", "%s", "%s"))]`,
@@ -35,9 +46,21 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) err
 	)
 
 	// Wait for the option to be visible before clicking
-	page.MustElementX(xpathOption).MustClick()
+	option, err := page.ElementX(xpathOption)
+	if err != nil {
+		return fmt.Errorf("item option '%s' not found in dropdown: %w", newItem.Name, err)
+	}
+	if err := option.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click item option: %w", err)
+	}
 
-	page.MustElementX(uploadButton).MustClick()
+	btn, err := page.ElementX(uploadButton)
+	if err != nil {
+		return fmt.Errorf("upload button not found: %w", err)
+	}
+	if err := btn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click upload button: %w", err)
+	}
 
 	log.Println("New item added to UI:", newItem.Name)
 
@@ -46,15 +69,22 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) err
 }
 
 func (i InventoryScraper) RubrosSnapshot(ctx context.Context) ([]domain.Rubro, error) {
+	page := session.FromContext(ctx).MainPage().Context(ctx)
+	var err error
+
+	if err = page.Navigate(c.InventoryURL); err != nil {
+		return nil, fmt.Errorf("failed to navigate to inventory: %w", err)
+	}
+	if err = page.WaitLoad(); err != nil {
+		return nil, fmt.Errorf("wait load failed: %w", err)
+	}
+
+	rows, err := page.Elements("table tbody tr")
+	if err != nil {
+		return nil, fmt.Errorf("failed to find inventory table rows: %w", err)
+	}
+
 	var existingOnes []domain.Rubro
-
-	page := session.FromContext(ctx).MainPage()
-
-	page.MustNavigate((c.InventoryURL))
-	page.MustWaitLoad()
-
-	rows := page.MustElements("table tbody tr")
-
 	for _, row := range rows {
 		// Get columns using relative XPath
 		// td[2] is the Item (Rubro)
