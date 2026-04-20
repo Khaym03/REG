@@ -35,14 +35,13 @@ func main() {
 		)
 	}()
 
-	select {
-	case err := <-errCh:
-		if err != nil {
-			log.Println(err)
-		}
-		stop()
-	case <-ctx.Done():
+	err := <-errCh
+	if err != nil {
+		log.Println(err)
 	}
+
+	<-ctx.Done()
+
 }
 
 func mustLoadEnv() {
