@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	c "github.com/Khaym03/REG/constants"
@@ -21,12 +22,20 @@ func NewGuidesScraper() *GuidesScraper {
 }
 
 func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) ([]domain.Guide, error) {
+	var err error
 
-	page := session.FromContext(ctx).MainPage()
-	page.MustNavigate(c.ReceptionURL)
-	page.MustWaitLoad()
+	page := session.FromContext(ctx).MainPage().Context(ctx)
 
-	err := applyFiltersToGuideReceiver(page, date)
+	// 1. Navigation
+	if err = page.Navigate(c.ReceptionURL); err != nil {
+		return nil, fmt.Errorf("nav to reception failed: %w", err)
+	}
+
+	if err = page.WaitLoad(); err != nil {
+		return nil, fmt.Errorf("wait load failed: %w", err)
+	}
+
+	err = applyFiltersToGuideReceiver(page, date)
 	if err != nil {
 		return nil, err
 	}
