@@ -66,3 +66,14 @@ func BezierCurvePoint(p0, p1, p2 proto.Point, t float64) proto.Point {
 
 	return proto.Point{X: x, Y: y}
 }
+
+func FillInput(page *rod.Page, selector, value string) error {
+	el, err := page.Element(selector)
+	if err != nil {
+		return err
+	}
+	if err := el.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return err
+	}
+	return el.Input(value)
+}
