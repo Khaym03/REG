@@ -1,19 +1,42 @@
 package utils
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
+	c "github.com/Khaym03/REG/constants"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )
 
-func SelectOption(page *rod.Page, parentSelector string, optionXPath string) {
-	page.MustElementX(parentSelector).MustClick()
-	el := page.MustElementX(optionXPath)
-	MoveMouseToElement(page, el)
-	el.MustClick()
-	page.MustWaitDOMStable()
+func SelectOption(page *rod.Page, parentSelector string, optionXPath string) error {
+	parent, err := page.ElementX(parentSelector)
+	if err != nil {
+		return fmt.Errorf("dropdown parent not found (%s): %w", parentSelector, err)
+	}
+	if err := parent.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click dropdown parent: %w", err)
+	}
+
+	option, err := page.ElementX(optionXPath)
+	if err != nil {
+		return fmt.Errorf("option not found (%s): %w", optionXPath, err)
+	}
+
+	if err := MoveMouseToElement(page, option); err != nil {
+		return fmt.Errorf("failed to move mouse to option: %w", err)
+	}
+
+	if err := option.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click option: %w", err)
+	}
+
+	if err := page.WaitDOMStable(c.TimeoutShort, 0.5); err != nil {
+		return fmt.Errorf("page did not stabilize after selecting option: %w", err)
+	}
+
+	return nil
 }
 
 func MoveMouseToElement(page *rod.Page, el *rod.Element) error {
@@ -76,4 +99,15 @@ func FillInput(page *rod.Page, selector, value string) error {
 		return err
 	}
 	return el.Input(value)
+}
+
+func FillInputTime(page *rod.Page, xpath string, t time.Time) error {
+	el, err := page.ElementX(xpath)
+	if err != nil {
+		return fmt.Errorf("date input element not found (%s): %w", xpath, err)
+	}
+	if err := el.InputTime(t); err != nil {
+		return fmt.Errorf("failed to input time into %s: %w", xpath, err)
+	}
+	return nil
 }
