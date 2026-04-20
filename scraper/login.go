@@ -8,8 +8,10 @@ import (
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/utils"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
+	"github.com/go-rod/rod/lib/proto"
 )
 
 var _ domain.AuthService = (*LoginScraper)(nil)
@@ -22,56 +24,110 @@ func NewLoginScraper() *LoginScraper {
 }
 
 func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.User) error {
-	// Use Try to catch panics from "Must" calls and return them as errors
-	return rod.Try(func() {
-		page = page.Context(ctx)
-		page.MustNavigate(c.LoginURL).MustWaitLoad()
+	page = page.Context(ctx)
 
-		// Handle optional modal
-		if els := page.MustElementsX(makeInteracteableButtonSelector); !els.Empty() {
-			log.Println("Random modal detected, dismissing...")
-			els.First().MustClick()
+	if err := page.Navigate(c.LoginURL); err != nil {
+		return fmt.Errorf("failed to navigate to login: %w", err)
+	}
+	if err := page.WaitLoad(); err != nil {
+		return fmt.Errorf("wait load failed: %w", err)
+	}
 
-			els.First().MustWaitInvisible()
-			page.MustWaitIdle()
+	// We use ElementsX (plural) so it doesn't error if the modal isn't there
+	els, err := page.ElementsX(makeInteracteableButtonSelector)
+	if err == nil && !els.Empty() {
+		log.Println("Random modal detected, dismissing...")
+		modalBtn := els.First()
+		if err := modalBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+			log.Printf("failed to click modal button: %v", err)
+		} else {
+			_ = modalBtn.WaitInvisible()
+			_ = page.WaitIdle(c.TimeoutMedium)
+		}
+	}
 
+	if err := utils.FillInput(page, emailInputSelector, user.Username); err != nil {
+		return fmt.Errorf("email input failed: %w", err)
+	}
+	if err := utils.FillInput(page, passwordInputSelector, user.Password); err != nil {
+		return fmt.Errorf("password input failed: %w", err)
+	}
+
+	loginBtn, err := page.Element(loginButtonSelector)
+	if err != nil {
+		return fmt.Errorf("login button not found: %w", err)
+	}
+	if err := loginBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click login: %w", err)
+	}
+
+	if err := page.WaitLoad(); err != nil {
+		return fmt.Errorf("post-login wait failed: %w", err)
+	}
+
+	errElements, err := page.Elements(`.alert-danger`)
+	if err == nil && len(errElements) > 0 {
+		text, _ := errElements.First().Text()
+		if text != "" {
+			return fmt.Errorf("login failed: %s", text)
+		}
+	}
+
+	verifyInput, err := page.ElementX(verifyInputSelector)
+	if err == nil {
+		log.Println("Verification step triggered")
+
+		codeEl, err := page.ElementX(codeTextSelector)
+		if err != nil {
+			return fmt.Errorf("verification code element not found: %w", err)
 		}
 
-		page.MustElement(emailInputSelector).MustClick().MustInput(user.Username)
-		page.MustElement(passwordInputSelector).MustInput(user.Password)
-		page.MustElement(loginButtonSelector).MustClick()
-		page.MustWaitLoad()
-
-		// Check for explicit error messages from the UI
-		if errorElements := page.MustElements(`.alert-danger`); len(errorElements) > 0 {
-			errorText := errorElements.First().MustText()
-			if errorText != "" {
-				panic(fmt.Errorf("login failed: %s", errorText))
-			}
+		codeText, err := codeEl.Text()
+		if err != nil {
+			return fmt.Errorf("failed to get verification text: %w", err)
 		}
 
-		// Handle 2FA/Verification
-		verifyElements := page.MustElementsX(verifyInputSelector)
-		if len(verifyElements) > 0 {
-			log.Println("Verification step triggered")
-			code := extractVerificationCode(page.MustElementX(codeTextSelector).MustText())
-			if code == "" {
-				panic("verification code not found in text")
-			}
-
-			page.MustElementX(verifyInputSelector).MustClick().MustInput(code)
-			page.Keyboard.MustType(input.Enter)
-			page.MustWaitLoad()
+		code := extractVerificationCode(codeText)
+		if code == "" {
+			return fmt.Errorf("verification code not found in text: %s", codeText)
 		}
-	})
+
+		if err := verifyInput.Input(code); err != nil {
+			return fmt.Errorf("failed to input code: %w", err)
+		}
+
+		if err := page.Keyboard.Press(input.Enter); err != nil {
+			return fmt.Errorf("failed to press enter: %w", err)
+		}
+
+		return page.WaitLoad()
+	}
+
+	return nil
+
 }
 
 func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) error {
-	return rod.Try(func() {
-		page.MustNavigate(c.BaseURL)
-		page.MustElementX(profileDropdownSelector).MustClick()
-		page.MustElementX(logoutSelector).MustClick()
-	})
+	page = page.Context(ctx)
+
+	if err := page.Navigate(c.BaseURL); err != nil {
+		return err
+	}
+
+	dropdown, err := page.ElementX(profileDropdownSelector)
+	if err != nil {
+		return fmt.Errorf("logout dropdown not found: %w", err)
+	}
+	if err := dropdown.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return err
+	}
+
+	logoutBtn, err := page.ElementX(logoutSelector)
+	if err != nil {
+		return fmt.Errorf("logout button not found: %w", err)
+	}
+
+	return logoutBtn.Click(proto.InputMouseButtonLeft, 1)
 }
 
 const (
