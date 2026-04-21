@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"time"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/utils"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
 	"github.com/go-rod/rod/lib/proto"
@@ -30,78 +30,34 @@ func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.Us
 		return err
 	}
 
-	// We use ElementsX (plural) so it doesn't error if the modal isn't there
-	els, err := page.ElementsX(makeInteracteableButtonSelector)
-	if err == nil && !els.Empty() {
-		log.Println("Random modal detected, dismissing...")
-		modalBtn := els.First()
-		if err := modalBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
-			log.Printf("failed to click modal button: %v", err)
-		} else {
-			_ = modalBtn.WaitInvisible()
-			_ = page.WaitIdle(c.TimeoutMedium)
-		}
+	if err = dismissOptionalModal(page, makeInteracteableButtonSelector, c.TimeoutShort); err != nil {
+		return err
 	}
 
-	if err := utils.FillInput(page, emailInputSelector, user.Username); err != nil {
+	if err := fillInput(page, emailInputSelector, user.Username); err != nil {
 		return fmt.Errorf("email input failed: %w", err)
 	}
-	if err := utils.FillInput(page, passwordInputSelector, user.Password); err != nil {
+	if err := fillInput(page, passwordInputSelector, user.Password); err != nil {
 		return fmt.Errorf("password input failed: %w", err)
 	}
 
-	loginBtn, err := page.Element(loginButtonSelector)
-	if err != nil {
-		return fmt.Errorf("login button not found: %w", err)
-	}
-	if err := loginBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
-		return fmt.Errorf("failed to click login: %w", err)
+	if err = click(page, loginButtonSelector); err != nil {
+		return err
 	}
 
 	if err := page.WaitLoad(); err != nil {
 		return fmt.Errorf("post-login wait failed: %w", err)
 	}
 
-	errElements, err := page.Elements(`.alert-danger`)
-	if err == nil && len(errElements) > 0 {
-		text, _ := errElements.First().Text()
-		if text != "" {
-			return fmt.Errorf("login failed: %s", text)
-		}
+	if err = checkLoginError(page); err != nil {
+		return err
 	}
 
-	verifyInput, err := page.ElementX(verifyInputSelector)
-	if err == nil {
-		log.Println("Verification step triggered")
-
-		codeEl, err := page.ElementX(codeTextSelector)
-		if err != nil {
-			return fmt.Errorf("verification code element not found: %w", err)
-		}
-
-		codeText, err := codeEl.Text()
-		if err != nil {
-			return fmt.Errorf("failed to get verification text: %w", err)
-		}
-
-		code := extractVerificationCode(codeText)
-		if code == "" {
-			return fmt.Errorf("verification code not found in text: %s", codeText)
-		}
-
-		if err := verifyInput.Input(code); err != nil {
-			return fmt.Errorf("failed to input code: %w", err)
-		}
-
-		if err := page.Keyboard.Press(input.Enter); err != nil {
-			return fmt.Errorf("failed to press enter: %w", err)
-		}
-
-		return page.WaitLoad()
+	if err = handleVerificationStep(page); err != nil {
+		return err
 	}
 
 	return nil
-
 }
 
 func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) (err error) {
@@ -111,20 +67,11 @@ func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) (err error) {
 		return err
 	}
 
-	dropdown, err := page.ElementX(profileDropdownSelector)
-	if err != nil {
-		return fmt.Errorf("logout dropdown not found: %w", err)
-	}
-	if err := dropdown.Click(proto.InputMouseButtonLeft, 1); err != nil {
+	if err = click(page, profileDropdownSelector); err != nil {
 		return err
 	}
 
-	logoutBtn, err := page.ElementX(logoutSelector)
-	if err != nil {
-		return fmt.Errorf("logout button not found: %w", err)
-	}
-
-	return logoutBtn.Click(proto.InputMouseButtonLeft, 1)
+	return click(page, logoutSelector)
 }
 
 const (
@@ -154,4 +101,99 @@ func extractVerificationCode(text string) string {
 		log.Println("No 6-digit sequence was found in the provided text.")
 	}
 	return result
+}
+
+// dismissOptionalModal attempts to clear a popup if it exists.
+func dismissOptionalModal(page *rod.Page, selector string, idleTimeout time.Duration) error {
+	elements, err := page.ElementsX(selector)
+	if err != nil {
+		return fmt.Errorf("failed to search for modal elements: %w", err)
+	}
+
+	// If no elements are found, we assume there is no modal to dismiss.
+	if elements.Empty() {
+		return nil
+	}
+
+	log.Println("Random modal detected, dismissing...")
+	modalBtn := elements.First()
+
+	// Click the button
+	if err := modalBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return fmt.Errorf("failed to click modal button: %w", err)
+	}
+
+	// Wait for the element to disappear
+	if err := modalBtn.WaitInvisible(); err != nil {
+		return fmt.Errorf("modal button did not disappear: %w", err)
+	}
+
+	// Ensure the page is idle before continuing
+	if err := page.WaitIdle(idleTimeout); err != nil {
+		return fmt.Errorf("error waiting for page idleness after dismissal: %w", err)
+	}
+
+	return nil
+}
+
+func checkLoginError(page *rod.Page) error {
+	elements, err := page.Elements(".alert-danger")
+	if err != nil {
+		return fmt.Errorf("failed to query alert elements: %w", err)
+	}
+
+	if elements.Empty() {
+		return nil
+	}
+
+	// Attempt to extract the text from the first alert found
+	errorMessage, err := elements.First().Text()
+	if err != nil {
+		return fmt.Errorf("login alert detected, but failed to read text: %w", err)
+	}
+
+	// If the alert exists but is empty, provide a generic failure message
+	if errorMessage == "" {
+		return fmt.Errorf("login failed with an empty alert message")
+	}
+
+	return fmt.Errorf("login failed: %s", errorMessage)
+}
+
+func handleVerificationStep(page *rod.Page) error {
+	verifyInput, err := page.ElementX(verifyInputSelector)
+	if err != nil {
+		return nil
+	}
+
+	log.Println("Verification step triggered")
+
+	codeEl, err := page.ElementX(codeTextSelector)
+	if err != nil {
+		return fmt.Errorf("verification code element not found: %w", err)
+	}
+
+	codeText, err := codeEl.Text()
+	if err != nil {
+		return fmt.Errorf("failed to get verification text: %w", err)
+	}
+
+	code := extractVerificationCode(codeText)
+	if code == "" {
+		return fmt.Errorf("verification code not found in text: %q", codeText)
+	}
+
+	if err := verifyInput.Input(code); err != nil {
+		return fmt.Errorf("failed to input code: %w", err)
+	}
+
+	if err := page.Keyboard.Press(input.Enter); err != nil {
+		return fmt.Errorf("failed to press enter: %w", err)
+	}
+
+	if err := page.WaitLoad(); err != nil {
+		return fmt.Errorf("page failed to load after verification: %w", err)
+	}
+
+	return nil
 }
