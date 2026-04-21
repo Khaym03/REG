@@ -25,13 +25,16 @@ func NewReceptionistScraper() *ReceptionistScraper {
 func (r *ReceptionistScraper) Receive(ctx context.Context, date utils.DateRange) (domain.ReceptionResult, error) {
 	page := session.FromContext(ctx).MainPage()
 
+	var err error
 	result := domain.ReceptionResult{}
 
 	for {
 		// Navigate to the receiver page at the start of every iteration
 		// to ensure we have a fresh, non-stale DOM context.
-		page.MustNavigate(c.ReceptionURL)
-		page.MustWaitLoad()
+		if err = navigate(page, c.ReceptionURL); err != nil {
+			return result, err
+		}
+
 		page.MustWaitIdle()
 
 		err := applyFiltersToGuideReceiver(page, date)

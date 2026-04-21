@@ -3,6 +3,7 @@ package scraper
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 
@@ -47,8 +48,11 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 				default:
 				}
 
-				page.MustNavigate(guide.URL())
-				page.MustWaitLoad()
+				if err := navigate(page, guide.URL()); err != nil {
+					log.Println(err)
+
+					return
+				}
 
 				rubros := extractRubrosFromGuide(page)
 

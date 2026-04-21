@@ -23,14 +23,11 @@ func NewLoginScraper() *LoginScraper {
 	return &LoginScraper{}
 }
 
-func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.User) error {
+func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.User) (err error) {
 	page = page.Context(ctx)
 
-	if err := page.Navigate(c.LoginURL); err != nil {
-		return fmt.Errorf("failed to navigate to login: %w", err)
-	}
-	if err := page.WaitLoad(); err != nil {
-		return fmt.Errorf("wait load failed: %w", err)
+	if err = navigate(page, c.LoginURL); err != nil {
+		return err
 	}
 
 	// We use ElementsX (plural) so it doesn't error if the modal isn't there
@@ -107,10 +104,10 @@ func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.Us
 
 }
 
-func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) error {
+func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) (err error) {
 	page = page.Context(ctx)
 
-	if err := page.Navigate(c.BaseURL); err != nil {
+	if err = navigate(page, c.BaseURL); err != nil {
 		return err
 	}
 

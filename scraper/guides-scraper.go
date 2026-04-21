@@ -26,13 +26,8 @@ func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) 
 
 	page := session.FromContext(ctx).MainPage().Context(ctx)
 
-	// 1. Navigation
-	if err = page.Navigate(c.ReceptionURL); err != nil {
+	if err = navigate(page, c.ReceptionURL); err != nil {
 		return nil, fmt.Errorf("nav to reception failed: %w", err)
-	}
-
-	if err = page.WaitLoad(); err != nil {
-		return nil, fmt.Errorf("wait load failed: %w", err)
 	}
 
 	err = applyFiltersToGuideReceiver(page, date)

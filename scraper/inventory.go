@@ -24,11 +24,8 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) (er
 	page := session.FromContext(ctx).MainPage().Context(ctx)
 	defer page.Close()
 
-	if err := page.Navigate(c.InventoryURL); err != nil {
-		return fmt.Errorf("failed to navigate to inventory: %w", err)
-	}
-	if err = page.WaitLoad(); err != nil {
-		return fmt.Errorf("wait load failed: %w", err)
+	if err = navigate(page, c.InventoryURL); err != nil {
+		return err
 	}
 
 	// click the Select2 container to open the dropdown
@@ -72,11 +69,8 @@ func (i InventoryScraper) RubrosSnapshot(ctx context.Context) ([]domain.Rubro, e
 	page := session.FromContext(ctx).MainPage().Context(ctx)
 	var err error
 
-	if err = page.Navigate(c.InventoryURL); err != nil {
-		return nil, fmt.Errorf("failed to navigate to inventory: %w", err)
-	}
-	if err = page.WaitLoad(); err != nil {
-		return nil, fmt.Errorf("wait load failed: %w", err)
+	if err = navigate(page, c.InventoryURL); err != nil {
+		return nil, err
 	}
 
 	rows, err := page.Elements("table tbody tr")

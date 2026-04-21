@@ -11,6 +11,7 @@ import (
 
 func applyFiltersToGuideReceiver(page *rod.Page, date utils.DateRange) error {
 	el, err := page.ElementX(filterAccordionSelector)
+
 	if err != nil {
 		return fmt.Errorf("filter accordion not found: %w", err)
 	}
