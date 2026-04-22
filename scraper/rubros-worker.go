@@ -2,14 +2,12 @@ package scraper
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strings"
 	"sync"
 
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/Khaym03/REG/session"
-	"github.com/go-rod/rod"
 )
 
 type RodRubroWorker struct {
@@ -27,34 +25,39 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 	jobs := make(chan domain.Guide)
 	rubrosMap := make(map[string]domain.Rubro)
 
-	// Fork the original browser at this point is assume the cookies are set
 	tempBrowser := session.FromContext(ctx).Browser().MustIncognito()
 	defer tempBrowser.Close()
-	// workers
+
 	for i := 0; i < w.workers; i++ {
-		wg.Add(1)
-
-		go func(workerID int) {
-			defer wg.Done()
-
+		wg.Go(func() {
 			page := tempBrowser.MustPage()
 			defer page.Close()
 
-			for guide := range jobs {
+			// Wrap the page in our Page Object
+			guidePage := pages.NewGuideDetailsPage(page)
 
+			for guide := range jobs {
 				select {
 				case <-ctx.Done():
 					return
 				default:
 				}
 
-				if err := navigate(page, guide.URL()); err != nil {
-					log.Println(err)
-
-					return
+				if err := page.Navigate(guide.URL()); err != nil {
+					log.Printf("Navigation error to %s: %v", guide.URL(), err)
+					continue
 				}
 
-				rubros := extractRubrosFromGuide(page)
+				if err := page.WaitLoad(); err != nil {
+					log.Printf("Wait load error on %s: %v", guide.URL(), err)
+					continue
+				}
+
+				rubros, err := guidePage.ExtractRubros()
+				if err != nil {
+					log.Printf("Extraction error on %s: %v", guide.URL(), err)
+					continue
+				}
 
 				mu.Lock()
 				for _, r := range rubros {
@@ -62,10 +65,10 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 				}
 				mu.Unlock()
 			}
-		}(i)
+		})
 	}
 
-	// feed jobs
+	// Jobs producer
 	go func() {
 		defer close(jobs)
 		for _, guide := range guides {
@@ -75,41 +78,10 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 
 	wg.Wait()
 
-	// map → slice
 	var result []domain.Rubro
 	for _, r := range rubrosMap {
 		result = append(result, r)
 	}
 
 	return result, nil
-}
-
-func extractRubrosFromGuide(page *rod.Page) []domain.Rubro {
-	table := page.MustElementR("h4", "RUBROS").MustParent().MustParent().MustNext()
-
-	rows := table.MustElements("tbody tr")
-
-	var listaRubros []domain.Rubro
-
-	for _, row := range rows {
-		cols := row.MustElements("td")
-
-		// Ensure the row has the expected columns
-		if len(cols) >= 5 {
-			item := domain.Rubro{
-				Name: strings.TrimSpace(cols[0].MustText()),
-				// Cantidad:     strings.TrimSpace(cols[1].MustText()),
-				// PrecioVenta:  strings.TrimSpace(cols[2].MustText()),
-				// Presentacion: strings.TrimSpace(cols[3].MustText()),
-				// Marca:        strings.TrimSpace(cols[4].MustText()),
-			}
-			listaRubros = append(listaRubros, item)
-		}
-	}
-
-	for _, r := range listaRubros {
-		fmt.Printf("Producto: %s\n", r.Name)
-	}
-
-	return listaRubros
 }
