@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Khaym03/REG/constants"
-	"github.com/Khaym03/REG/utils"
 )
 
 type Rubro struct {
@@ -21,24 +20,24 @@ func (g Guide) URL() string {
 }
 
 type GuideScraper interface {
-	CollectGuides(ctx context.Context, date utils.DateRange) ([]Guide, error)
+	CollectGuides(ctx context.Context, date DateRange) ([]Guide, error)
 }
 type RubroWorker interface {
 	Process(ctx context.Context, ids []Guide) ([]Rubro, error)
 }
 
 type GuideRepository interface {
-	Exists(utils.DateRange) bool
-	SaveGuides(utils.DateRange, []Guide)
-	GetGuides(utils.DateRange) []Guide
+	Exists(DateRange) bool
+	SaveGuides(DateRange, []Guide)
+	GetGuides(DateRange) []Guide
 
 	// Progress
-	SaveReceptionProgress(utils.DateRange, ReceptionResult)
-	GetReceptionProgress(utils.DateRange) ReceptionResult
+	SaveReceptionProgress(DateRange, ReceptionResult)
+	GetReceptionProgress(DateRange) ReceptionResult
 
 	// Final state
-	MarkReceptionCompleted(utils.DateRange)
-	IsReceptionCompleted(utils.DateRange) bool
+	MarkReceptionCompleted(DateRange)
+	IsReceptionCompleted(DateRange) bool
 
 	SaveRubros([]Rubro)
 	GetRubros() []Rubro
@@ -51,7 +50,7 @@ type InventoryScraper interface {
 
 type Receptionist interface {
 	// Receive all the expired [Guide] in a given [utils.DateRange]
-	Receive(context.Context, utils.DateRange) (ReceptionResult, error)
+	Receive(context.Context, DateRange) (ReceptionResult, error)
 }
 
 type ReceptionResult struct {

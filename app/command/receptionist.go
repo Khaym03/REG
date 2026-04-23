@@ -5,11 +5,10 @@ import (
 	"fmt"
 
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/utils"
 )
 
 type ReceptionistCommand struct {
-	utils.DateRange
+	domain.DateRange
 }
 
 type ReceptionistHandler struct {
@@ -25,7 +24,7 @@ func NewReceptionistHandler(
 }
 
 func (r *ReceptionistHandler) Handle(ctx context.Context, cmd ReceptionistCommand) error {
-	dates := utils.MonthlyDateRanges(cmd.From, cmd.To)
+	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
 
 	for _, d := range dates {
 		if r.repo.IsReceptionCompleted(d) {

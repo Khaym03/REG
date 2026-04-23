@@ -6,7 +6,6 @@ import (
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/Khaym03/REG/session"
-	"github.com/Khaym03/REG/utils"
 )
 
 var _ domain.GuideScraper = (*GuidesScraper)(nil)
@@ -18,7 +17,7 @@ func NewGuidesScraper() *GuidesScraper {
 	return &GuidesScraper{}
 }
 
-func (g GuidesScraper) CollectGuides(ctx context.Context, date utils.DateRange) ([]domain.Guide, error) {
+func (g GuidesScraper) CollectGuides(ctx context.Context, date domain.DateRange) ([]domain.Guide, error) {
 	ReceptionPage := pages.NewReceptionPage(session.FromContext(ctx).MainPage())
 
 	ReceptionPage.Open()

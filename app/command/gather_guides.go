@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/utils"
 )
 
 type GatherGuidesCommand struct {
-	utils.DateRange
+	domain.DateRange
 }
 
 type GatherGuidesHandler struct {
@@ -30,7 +29,7 @@ func NewGatherGuidesHandler(
 }
 
 func (h GatherGuidesHandler) Handle(ctx context.Context, cmd GatherGuidesCommand) error {
-	dates := utils.MonthlyDateRanges(cmd.From, cmd.To)
+	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
 
 	for _, d := range dates {
 

@@ -9,7 +9,6 @@ import (
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/session"
-	"github.com/Khaym03/REG/utils"
 )
 
 type WorkFlowInput struct {
@@ -49,7 +48,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err e
 		}
 	}()
 
-	lastYearToPresent := utils.DateRange{
+	lastYearToPresent := domain.DateRange{
 		From: time.Now().AddDate(-1, 0, 0),
 		To:   time.Now(),
 	}

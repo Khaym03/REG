@@ -8,7 +8,6 @@ import (
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/Khaym03/REG/session"
-	"github.com/Khaym03/REG/utils"
 )
 
 var _ domain.Receptionist = (*ReceptionistScraper)(nil)
@@ -20,7 +19,7 @@ func NewReceptionistScraper() *ReceptionistScraper {
 	return &ReceptionistScraper{}
 }
 
-func (r *ReceptionistScraper) Receive(ctx context.Context, date utils.DateRange) (domain.ReceptionResult, error) {
+func (r *ReceptionistScraper) Receive(ctx context.Context, date domain.DateRange) (domain.ReceptionResult, error) {
 	page := pages.NewReceptionPage(session.FromContext(ctx).MainPage())
 
 	var err error

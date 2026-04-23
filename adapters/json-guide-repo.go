@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/utils"
 )
 
 var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
@@ -26,7 +25,7 @@ func NewJSONGuideRepository(filePath string) *JSONGuideRepository {
 	return &JSONGuideRepository{filePath: filePath, mu: sync.Mutex{}}
 }
 
-func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
+func (r *JSONGuideRepository) Exists(date domain.DateRange) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -40,7 +39,7 @@ func (r *JSONGuideRepository) Exists(date utils.DateRange) bool {
 	return exists
 }
 
-func (r *JSONGuideRepository) SaveReceptionProgress(date utils.DateRange, result domain.ReceptionResult) {
+func (r *JSONGuideRepository) SaveReceptionProgress(date domain.DateRange, result domain.ReceptionResult) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -63,7 +62,7 @@ func (r *JSONGuideRepository) SaveReceptionProgress(date utils.DateRange, result
 	_ = r.save(data)
 }
 
-func (r *JSONGuideRepository) MarkReceptionCompleted(date utils.DateRange) {
+func (r *JSONGuideRepository) MarkReceptionCompleted(date domain.DateRange) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -80,7 +79,7 @@ func (r *JSONGuideRepository) MarkReceptionCompleted(date utils.DateRange) {
 	_ = r.save(data)
 }
 
-func (r *JSONGuideRepository) IsReceptionCompleted(date utils.DateRange) bool {
+func (r *JSONGuideRepository) IsReceptionCompleted(date domain.DateRange) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -97,7 +96,7 @@ func (r *JSONGuideRepository) IsReceptionCompleted(date utils.DateRange) bool {
 	return result.Completed
 }
 
-func (r *JSONGuideRepository) GetReceptionProgress(date utils.DateRange) domain.ReceptionResult {
+func (r *JSONGuideRepository) GetReceptionProgress(date domain.DateRange) domain.ReceptionResult {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -109,7 +108,7 @@ func (r *JSONGuideRepository) GetReceptionProgress(date utils.DateRange) domain.
 	return data.ReceptionState[date.Key()]
 }
 
-func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.Guide) {
+func (r *JSONGuideRepository) SaveGuides(date domain.DateRange, guides []domain.Guide) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -123,7 +122,7 @@ func (r *JSONGuideRepository) SaveGuides(date utils.DateRange, guides []domain.G
 	_ = r.save(data)
 }
 
-func (r *JSONGuideRepository) GetGuides(date utils.DateRange) []domain.Guide {
+func (r *JSONGuideRepository) GetGuides(date domain.DateRange) []domain.Guide {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

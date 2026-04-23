@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	c "github.com/Khaym03/REG/constants"
-	"github.com/Khaym03/REG/utils"
+	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )
@@ -25,7 +25,7 @@ func (rp *ReceptionPage) Open() error {
 	return rp.page.WaitIdle(c.TimeoutShort)
 }
 
-func (rp *ReceptionPage) ApplyFilters(date utils.DateRange) (err error) {
+func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
 	if err = click(rp.page, filterAccordionSelector); err != nil {
 		return err
 	}
