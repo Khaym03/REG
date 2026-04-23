@@ -1,58 +1,36 @@
 package main
 
 import (
-	"context"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
+	"embed"
 
-	"github.com/Khaym03/REG/app"
-	"github.com/Khaym03/REG/container"
-	"github.com/Khaym03/REG/domain"
-	"github.com/joho/godotenv"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
+//go:embed all:frontend/dist
+var assets embed.FS
+
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
+	// Create an instance of the app structure
+	app := NewApp()
 
-	mustLoadEnv()
+	// Create application with options
+	err := wails.Run(&options.App{
+		Title:  "REG",
+		Width:  1024,
+		Height: 768,
+		AssetServer: &assetserver.Options{
+			Assets: assets,
+		},
+		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		OnStartup:        app.startup,
+		Bind: []interface{}{
+			app,
+		},
+	})
 
-	user := loadCredential()
-	browser := container.BuildBrowser()
-	defer browser.MustClose()
-
-	c := container.BuildContainer(browser)
-
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- c.Workflow.Run(
-			ctx,
-			app.WorkFlowInput{
-				User: user,
-			},
-		)
-	}()
-
-	err := <-errCh
 	if err != nil {
-		log.Println(err)
-	}
-
-	<-ctx.Done()
-
-}
-
-func mustLoadEnv() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
-}
-
-func loadCredential() domain.User {
-	return domain.User{
-		Username: os.Getenv("REG_TEST_USERNAME"),
-		Password: os.Getenv("REG_TEST_PASSWORD"),
+		println("Error:", err.Error())
 	}
 }
