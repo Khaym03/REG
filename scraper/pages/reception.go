@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"log"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
@@ -92,6 +93,8 @@ func (rp *ReceptionPage) Rows() ([]*ReceptionRow, error) {
 	for _, el := range elements {
 		rows = append(rows, &ReceptionRow{element: el})
 	}
+
+	log.Println("Rows: ", len(rows), rows)
 	return rows, nil
 }
 
@@ -101,8 +104,13 @@ type ReceptionRow struct {
 }
 
 func (r *ReceptionRow) ID() string {
-	val, _ := r.element.MustElement(dataIDColumnSelector).Attribute("data-id_")
-	if val == nil {
+	el, err := r.element.Element(dataIDColumnSelector)
+	if err != nil {
+		return ""
+	}
+
+	val, err := el.Attribute("data-id_")
+	if err != nil || val == nil {
 		return ""
 	}
 	return *val

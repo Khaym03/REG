@@ -62,7 +62,7 @@ func (r *ReceptionistScraper) Receive(ctx context.Context, date domain.DateRange
 		}
 		if !processed {
 			result.Completed = true
-			fmt.Println("No more expired guides found for this range.")
+			fmt.Println("No more expired guides found for this range. ", date)
 			break
 		}
 
