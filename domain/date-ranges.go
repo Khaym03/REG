@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 
 	c "github.com/Khaym03/REG/constants"
@@ -13,6 +14,15 @@ type DateRange struct {
 
 func (d DateRange) Key() string {
 	return d.From.Format(c.DateKeyFormat)
+}
+
+func (d DateRange) String() string {
+	const layout = "2006-01-02"
+	return fmt.Sprintf(
+		"[%s - %s]",
+		d.From.Format(layout),
+		d.To.Format(layout),
+	)
 }
 
 func MonthlyDateRanges(from, to time.Time) []DateRange {

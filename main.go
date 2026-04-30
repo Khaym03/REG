@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -25,16 +26,12 @@ func main() {
 
 	mustLoadEnv()
 
+	dateRange := getDateRangeFromFlags()
 	user := loadCredential()
 	browser := container.BuildBrowser()
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
-
-	lastYearToPresent := domain.DateRange{
-		From: time.Now().AddDate(-1, 0, 0),
-		To:   time.Now(),
-	}
 
 	errCh := make(chan error, 1)
 	go func() {
@@ -42,7 +39,7 @@ func main() {
 			ctx,
 			app.WorkFlowInput{
 				User: user,
-				Date: lastYearToPresent,
+				Date: dateRange,
 			},
 		)
 	}()
@@ -54,6 +51,40 @@ func main() {
 
 	<-ctx.Done()
 
+}
+
+func getDateRangeFromFlags() domain.DateRange {
+	var fromStr, toStr string
+
+	flag.StringVar(&fromStr, "from", "", "Start date in YYYY-MM-DD format")
+	flag.StringVar(&toStr, "to", "", "End date in YYYY-MM-DD format")
+	flag.Parse()
+
+	// Default: Last year to present
+	dateRange := domain.DateRange{
+		From: time.Now().AddDate(-1, 0, 0),
+		To:   time.Now(),
+	}
+
+	const layout = "2006-01-02"
+
+	if fromStr != "" {
+		parsedFrom, err := time.Parse(layout, fromStr)
+		if err != nil {
+			log.Fatalf("Invalid 'from' date format: %v", err)
+		}
+		dateRange.From = parsedFrom
+	}
+
+	if toStr != "" {
+		parsedTo, err := time.Parse(layout, toStr)
+		if err != nil {
+			log.Fatalf("Invalid 'to' date format: %v", err)
+		}
+		dateRange.To = parsedTo
+	}
+
+	return dateRange
 }
 
 func mustLoadEnv() {
