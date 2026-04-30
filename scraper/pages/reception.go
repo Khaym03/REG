@@ -57,12 +57,12 @@ func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
 }
 
 func (rp *ReceptionPage) ConfirmReception() error {
-	modal, err := rp.page.Element(modalSelector)
+	modal, err := rp.page.Timeout(defaultTimeout).Element(modalSelector)
 	if err != nil {
 		return err
 	}
 	// Wait for the modal to be fully visible
-	if err := modal.WaitVisible(); err != nil {
+	if err := modal.Timeout(defaultTimeout).WaitVisible(); err != nil {
 		return err
 	}
 

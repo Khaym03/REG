@@ -9,19 +9,25 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
+const defaultTimeout = 10 * time.Second
+
 func navigate(page *rod.Page, url string) (err error) {
-	if err = page.Navigate(url); err != nil {
-		return fmt.Errorf("failed to navigate to login: %w", err)
+	if err = page.Timeout(defaultTimeout).Navigate(url); err != nil {
+		return fmt.Errorf("failed to navigate: %w", err)
 	}
-	if err = page.WaitLoad(); err != nil {
+	if err = waitLoad(page); err != nil {
 		return fmt.Errorf("wait load failed: %w", err)
 	}
 
 	return nil
 }
 
+func waitLoad(page *rod.Page) error {
+	return page.Timeout(defaultTimeout).WaitLoad()
+}
+
 func click(page *rod.Page, query string) error {
-	el, err := page.Search(query)
+	el, err := page.Timeout(defaultTimeout).Search(query)
 	if err != nil {
 		return err
 	}
@@ -30,7 +36,7 @@ func click(page *rod.Page, query string) error {
 }
 
 func fillInput(page *rod.Page, selector, value string) error {
-	el, err := page.Element(selector)
+	el, err := page.Timeout(defaultTimeout).Element(selector)
 	if err != nil {
 		return err
 	}
@@ -41,7 +47,7 @@ func fillInput(page *rod.Page, selector, value string) error {
 }
 
 func fillInputTime(page *rod.Page, xpath string, t time.Time) error {
-	el, err := page.ElementX(xpath)
+	el, err := page.Timeout(defaultTimeout).ElementX(xpath)
 	if err != nil {
 		return fmt.Errorf("date input element not found (%s): %w", xpath, err)
 	}

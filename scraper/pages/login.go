@@ -44,7 +44,7 @@ func (lp *LoginPage) Submit() (err error) {
 		return
 	}
 
-	if err = lp.page.WaitLoad(); err != nil {
+	if err = waitLoad(lp.page); err != nil {
 		return fmt.Errorf("post-login wait failed: %w", err)
 	}
 
@@ -57,7 +57,9 @@ func (lp *LoginPage) Submit() (err error) {
 
 // dismissOptionalModal attempts to clear a popup if it exists.
 func (lp *LoginPage) dismissOptionalModal() error {
-	elements, err := lp.page.ElementsX(makeInteracteableButtonSelector)
+	elements, err := lp.page.Timeout(defaultTimeout).
+		ElementsX(makeInteracteableButtonSelector)
+
 	if err != nil {
 		return fmt.Errorf("failed to search for modal elements: %w", err)
 	}
@@ -113,14 +115,14 @@ func (lp *LoginPage) checkLoginError() error {
 }
 
 func (lp *LoginPage) handleVerificationStep() error {
-	verifyInput, err := lp.page.ElementX(verifyInputSelector)
+	verifyInput, err := lp.page.Timeout(defaultTimeout).ElementX(verifyInputSelector)
 	if err != nil {
 		return nil
 	}
 
 	log.Println("Verification step triggered")
 
-	codeEl, err := lp.page.ElementX(codeTextSelector)
+	codeEl, err := lp.page.Timeout(defaultTimeout).ElementX(codeTextSelector)
 	if err != nil {
 		return fmt.Errorf("verification code element not found: %w", err)
 	}
@@ -143,7 +145,7 @@ func (lp *LoginPage) handleVerificationStep() error {
 		return fmt.Errorf("failed to press enter: %w", err)
 	}
 
-	if err := lp.page.WaitLoad(); err != nil {
+	if err := waitLoad(lp.page); err != nil {
 		return fmt.Errorf("page failed to load after verification: %w", err)
 	}
 
