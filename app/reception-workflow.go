@@ -61,7 +61,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err e
 	}
 
 	err = w.receptionistHandler.Handle(ctx, command.ReceptionistCommand{
-		DateRange: lastYearToPresent,
+		DateRange: input.Date,
 	})
 	if err != nil {
 		return err
