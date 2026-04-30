@@ -15,7 +15,12 @@ import (
 )
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGKILL,
+	)
 	defer stop()
 
 	mustLoadEnv()
