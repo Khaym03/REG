@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/container"
@@ -25,12 +26,18 @@ func main() {
 
 	c := container.BuildContainer(browser)
 
+	lastYearToPresent := domain.DateRange{
+		From: time.Now().AddDate(-1, 0, 0),
+		To:   time.Now(),
+	}
+
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- c.Workflow.Run(
 			ctx,
 			app.WorkFlowInput{
 				User: user,
+				Date: lastYearToPresent,
 			},
 		)
 	}()

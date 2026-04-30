@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
@@ -13,6 +12,7 @@ import (
 
 type WorkFlowInput struct {
 	User domain.User
+	Date domain.DateRange
 }
 
 type ReceptionWorkflow struct {
@@ -48,13 +48,8 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err e
 		}
 	}()
 
-	lastYearToPresent := domain.DateRange{
-		From: time.Now().AddDate(-1, 0, 0),
-		To:   time.Now(),
-	}
-
 	err = w.gatherHandler.Handle(ctx, command.GatherGuidesCommand{
-		DateRange: lastYearToPresent,
+		DateRange: input.Date,
 	})
 	if err != nil {
 		return err
