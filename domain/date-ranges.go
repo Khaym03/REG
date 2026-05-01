@@ -12,7 +12,7 @@ type DateRange struct {
 	To   time.Time
 }
 
-func (d DateRange) Key() string {
+func (d DateRange) MonthKey() string {
 	return d.From.Format(c.DateKeyFormat)
 }
 
