@@ -28,7 +28,7 @@ func main() {
 
 	dateRange := getDateRangeFromFlags()
 	user := loadCredential()
-	browser := container.BuildBrowser()
+	browser := container.BuildBrowser(ctx)
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
