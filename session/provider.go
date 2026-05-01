@@ -3,8 +3,6 @@ package session
 import (
 	"context"
 
-	"github.com/Khaym03/REG/app/command"
-	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
 
 	"github.com/go-rod/rod"
@@ -12,20 +10,17 @@ import (
 
 type Provider struct {
 	browser *rod.Browser
-	// session       Session
-	loginHandler  dcommand.CommandHandler[command.LoginCommand]
-	logoutHandler dcommand.CommandHandler[command.LogoutCommand]
+	auth    AuthService
 }
 
 func NewProvider(
 	browser *rod.Browser,
-	loginH dcommand.CommandHandler[command.LoginCommand],
-	logoutH dcommand.CommandHandler[command.LogoutCommand],
+	auth AuthService,
+
 ) *Provider {
 	return &Provider{
-		browser:       browser,
-		loginHandler:  loginH,
-		logoutHandler: logoutH,
+		browser: browser,
+		auth:    auth,
 	}
 }
 
@@ -35,10 +30,7 @@ func (p *Provider) Start(ctx context.Context, user domain.User) (context.Context
 		return nil, err
 	}
 
-	err = p.loginHandler.Handle(ctx, command.LoginCommand{
-		User: user,
-		Page: s.MainPage(),
-	})
+	err = p.auth.Login(ctx, s.MainPage(), user)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -52,9 +44,7 @@ func (p *Provider) Start(ctx context.Context, user domain.User) (context.Context
 func (p *Provider) End(ctx context.Context) error {
 	s := FromContext(ctx)
 
-	err := p.logoutHandler.Handle(ctx, command.LogoutCommand{
-		Page: s.MainPage(),
-	})
+	err := p.auth.Logout(ctx, s.MainPage())
 
 	// ensure cleanup even if logout fails
 	closeErr := s.Close()

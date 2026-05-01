@@ -5,10 +5,11 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
+	"github.com/Khaym03/REG/session"
 	"github.com/go-rod/rod"
 )
 
-var _ domain.AuthService = (*LoginScraper)(nil)
+var _ session.AuthService = (*LoginScraper)(nil)
 
 type LoginScraper struct {
 }

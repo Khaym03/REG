@@ -9,7 +9,7 @@ func withLogging[T any](handler command.CommandHandler[T]) command.CommandHandle
 	return decorator.NewLoggingDecorator(handler)
 }
 
-func withRetryAndLogging[T any](handler command.CommandHandler[T]) command.CommandHandler[T] {
+func WithRetryAndLogging[T any](handler command.CommandHandler[T]) command.CommandHandler[T] {
 	return decorator.NewLoggingDecorator(
 		decorator.NewRetryDecorator(
 			handler,
