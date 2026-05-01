@@ -7,7 +7,7 @@ import (
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/session"
+	"github.com/Khaym03/REG/scraper/session"
 )
 
 type WorkFlowInput struct {

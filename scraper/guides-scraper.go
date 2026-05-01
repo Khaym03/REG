@@ -5,7 +5,7 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
-	"github.com/Khaym03/REG/session"
+	"github.com/Khaym03/REG/scraper/session"
 )
 
 var _ domain.GuideCollector = (*GuidesScraper)(nil)

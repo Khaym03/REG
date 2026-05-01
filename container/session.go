@@ -1,7 +1,7 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/session"
+	"github.com/Khaym03/REG/scraper/session"
 	"github.com/go-rod/rod"
 )
 
