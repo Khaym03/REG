@@ -8,7 +8,7 @@ import (
 	"github.com/Khaym03/REG/session"
 )
 
-var _ domain.GuideScraper = (*GuidesScraper)(nil)
+var _ domain.GuideCollector = (*GuidesScraper)(nil)
 
 type GuidesScraper struct {
 }
@@ -17,7 +17,7 @@ func NewGuidesScraper() *GuidesScraper {
 	return &GuidesScraper{}
 }
 
-func (g GuidesScraper) CollectGuides(ctx context.Context, date domain.DateRange) ([]domain.Guide, error) {
+func (g GuidesScraper) Collect(ctx context.Context, date domain.DateRange) ([]domain.Guide, error) {
 	ReceptionPage := pages.NewReceptionPage(session.FromContext(ctx).MainPage())
 
 	ReceptionPage.Open()
@@ -27,7 +27,17 @@ func (g GuidesScraper) CollectGuides(ctx context.Context, date domain.DateRange)
 	var guides []domain.Guide
 
 	for _, row := range rows {
-		guides = append(guides, domain.Guide{ID: row.ID()})
+		id, err := row.ID()
+		if err != nil {
+			return guides, err
+		}
+
+		guide, err := domain.NewGuide(id)
+		if err != nil {
+			return guides, err
+		}
+
+		guides = append(guides, guide)
 	}
 
 	return guides, nil

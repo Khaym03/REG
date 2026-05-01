@@ -11,14 +11,17 @@ type Container struct {
 }
 
 func BuildContainer(browser *rod.Browser) *Container {
-	repo := adapters.NewJSONGuideRepository("state.json")
+	store := adapters.NewJSONStore("state.json")
+	guideRepo := adapters.NewJSONGuideRepository(store)
+	receptionRepo := adapters.NewJSONReceptionRepository(store)
+	rubroRepo := adapters.NewJSONRubroRepository(store)
 
 	authService := buildAuthService()
 	sessionProvider := buildSessionProvider(browser, authService)
 
-	gatherHandler := buildGatherGuidesHandler(repo)
-	inventoryHandler := buildInventoryHandler(repo)
-	receptionHandler := buildReceptionHandler(repo)
+	gatherHandler := buildGatherGuidesHandler(guideRepo, rubroRepo)
+	inventoryHandler := buildInventoryHandler(rubroRepo)
+	receptionHandler := buildReceptionHandler(receptionRepo)
 
 	workflow := app.NewReceptionWorkflow(
 		sessionProvider,

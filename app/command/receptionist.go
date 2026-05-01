@@ -12,13 +12,13 @@ type ReceptionistCommand struct {
 }
 
 type ReceptionistHandler struct {
-	repo    domain.GuideRepository
-	scraper domain.Receptionist
+	repo    domain.ReceptionRepository
+	scraper domain.ReceptionService
 }
 
 func NewReceptionistHandler(
-	repo domain.GuideRepository,
-	scraper domain.Receptionist,
+	repo domain.ReceptionRepository,
+	scraper domain.ReceptionService,
 ) *ReceptionistHandler {
 	return &ReceptionistHandler{repo: repo, scraper: scraper}
 }
@@ -27,12 +27,18 @@ func (r *ReceptionistHandler) Handle(ctx context.Context, cmd ReceptionistComman
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
 
 	for _, d := range dates {
-		if r.repo.IsReceptionCompleted(d) {
+		completed, err := r.repo.IsCompleted(ctx, d)
+
+		if err != nil {
+			return err
+		}
+
+		if completed {
 			continue
 		}
 
 		result, err := r.scraper.Receive(ctx, d)
-		r.repo.SaveReceptionProgress(d, result)
+		r.repo.SaveProgress(ctx, d, result)
 
 		if err != nil {
 			return fmt.Errorf(
@@ -42,7 +48,7 @@ func (r *ReceptionistHandler) Handle(ctx context.Context, cmd ReceptionistComman
 		}
 
 		if result.Completed {
-			r.repo.MarkReceptionCompleted(d)
+			r.repo.MarkCompleted(ctx, d)
 		}
 	}
 

@@ -10,6 +10,8 @@ import (
 	"github.com/Khaym03/REG/session"
 )
 
+var _ domain.RubroExtractor = (*RodRubroWorker)(nil)
+
 type RodRubroWorker struct {
 	workers int
 }
@@ -18,7 +20,7 @@ func NewRodRubroWorker(workers int) *RodRubroWorker {
 	return &RodRubroWorker{workers: workers}
 }
 
-func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]domain.Rubro, error) {
+func (w *RodRubroWorker) FromGuides(ctx context.Context, guides []domain.Guide) ([]domain.Rubro, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
@@ -33,7 +35,6 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 			page := tempBrowser.MustPage()
 			defer page.Close()
 
-			// Wrap the page in our Page Object
 			guidePage := pages.NewGuideDetailsPage(page)
 
 			for guide := range jobs {
@@ -43,19 +44,19 @@ func (w *RodRubroWorker) Process(ctx context.Context, guides []domain.Guide) ([]
 				default:
 				}
 
-				if err := page.Navigate(guide.URL()); err != nil {
-					log.Printf("Navigation error to %s: %v", guide.URL(), err)
+				if err := page.Navigate(guide.URL); err != nil {
+					log.Printf("Navigation error to %s: %v", guide.URL, err)
 					continue
 				}
 
 				if err := page.WaitLoad(); err != nil {
-					log.Printf("Wait load error on %s: %v", guide.URL(), err)
+					log.Printf("Wait load error on %s: %v", guide.URL, err)
 					continue
 				}
 
 				rubros, err := guidePage.ExtractRubros()
 				if err != nil {
-					log.Printf("Extraction error on %s: %v", guide.URL(), err)
+					log.Printf("Extraction error on %s: %v", guide.URL, err)
 					continue
 				}
 

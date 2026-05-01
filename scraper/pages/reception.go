@@ -103,17 +103,17 @@ type ReceptionRow struct {
 	element *rod.Element
 }
 
-func (r *ReceptionRow) ID() string {
+func (r *ReceptionRow) ID() (string, error) {
 	el, err := r.element.Element(dataIDColumnSelector)
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	val, err := el.Attribute("data-id_")
 	if err != nil || val == nil {
-		return ""
+		return "", err
 	}
-	return *val
+	return *val, nil
 }
 
 func (r *ReceptionRow) IsExpired() bool {

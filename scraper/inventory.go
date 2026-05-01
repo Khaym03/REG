@@ -9,7 +9,7 @@ import (
 	"github.com/Khaym03/REG/session"
 )
 
-var _ domain.InventoryScraper = (*InventoryScraper)(nil)
+var _ domain.InventoryService = (*InventoryScraper)(nil)
 
 type InventoryScraper struct {
 }
@@ -42,7 +42,7 @@ func (i *InventoryScraper) Insert(ctx context.Context, newItem domain.Rubro) (er
 
 }
 
-func (i InventoryScraper) RubrosSnapshot(ctx context.Context) ([]domain.Rubro, error) {
+func (i InventoryScraper) Snapshot(ctx context.Context) ([]domain.Rubro, error) {
 	page := session.FromContext(ctx).MainPage().Context(ctx)
 
 	inventoryPage := pages.NewInventoryPage(page)

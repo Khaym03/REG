@@ -11,13 +11,13 @@ import (
 type SyncInventoryCommand struct{}
 
 type SyncInventoryHandler struct {
-	repo    domain.GuideRepository
-	scraper domain.InventoryScraper
+	repo    domain.RubroRepository
+	scraper domain.InventoryService
 }
 
 func NewInventoryHandler(
-	repo domain.GuideRepository,
-	scraper domain.InventoryScraper,
+	repo domain.RubroRepository,
+	scraper domain.InventoryService,
 ) *SyncInventoryHandler {
 	return &SyncInventoryHandler{
 		repo:    repo,
@@ -26,7 +26,7 @@ func NewInventoryHandler(
 }
 
 func (h *SyncInventoryHandler) Handle(ctx context.Context, cmd SyncInventoryCommand) error {
-	remoteRubros, err := h.scraper.RubrosSnapshot(ctx)
+	remoteRubros, err := h.scraper.Snapshot(ctx)
 	if err != nil {
 		return fmt.Errorf("snapshot inventory: %w", err)
 	}
@@ -36,7 +36,10 @@ func (h *SyncInventoryHandler) Handle(ctx context.Context, cmd SyncInventoryComm
 		remoteSet[r.Name] = struct{}{}
 	}
 
-	localRubros := h.repo.GetRubros()
+	localRubros, err := h.repo.GetAll(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Insert missing rubros in remote
 	for _, r := range localRubros {

@@ -11,46 +11,61 @@ type GatherGuidesCommand struct {
 }
 
 type GatherGuidesHandler struct {
-	repo    domain.GuideRepository
-	scraper domain.GuideScraper
-	workers domain.RubroWorker
+	guideRepo      domain.GuideRepository
+	rubroRepo      domain.RubroRepository
+	scraper        domain.GuideCollector
+	rubroExtractor domain.RubroExtractor
 }
 
 func NewGatherGuidesHandler(
-	repo domain.GuideRepository,
-	scraper domain.GuideScraper,
-	workers domain.RubroWorker,
+	guideRepo domain.GuideRepository,
+	rubroRepo domain.RubroRepository,
+	scraper domain.GuideCollector,
+	rubroExtractor domain.RubroExtractor,
 ) *GatherGuidesHandler {
 	return &GatherGuidesHandler{
-		repo:    repo,
-		scraper: scraper,
-		workers: workers,
+		guideRepo:      guideRepo,
+		rubroRepo:      rubroRepo,
+		scraper:        scraper,
+		rubroExtractor: rubroExtractor,
 	}
 }
 
-func (h GatherGuidesHandler) Handle(ctx context.Context, cmd GatherGuidesCommand) error {
+func (h GatherGuidesHandler) Handle(
+	ctx context.Context,
+	cmd GatherGuidesCommand,
+) (err error) {
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
 
 	for _, d := range dates {
+		exist, err := h.guideRepo.Exists(ctx, d)
 
-		if h.repo.Exists(d) {
+		if err != nil {
+			return err
+		}
+
+		if exist {
 			continue
 		}
 
-		guides, err := h.scraper.CollectGuides(ctx, d)
+		guides, err := h.scraper.Collect(ctx, d)
 		if err != nil {
 			return err
 		}
 
-		h.repo.SaveGuides(d, guides)
+		if err = h.guideRepo.Save(ctx, d, guides); err != nil {
+			return err
+		}
 
-		rubros, err := h.workers.Process(ctx, guides)
+		rubros, err := h.rubroExtractor.FromGuides(ctx, guides)
 		if err != nil {
 			return err
 		}
 
-		h.repo.SaveRubros(rubros)
+		if err = h.rubroRepo.Save(ctx, rubros); err != nil {
+			return err
+		}
 	}
 
-	return nil
+	return
 }

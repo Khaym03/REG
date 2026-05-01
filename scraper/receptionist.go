@@ -10,7 +10,7 @@ import (
 	"github.com/Khaym03/REG/session"
 )
 
-var _ domain.Receptionist = (*ReceptionistScraper)(nil)
+var _ domain.ReceptionService = (*ReceptionistScraper)(nil)
 
 type ReceptionistScraper struct {
 }

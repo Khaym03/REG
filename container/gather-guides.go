@@ -8,14 +8,16 @@ import (
 )
 
 func buildGatherGuidesHandler(
-	repo domain.GuideRepository,
+	guideRepo domain.GuideRepository,
+	rubroRepo domain.RubroRepository,
 ) dcommand.CommandHandler[command.GatherGuidesCommand] {
 
 	scraperSvc := scraper.NewGuidesScraper()
 	worker := scraper.NewRodRubroWorker(1)
 
 	base := command.NewGatherGuidesHandler(
-		repo,
+		guideRepo,
+		rubroRepo,
 		scraperSvc,
 		worker,
 	)

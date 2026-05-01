@@ -8,7 +8,7 @@ import (
 )
 
 func buildInventoryHandler(
-	repo domain.GuideRepository,
+	repo domain.RubroRepository,
 ) dcommand.CommandHandler[command.SyncInventoryCommand] {
 
 	base := command.NewInventoryHandler(

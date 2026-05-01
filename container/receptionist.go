@@ -8,7 +8,7 @@ import (
 )
 
 func buildReceptionHandler(
-	repo domain.GuideRepository,
+	repo domain.ReceptionRepository,
 ) dcommand.CommandHandler[command.ReceptionistCommand] {
 
 	base := command.NewReceptionistHandler(
