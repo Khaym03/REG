@@ -104,7 +104,7 @@ type ReceptionRow struct {
 }
 
 func (r *ReceptionRow) ID() (string, error) {
-	el, err := r.element.Element(dataIDColumnSelector)
+	el, err := r.element.ElementX(dataIDColumnSelector)
 	if err != nil {
 		return "", err
 	}
