@@ -1,20 +1,40 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/go-rod/rod"
+)
+
+// Session provides controlled access to browser pages.
+// Pages are short-lived and managed by the Session.
+type Session interface {
+	// Do executes fn with a managed page.
+	// The page must not be used outside fn.
+	Do(ctx context.Context, fn func(*rod.Page) error) error
+
+	// NewIsolated creates a new Session with isolated browser state.
+	// Inheriting its cookies.
+	// The caller must call Close.
+	NewIsolated(ctx context.Context) (Session, error)
+
+	// Close cleans up the Session and its resources.
+	Close() error
+}
 
 type GuideCollector interface {
-	Collect(ctx context.Context, dr DateRange) ([]Guide, error)
+	Collect(context.Context, Session, DateRange) ([]Guide, error)
 }
 
 type RubroExtractor interface {
-	FromGuides(ctx context.Context, guides []Guide) ([]Rubro, error)
+	FromGuides(context.Context, Session, []Guide) ([]Rubro, error)
 }
 
 type ReceptionService interface {
-	Receive(ctx context.Context, dr DateRange) (ReceptionResult, error)
+	Receive(context.Context, Session, DateRange) (ReceptionResult, error)
 }
 
 type InventoryService interface {
-	Snapshot(ctx context.Context) ([]Rubro, error)
-	Insert(ctx context.Context, rubro Rubro) error
+	Snapshot(context.Context, Session) ([]Rubro, error)
+	Insert(context.Context, Session, Rubro) error
 }

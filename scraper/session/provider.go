@@ -24,33 +24,33 @@ func NewProvider(
 	}
 }
 
-func (p *Provider) Start(ctx context.Context, user domain.User) (context.Context, error) {
+func (p *Provider) Start(
+	ctx context.Context,
+	user domain.User,
+) (domain.Session, error) {
 	s, err := NewRodSession(p.browser)
 	if err != nil {
 		return nil, err
 	}
 
-	err = p.auth.Login(ctx, s.MainPage(), user)
+	err = p.auth.Login(ctx, s, user)
 	if err != nil {
 		s.Close()
 		return nil, err
 	}
 
-	ctx = WithSession(ctx, s)
-
-	return ctx, nil
+	return s, nil
 }
 
-func (p *Provider) End(ctx context.Context) error {
-	s := FromContext(ctx)
-
-	err := p.auth.Logout(ctx, s.MainPage())
+func (p *Provider) End(ctx context.Context, session domain.Session) error {
+	err := p.auth.Logout(ctx, session)
 
 	// ensure cleanup even if logout fails
-	closeErr := s.Close()
+	closeErr := session.Close()
 
 	if err != nil {
 		return err
 	}
+
 	return closeErr
 }
