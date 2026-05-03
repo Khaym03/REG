@@ -7,7 +7,7 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/go-rod/rod"
 )
 
 var _ domain.ReceptionService = (*ReceptionistScraper)(nil)
@@ -19,58 +19,75 @@ func NewReceptionistScraper() *ReceptionistScraper {
 	return &ReceptionistScraper{}
 }
 
-func (r *ReceptionistScraper) Receive(ctx context.Context, date domain.DateRange) (domain.ReceptionResult, error) {
-	page := pages.NewReceptionPage(session.FromContext(ctx).MainPage())
+func (r *ReceptionistScraper) Receive(
+	ctx context.Context,
+	session domain.Session,
+	date domain.DateRange,
+) (domain.ReceptionResult, error) {
 
-	var err error
 	result := domain.ReceptionResult{}
 
-	for {
-		// Navigate to the receiver page at the start of every iteration
-		// to ensure we have a fresh, non-stale DOM context.
-		if err = page.Open(); err != nil {
-			return result, err
-		}
+	err := session.Do(ctx, func(p *rod.Page) error {
+		page := pages.NewReceptionPage(p)
 
-		err := page.ApplyFilters(date)
-		if err != nil {
-			return result, err
-		}
+		for {
 
-		rows, err := page.Rows()
-		if err != nil {
-			return result, err
-		}
-		var processed bool
-
-		// Process exactly one guide. If it returns true, we loop back
-		// to re-navigate and re-filter for the remaining guides.
-		for _, row := range rows {
-			if row.IsExpired() {
-				if err := row.TriggerReception(); err != nil {
-					return result, fmt.Errorf("failed to trigger reception: %w", err)
-				}
-
-				if err := page.ConfirmReception(); err != nil {
-					return result, fmt.Errorf("modal confirmation failed: %w", err)
-				}
-
-				result.Processed++
-				processed = true
-				break
+			processed, err := r.processNextExpiredGuide(page, date, &result)
+			if err != nil {
+				return err
 			}
-		}
-		if !processed {
-			result.Completed = true
-			fmt.Println("No more expired guides found for this range. ", date)
-			break
-		}
 
-		fmt.Println("Guide successfully processed. Restarting sequence for the next one...")
-		result.Processed++
-		// Small buffer to allow the server to sync state changes
-		time.Sleep(2 * time.Second)
+			if !processed {
+				result.Completed = true
+				fmt.Println("No more expired guides found for this range.", date)
+				return nil
+			}
+
+			fmt.Println("Guide processed. Continuing...")
+			time.Sleep(2 * time.Second)
+		}
+	})
+
+	return result, err
+}
+
+func (r *ReceptionistScraper) processNextExpiredGuide(
+	page *pages.ReceptionPage,
+	date domain.DateRange,
+	result *domain.ReceptionResult,
+) (bool, error) {
+
+	// Navigate to the receiver page at the start of every iteration
+	// to ensure we have a fresh, non-stale DOM context.
+	if err := page.Open(); err != nil {
+		return false, err
 	}
 
-	return result, nil
+	if err := page.ApplyFilters(date); err != nil {
+		return false, err
+	}
+
+	rows, err := page.Rows()
+	if err != nil {
+		return false, err
+	}
+
+	for _, row := range rows {
+		if !row.IsExpired() {
+			continue
+		}
+
+		if err := row.TriggerReception(); err != nil {
+			return false, fmt.Errorf("trigger reception: %w", err)
+		}
+
+		if err := page.ConfirmReception(); err != nil {
+			return false, fmt.Errorf("confirm reception: %w", err)
+		}
+
+		result.Processed++
+		return true, nil
+	}
+
+	return false, nil
 }

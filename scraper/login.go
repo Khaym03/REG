@@ -18,30 +18,41 @@ func NewLoginScraper() *LoginScraper {
 	return &LoginScraper{}
 }
 
-func (l *LoginScraper) Login(ctx context.Context, page *rod.Page, user domain.User) (err error) {
-	loginPage := pages.NewLoginPage(page.Context(ctx))
+func (l *LoginScraper) Login(
+	ctx context.Context,
+	s domain.Session,
+	user domain.User,
+) (err error) {
+	return s.Do(ctx, func(p *rod.Page) (err error) {
+		loginPage := pages.NewLoginPage(p)
 
-	if err = loginPage.Open(); err != nil {
+		if err = loginPage.Open(); err != nil {
+			return
+		}
+
+		if err = loginPage.EnterCredentials(user); err != nil {
+			return
+		}
+
+		if err = loginPage.Submit(); err != nil {
+			return
+		}
+
 		return
-	}
-
-	if err = loginPage.EnterCredentials(user); err != nil {
-		return
-	}
-
-	if err = loginPage.Submit(); err != nil {
-		return
-	}
-
-	return nil
+	})
 }
 
-func (l *LoginScraper) Logout(ctx context.Context, page *rod.Page) (err error) {
-	logoutPage := pages.NewLogoutPage(page.Context(ctx))
+func (l *LoginScraper) Logout(
+	ctx context.Context,
+	s domain.Session,
+) (err error) {
+	return s.Do(ctx, func(p *rod.Page) error {
+		logoutPage := pages.NewLogoutPage(p)
 
-	if err = logoutPage.Open(); err != nil {
-		return err
-	}
+		if err = logoutPage.Open(); err != nil {
+			return err
+		}
 
-	return logoutPage.Logout()
+		return logoutPage.Logout()
+	})
 }

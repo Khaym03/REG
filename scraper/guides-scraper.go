@@ -5,7 +5,7 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/go-rod/rod"
 )
 
 var _ domain.GuideCollector = (*GuidesScraper)(nil)
@@ -17,28 +17,37 @@ func NewGuidesScraper() *GuidesScraper {
 	return &GuidesScraper{}
 }
 
-func (g GuidesScraper) Collect(ctx context.Context, date domain.DateRange) ([]domain.Guide, error) {
-	ReceptionPage := pages.NewReceptionPage(session.FromContext(ctx).MainPage())
+func (g GuidesScraper) Collect(
+	ctx context.Context,
+	session domain.Session,
+	date domain.DateRange,
+) (guides []domain.Guide, err error) {
 
-	ReceptionPage.Open()
-	ReceptionPage.ApplyFilters(date)
+	err = session.Do(ctx, func(p *rod.Page) error {
+		ReceptionPage := pages.NewReceptionPage(p)
 
-	rows, _ := ReceptionPage.Rows()
-	var guides []domain.Guide
+		ReceptionPage.Open()
+		ReceptionPage.ApplyFilters(date)
 
-	for _, row := range rows {
-		id, err := row.ID()
-		if err != nil {
-			return guides, err
+		rows, _ := ReceptionPage.Rows()
+
+		for _, row := range rows {
+			id, err := row.ID()
+			if err != nil {
+				return err
+			}
+
+			guide, err := domain.NewGuide(id)
+			if err != nil {
+				return err
+			}
+
+			guides = append(guides, guide)
+
 		}
 
-		guide, err := domain.NewGuide(id)
-		if err != nil {
-			return guides, err
-		}
+		return nil
+	})
 
-		guides = append(guides, guide)
-	}
-
-	return guides, nil
+	return
 }
