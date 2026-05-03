@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Khaym03/REG/domain"
 )
@@ -29,7 +30,7 @@ func (r *ReceptionistHandler) Handle(
 	cmd ReceptionistCommand,
 ) error {
 
-	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
+	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
 
 	for _, d := range dates {
 		completed, err := r.repo.IsCompleted(ctx, d)

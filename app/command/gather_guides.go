@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"time"
 
 	"github.com/Khaym03/REG/domain"
 )
@@ -36,7 +37,7 @@ func (h GatherGuidesHandler) Handle(
 	session domain.Session,
 	cmd GatherGuidesCommand,
 ) (err error) {
-	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
+	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
 
 	for _, d := range dates {
 		exist, err := h.guideRepo.Exists(ctx, d)
