@@ -33,6 +33,7 @@ func NewGatherGuidesHandler(
 
 func (h GatherGuidesHandler) Handle(
 	ctx context.Context,
+	session domain.Session,
 	cmd GatherGuidesCommand,
 ) (err error) {
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
@@ -48,7 +49,7 @@ func (h GatherGuidesHandler) Handle(
 			continue
 		}
 
-		guides, err := h.scraper.Collect(ctx, d)
+		guides, err := h.scraper.Collect(ctx, session, d)
 		if err != nil {
 			return err
 		}
@@ -57,7 +58,7 @@ func (h GatherGuidesHandler) Handle(
 			return err
 		}
 
-		rubros, err := h.rubroExtractor.FromGuides(ctx, guides)
+		rubros, err := h.rubroExtractor.FromGuides(ctx, session, guides)
 		if err != nil {
 			return err
 		}

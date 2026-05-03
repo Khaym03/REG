@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Khaym03/REG/common/decorator/command"
+	"github.com/Khaym03/REG/domain"
 )
 
 type LoggingDecorator[C any] struct {
@@ -17,9 +18,13 @@ func NewLoggingDecorator[C any](base command.CommandHandler[C]) LoggingDecorator
 	return LoggingDecorator[C]{base: base}
 }
 
-func (d LoggingDecorator[C]) Handle(ctx context.Context, cmd C) error {
+func (d LoggingDecorator[C]) Handle(
+	ctx context.Context,
+	session domain.Session,
+	cmd C,
+) error {
 	log.Printf("starting command %s\n", generateActionName(cmd))
-	err := d.base.Handle(ctx, cmd)
+	err := d.base.Handle(ctx, session, cmd)
 	log.Printf("finished command %s\n", generateActionName(cmd))
 
 	return err

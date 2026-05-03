@@ -36,31 +36,31 @@ func NewReceptionWorkflow(
 	}
 }
 
-func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) (err error) {
-	ctx, err = w.sessionProvider.Start(ctx, input.User)
+func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error {
+	session, err := w.sessionProvider.Start(ctx, input.User)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		if cerr := w.sessionProvider.End(ctx); cerr != nil {
+		if cerr := w.sessionProvider.End(ctx, session); cerr != nil {
 			log.Println("cleanup error:", cerr)
 		}
 	}()
 
-	err = w.gatherHandler.Handle(ctx, command.GatherGuidesCommand{
+	err = w.gatherHandler.Handle(ctx, session, command.GatherGuidesCommand{
 		DateRange: input.Date,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = w.syncInventoryHandler.Handle(ctx, command.SyncInventoryCommand{})
+	err = w.syncInventoryHandler.Handle(ctx, session, command.SyncInventoryCommand{})
 	if err != nil {
 		return err
 	}
 
-	err = w.receptionistHandler.Handle(ctx, command.ReceptionistCommand{
+	err = w.receptionistHandler.Handle(ctx, session, command.ReceptionistCommand{
 		DateRange: input.Date,
 	})
 	if err != nil {

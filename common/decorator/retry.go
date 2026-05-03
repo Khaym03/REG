@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/common/decorator/command"
+	"github.com/Khaym03/REG/domain"
 )
 
 var DefaultRetryConfig = RetryDecoratorConfig{
@@ -40,7 +41,11 @@ func NewRetryDecorator[C any](base command.CommandHandler[C], cfg RetryDecorator
 	}
 }
 
-func (d RetryDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
+func (d RetryDecorator[C]) Handle(
+	ctx context.Context,
+	session domain.Session,
+	cmd C,
+) (err error) {
 	for attempt := 1; attempt <= d.attempts; attempt++ {
 		log.Printf("retry attempt %d/%d for %s", attempt, d.attempts, generateActionName(cmd))
 
@@ -50,7 +55,7 @@ func (d RetryDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
 			attemptCtx, cancel = context.WithTimeout(ctx, d.attemptTimeout)
 		}
 
-		err = d.base.Handle(attemptCtx, cmd)
+		err = d.base.Handle(attemptCtx, session, cmd)
 		if cancel != nil {
 			cancel()
 		}

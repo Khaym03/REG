@@ -1,7 +1,11 @@
 package command
 
-import "context"
+import (
+	"context"
+
+	"github.com/Khaym03/REG/domain"
+)
 
 type CommandHandler[C any] interface {
-	Handle(ctx context.Context, cmd C) error
+	Handle(ctx context.Context, session domain.Session, cmd C) error
 }

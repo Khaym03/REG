@@ -23,7 +23,12 @@ func NewReceptionistHandler(
 	return &ReceptionistHandler{repo: repo, scraper: scraper}
 }
 
-func (r *ReceptionistHandler) Handle(ctx context.Context, cmd ReceptionistCommand) error {
+func (r *ReceptionistHandler) Handle(
+	ctx context.Context,
+	session domain.Session,
+	cmd ReceptionistCommand,
+) error {
+
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To)
 
 	for _, d := range dates {
@@ -37,7 +42,7 @@ func (r *ReceptionistHandler) Handle(ctx context.Context, cmd ReceptionistComman
 			continue
 		}
 
-		result, err := r.scraper.Receive(ctx, d)
+		result, err := r.scraper.Receive(ctx, session, d)
 		r.repo.SaveProgress(ctx, d, result)
 
 		if err != nil {

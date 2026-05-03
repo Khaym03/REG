@@ -25,8 +25,13 @@ func NewInventoryHandler(
 	}
 }
 
-func (h *SyncInventoryHandler) Handle(ctx context.Context, cmd SyncInventoryCommand) error {
-	remoteRubros, err := h.scraper.Snapshot(ctx)
+func (h *SyncInventoryHandler) Handle(
+	ctx context.Context,
+	session domain.Session,
+	cmd SyncInventoryCommand,
+) error {
+
+	remoteRubros, err := h.scraper.Snapshot(ctx, session)
 	if err != nil {
 		return fmt.Errorf("snapshot inventory: %w", err)
 	}
@@ -48,7 +53,7 @@ func (h *SyncInventoryHandler) Handle(ctx context.Context, cmd SyncInventoryComm
 		}
 
 		time.Sleep(time.Second * 5)
-		if err := h.scraper.Insert(ctx, r); err != nil {
+		if err := h.scraper.Insert(ctx, session, r); err != nil {
 			return fmt.Errorf("insert rubro %s: %w", r.Name, err)
 		}
 
