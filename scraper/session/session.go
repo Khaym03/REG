@@ -37,7 +37,7 @@ func NewRodSession(browser *rod.Browser) (*RodSession, error) {
 	}, nil
 }
 
-func (s *RodSession) Do(ctx context.Context, fn func(*rod.Page) error) error {
+func (s *RodSession) Do(ctx context.Context, fn domain.PageFunc) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

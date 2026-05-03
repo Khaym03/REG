@@ -6,12 +6,14 @@ import (
 	"github.com/go-rod/rod"
 )
 
+type PageFunc func(*rod.Page) error
+
 // Session provides controlled access to browser pages.
 // Pages are short-lived and managed by the Session.
 type Session interface {
 	// Do executes fn with a managed page.
 	// The page must not be used outside fn.
-	Do(ctx context.Context, fn func(*rod.Page) error) error
+	Do(ctx context.Context, fn PageFunc) error
 
 	// NewIsolated creates a new Session with isolated browser state.
 	// Inheriting its cookies.

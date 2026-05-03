@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/Khaym03/REG/domain"
-	"github.com/go-rod/rod"
 )
 
 var _ domain.Session = (*AuthenticatedSession)(nil)
@@ -33,7 +32,7 @@ func NewAuthenticatedSession(
 	}, nil
 }
 
-func (s *AuthenticatedSession) Do(ctx context.Context, fn func(*rod.Page) error) error {
+func (s *AuthenticatedSession) Do(ctx context.Context, fn domain.PageFunc) error {
 	return s.base.Do(ctx, fn)
 }
 
