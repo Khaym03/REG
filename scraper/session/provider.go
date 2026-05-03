@@ -28,29 +28,16 @@ func (p *Provider) Start(
 	ctx context.Context,
 	user domain.User,
 ) (domain.Session, error) {
-	s, err := NewRodSession(p.browser)
+	base, err := NewRodSession(p.browser)
 	if err != nil {
 		return nil, err
 	}
 
-	err = p.auth.Login(ctx, s, user)
+	sess, err := NewAuthenticatedSession(ctx, base, p.auth, user)
 	if err != nil {
-		s.Close()
+		base.Close()
 		return nil, err
 	}
 
-	return s, nil
-}
-
-func (p *Provider) End(ctx context.Context, session domain.Session) error {
-	err := p.auth.Logout(ctx, session)
-
-	// ensure cleanup even if logout fails
-	closeErr := session.Close()
-
-	if err != nil {
-		return err
-	}
-
-	return closeErr
+	return sess, nil
 }

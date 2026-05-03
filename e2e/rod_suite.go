@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	c "github.com/Khaym03/REG/constants"
+	"github.com/Khaym03/REG/scraper/session"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/joho/godotenv"
@@ -13,8 +13,7 @@ import (
 
 type RodSuite struct {
 	suite.Suite
-	Browser *rod.Browser
-	Page    *rod.Page
+	provider *session.Provider
 }
 
 func (suite *RodSuite) SetupSuite() {
@@ -29,43 +28,43 @@ func (suite *RodSuite) SetupSuite() {
 		suite.T().Skip("Skipping rod-based tests; set REG_E2E=1 to run")
 	}
 
-	rootDir := filepath.Dir(envPath)
+}
 
+// func (suite *RodSuite) TearDownSuite() {
+
+// }
+
+// func (suite *RodSuite) SetupTest() {
+// 	// Open a fresh page for each test.
+// 	if suite.Browser != nil {
+// 		suite.Page = suite.Browser.MustPage()
+// 		suite.Page.MustNavigate(c.BaseURL)
+// 	}
+// }
+
+// func (suite *RodSuite) TearDownTest() {
+// 	if suite.Page != nil {
+// 		suite.Page.MustClose()
+// 		suite.Page = nil
+// 	}
+// }
+
+func (suite *RodSuite) LoadCredential() (string, string) {
+	return os.Getenv("REG_TEST_USERNAME"), os.Getenv("REG_TEST_PASSWORD")
+}
+
+func (suite *RodSuite) NewBrowser() *rod.Browser {
+	envPath, _ := filepath.Abs("../.env")
+	rootDir := filepath.Dir(envPath)
 	l := launcher.New().
 		Headless(os.Getenv("REG_HEADLESS") == "1").
 		Devtools(false).
 		Leakless(false).
 		UserDataDir(filepath.Join(rootDir, "rod_data"))
 
-	browser := rod.New().
+	return rod.New().
+		Context(suite.T().Context()).
 		ControlURL(l.MustLaunch()).
 		Trace(os.Getenv("REG_ROD_VERBOSE") == "1").
 		MustConnect()
-
-	suite.Browser = browser
-}
-
-func (suite *RodSuite) TearDownSuite() {
-	if suite.Browser != nil {
-		suite.Browser.MustClose()
-	}
-}
-
-func (suite *RodSuite) SetupTest() {
-	// Open a fresh page for each test.
-	if suite.Browser != nil {
-		suite.Page = suite.Browser.MustPage()
-		suite.Page.MustNavigate(c.BaseURL)
-	}
-}
-
-func (suite *RodSuite) TearDownTest() {
-	if suite.Page != nil {
-		suite.Page.MustClose()
-		suite.Page = nil
-	}
-}
-
-func (suite *RodSuite) LoadCredential() (string, string) {
-	return os.Getenv("REG_TEST_USERNAME"), os.Getenv("REG_TEST_PASSWORD")
 }

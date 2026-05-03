@@ -43,9 +43,11 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	}
 
 	defer func() {
-		if cerr := w.sessionProvider.End(ctx, session); cerr != nil {
+		if cerr := session.Close(); cerr != nil {
 			log.Println("cleanup error:", cerr)
 		}
+
+		log.Println("Done")
 	}()
 
 	err = w.gatherHandler.Handle(ctx, session, command.GatherGuidesCommand{

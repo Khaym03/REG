@@ -5,7 +5,7 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper"
-	"github.com/stretchr/testify/assert"
+	"github.com/Khaym03/REG/scraper/session"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,30 +19,39 @@ func TestLoginSuite(t *testing.T) {
 }
 
 func (suite *LoginTestSuite) TestLoginSuccess() {
+	provider := session.NewProvider(suite.NewBrowser(), scraper.NewLoginScraper())
 	username, password := suite.LoadCredential()
 	if username == "" || password == "" {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
 	}
 
-	scraper := scraper.NewLoginScraper()
-
-	err := scraper.Login(suite.T().Context(), suite.Page, domain.User{
+	user := domain.User{
 		Username: username,
 		Password: password,
-	})
-	require.NoError(suite.T(), err)
+	}
 
-	err = scraper.Logout(suite.T().Context(), suite.Page)
+	s, err := provider.Start(suite.T().Context(), user)
 	require.NoError(suite.T(), err)
+	defer func() {
+		require.NoError(suite.T(), s.Close())
+	}()
+
+	require.NoError(suite.T(), err)
+	require.NotNil(suite.T(), s)
 }
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
-	scraper := scraper.NewLoginScraper()
-
-	err := scraper.Login(suite.T().Context(), suite.Page, domain.User{
+	provider := session.NewProvider(suite.NewBrowser(), scraper.NewLoginScraper())
+	user := domain.User{
 		Username: "fake@example.com",
-		Password: "fakepassword",
-	})
+		Password: "wrong",
+	}
 
-	assert.Error(suite.T(), err)
+	s, err := provider.Start(suite.T().Context(), user)
+	defer func() {
+		require.NoError(suite.T(), s.Close())
+	}()
+
+	require.Error(suite.T(), err)
+	require.Nil(suite.T(), s)
 }
