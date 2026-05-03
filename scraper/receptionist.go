@@ -27,7 +27,7 @@ func (r *ReceptionistScraper) Receive(
 
 	result := domain.ReceptionResult{}
 
-	err := session.Do(ctx, func(p *rod.Page) error {
+	receive := func(p *rod.Page) error {
 		page := pages.NewReceptionPage(p)
 
 		for {
@@ -46,7 +46,11 @@ func (r *ReceptionistScraper) Receive(
 			fmt.Println("Guide processed. Continuing...")
 			time.Sleep(2 * time.Second)
 		}
-	})
+	}
+
+	receive = WithRetry(3, time.Second*10)(receive)
+
+	err := session.Do(ctx, receive)
 
 	return result, err
 }

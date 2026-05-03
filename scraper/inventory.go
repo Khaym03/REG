@@ -3,6 +3,7 @@ package scraper
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
@@ -34,7 +35,7 @@ func (i *InventoryScraper) Insert(
 		}
 	}()
 
-	return s.Do(ctx, func(p *rod.Page) error {
+	insert := func(p *rod.Page) error {
 		inventoryPage := pages.NewInventoryPage(p)
 
 		if err := inventoryPage.Open(); err != nil {
@@ -52,7 +53,11 @@ func (i *InventoryScraper) Insert(
 		log.Println("New item added to UI:", newItem.Name)
 
 		return nil
-	})
+	}
+
+	insert = WithRetry(3, time.Second*10)(insert)
+
+	return s.Do(ctx, insert)
 }
 
 func (i InventoryScraper) Snapshot(
@@ -62,7 +67,7 @@ func (i InventoryScraper) Snapshot(
 
 	var rubros []domain.Rubro
 
-	return rubros, session.Do(ctx, func(p *rod.Page) error {
+	snapshot := func(p *rod.Page) error {
 		inventoryPage := pages.NewInventoryPage(p)
 
 		if err := inventoryPage.Open(); err != nil {
@@ -73,5 +78,9 @@ func (i InventoryScraper) Snapshot(
 		rubros = r
 		return err
 
-	})
+	}
+
+	snapshot = WithRetry(3, time.Second*10)(snapshot)
+
+	return rubros, session.Do(ctx, snapshot)
 }

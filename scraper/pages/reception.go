@@ -104,12 +104,12 @@ type ReceptionRow struct {
 }
 
 func (r *ReceptionRow) ID() (string, error) {
-	el, err := r.element.ElementX(dataIDColumnSelector)
+	el, err := r.element.Timeout(defaultTimeout).ElementX(dataIDColumnSelector)
 	if err != nil {
 		return "", err
 	}
 
-	val, err := el.Attribute("data-id_")
+	val, err := el.Timeout(defaultTimeout).Attribute("data-id_")
 	if err != nil || val == nil {
 		return "", err
 	}
@@ -117,7 +117,7 @@ func (r *ReceptionRow) ID() (string, error) {
 }
 
 func (r *ReceptionRow) IsExpired() bool {
-	badge, err := r.element.Element(".badge-danger")
+	badge, err := r.element.Timeout(defaultTimeout).Element(".badge-danger")
 	if err != nil || badge == nil {
 		return false
 	}
@@ -126,12 +126,12 @@ func (r *ReceptionRow) IsExpired() bool {
 }
 
 func (r *ReceptionRow) TriggerReception() error {
-	el, err := r.element.Element(".recepcionar")
+	el, err := r.element.Timeout(defaultTimeout).Element(".recepcionar")
 	if err != nil {
 		return err
 	}
 
-	return el.Click(proto.InputMouseButtonLeft, 1)
+	return el.Timeout(defaultTimeout).Click(proto.InputMouseButtonLeft, 1)
 }
 
 const (

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
@@ -41,41 +42,44 @@ func (w *RodRubroWorker) FromGuides(
 		}
 	}()
 
+	extractTheRubros := func(p *rod.Page) error {
+		guidePage := pages.NewGuideDetailsPage(p)
+
+		for guide := range jobs {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+
+			if err := p.Navigate(guide.URL); err != nil {
+				log.Printf("Navigation error to %s: %v", guide.URL, err)
+				continue
+			}
+
+			if err := p.WaitLoad(); err != nil {
+				log.Printf("Wait load error on %s: %v", guide.URL, err)
+				continue
+			}
+
+			rubros, err := guidePage.ExtractRubros()
+			if err != nil {
+				log.Printf("Extraction error on %s: %v", guide.URL, err)
+				continue
+			}
+
+			mu.Lock()
+			for _, r := range rubros {
+				rubrosMap[r.Name] = r
+			}
+			mu.Unlock()
+		}
+
+		return nil
+	}
+
+	extractTheRubros = WithRetry(3, time.Second*10)(extractTheRubros)
 	for i := 0; i < w.workers; i++ {
 		wg.Go(func() {
-			tempSession.Do(ctx, func(p *rod.Page) error {
-				guidePage := pages.NewGuideDetailsPage(p)
-
-				for guide := range jobs {
-					if ctx.Err() != nil {
-						return ctx.Err()
-					}
-
-					if err := p.Navigate(guide.URL); err != nil {
-						log.Printf("Navigation error to %s: %v", guide.URL, err)
-						continue
-					}
-
-					if err := p.WaitLoad(); err != nil {
-						log.Printf("Wait load error on %s: %v", guide.URL, err)
-						continue
-					}
-
-					rubros, err := guidePage.ExtractRubros()
-					if err != nil {
-						log.Printf("Extraction error on %s: %v", guide.URL, err)
-						continue
-					}
-
-					mu.Lock()
-					for _, r := range rubros {
-						rubrosMap[r.Name] = r
-					}
-					mu.Unlock()
-				}
-
-				return nil
-			})
+			tempSession.Do(ctx, extractTheRubros)
 
 		})
 	}

@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"time"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
@@ -23,7 +24,7 @@ func (g GuidesScraper) Collect(
 	date domain.DateRange,
 ) (guides []domain.Guide, err error) {
 
-	err = session.Do(ctx, func(p *rod.Page) error {
+	collect := func(p *rod.Page) error {
 		ReceptionPage := pages.NewReceptionPage(p)
 
 		ReceptionPage.Open()
@@ -47,7 +48,11 @@ func (g GuidesScraper) Collect(
 		}
 
 		return nil
-	})
+	}
+
+	collect = WithRetry(3, time.Second*10)(collect)
+
+	err = session.Do(ctx, collect)
 
 	return
 }
