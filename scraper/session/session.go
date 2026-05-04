@@ -38,10 +38,8 @@ func NewRodSession(browser *rod.Browser) (*RodSession, error) {
 }
 
 func (s *RodSession) Do(ctx context.Context, fn domain.PageFunc) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	if s.isClosed() {
 
-	if s.closed {
 		return SessionClosed
 	}
 
@@ -49,9 +47,6 @@ func (s *RodSession) Do(ctx context.Context, fn domain.PageFunc) error {
 }
 
 func (s *RodSession) NewIsolated(ctx context.Context) (domain.Session, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if s.isClosed() {
 		return nil, SessionClosed
 	}
@@ -65,14 +60,13 @@ func (s *RodSession) NewIsolated(ctx context.Context) (domain.Session, error) {
 }
 
 func (s *RodSession) Close() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if s.closed {
+	if s.isClosed() {
 		return nil
 	}
 
+	s.mu.Lock()
 	s.closed = true
+	s.mu.Unlock()
 
 	return s.browser.Close()
 }
@@ -80,5 +74,6 @@ func (s *RodSession) Close() error {
 func (s *RodSession) isClosed() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	return s.closed
 }
