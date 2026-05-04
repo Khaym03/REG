@@ -1,8 +1,9 @@
 package scraper
 
 import (
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
@@ -29,7 +30,7 @@ func WithRetry(
 
 				time.Sleep(delay)
 				delay *= 2
-				log.Println("Retrying")
+				log.Warn("Retrying")
 			}
 
 			return err

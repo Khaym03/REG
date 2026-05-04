@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	c "github.com/Khaym03/REG/constants"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
@@ -12,6 +14,7 @@ import (
 const defaultTimeout = 10 * time.Second
 
 func navigate(page *rod.Page, url string) (err error) {
+	log.Info("navigating to: ", url)
 	if err = page.Timeout(defaultTimeout).Navigate(url); err != nil {
 		return fmt.Errorf("failed to navigate: %w", err)
 	}
@@ -47,6 +50,7 @@ func fillInput(page *rod.Page, selector, value string) error {
 }
 
 func fillInputTime(page *rod.Page, xpath string, t time.Time) error {
+	log.Infof("filling input time with: %s", t.Format("2006-01-02"))
 	el, err := page.Timeout(defaultTimeout).ElementX(xpath)
 	if err != nil {
 		return fmt.Errorf("date input element not found (%s): %w", xpath, err)

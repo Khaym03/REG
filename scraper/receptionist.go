@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
@@ -39,11 +41,11 @@ func (r *ReceptionistScraper) Receive(
 
 			if !processed {
 				result.Completed = true
-				fmt.Println("No more expired guides found for this range.", date)
+				log.Info("No more expired guides found for this range.", date)
 				return nil
 			}
 
-			fmt.Println("Guide processed. Continuing...")
+			log.Info("Guide processed. Continuing...")
 			time.Sleep(2 * time.Second)
 		}
 	}

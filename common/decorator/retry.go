@@ -2,8 +2,9 @@ package decorator
 
 import (
 	"context"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
@@ -47,7 +48,7 @@ func (d RetryDecorator[C]) Handle(
 	cmd C,
 ) (err error) {
 	for attempt := 1; attempt <= d.attempts; attempt++ {
-		log.Printf("retry attempt %d/%d for %s", attempt, d.attempts, generateActionName(cmd))
+		log.Warnf("retry attempt %d/%d for %s", attempt, d.attempts, generateActionName(cmd))
 
 		attemptCtx := ctx
 		var cancel context.CancelFunc
@@ -64,7 +65,7 @@ func (d RetryDecorator[C]) Handle(
 			return nil
 		}
 
-		log.Printf("retry failed attempt %d/%d for %s: %v", attempt, d.attempts, generateActionName(cmd), err)
+		log.Warnf("retry failed attempt %d/%d for %s: %v", attempt, d.attempts, generateActionName(cmd), err)
 
 		if ctx.Err() != nil {
 			return ctx.Err()

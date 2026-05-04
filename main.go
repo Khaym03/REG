@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/container"
@@ -16,6 +17,8 @@ import (
 )
 
 func main() {
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		syscall.SIGINT,

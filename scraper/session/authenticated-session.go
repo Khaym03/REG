@@ -2,7 +2,8 @@ package session
 
 import (
 	"context"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/domain"
 )
@@ -43,7 +44,7 @@ func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (domain.Session,
 func (s *AuthenticatedSession) Close() error {
 	// logout first, then close
 	if err := s.auth.Logout(context.Background(), s.base); err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	return s.base.Close()

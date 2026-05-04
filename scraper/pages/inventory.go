@@ -2,7 +2,8 @@ package pages
 
 import (
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
@@ -52,7 +53,7 @@ func (ip *InventoryPage) ExtractExistingRubros() ([]domain.Rubro, error) {
 		// td[3] is the Balance (Saldo)
 		cells, err := row.Elements("td")
 		if err != nil || len(cells) < 3 {
-			log.Println("skipping: ", cells.First().MustHTML())
+			log.Warn("skipping: ", cells.First().MustHTML())
 		}
 
 		rubro := cells[1].MustText()

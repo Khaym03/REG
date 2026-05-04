@@ -30,7 +30,10 @@ func (g GuidesScraper) Collect(
 		ReceptionPage.Open()
 		ReceptionPage.ApplyFilters(date)
 
-		rows, _ := ReceptionPage.Rows()
+		rows, err := ReceptionPage.Rows()
+		if err != nil {
+			return err
+		}
 
 		for _, row := range rows {
 			id, err := row.ID()

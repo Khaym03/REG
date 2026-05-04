@@ -2,9 +2,10 @@ package scraper
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
@@ -51,18 +52,18 @@ func (w *RodRubroWorker) FromGuides(
 			}
 
 			if err := p.Navigate(guide.URL); err != nil {
-				log.Printf("Navigation error to %s: %v", guide.URL, err)
+				log.Errorf("Navigation error to %s: %v", guide.URL, err)
 				continue
 			}
 
 			if err := p.WaitLoad(); err != nil {
-				log.Printf("Wait load error on %s: %v", guide.URL, err)
+				log.Errorf("Wait load error on %s: %v", guide.URL, err)
 				continue
 			}
 
 			rubros, err := guidePage.ExtractRubros()
 			if err != nil {
-				log.Printf("Extraction error on %s: %v", guide.URL, err)
+				log.Errorf("Extraction error on %s: %v", guide.URL, err)
 				continue
 			}
 

@@ -2,8 +2,9 @@ package scraper
 
 import (
 	"context"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
@@ -50,7 +51,7 @@ func (i *InventoryScraper) Insert(
 			return err
 		}
 
-		log.Println("New item added to UI:", newItem.Name)
+		log.Info("New item added to UI:", newItem.Name)
 
 		return nil
 	}

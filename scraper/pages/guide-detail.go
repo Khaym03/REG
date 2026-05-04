@@ -6,6 +6,7 @@ import (
 
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
+	log "github.com/sirupsen/logrus"
 )
 
 type GuideDetailsPage struct {
@@ -49,7 +50,7 @@ func (p *GuideDetailsPage) ExtractRubros() ([]domain.Rubro, error) {
 		rubro, err := p.parseRow(row)
 		if err != nil {
 			// We log and continue to avoid failing the entire guide for one bad row
-			fmt.Printf("Warning: failed to parse row %d: %v\n", i, err)
+			log.Warnf("failed to parse row %d: %v\n", i, err)
 			continue
 		}
 		results = append(results, rubro)

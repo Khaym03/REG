@@ -1,8 +1,11 @@
 package pages
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
@@ -71,7 +74,7 @@ func (rp *ReceptionPage) ConfirmReception() error {
 	// This forces Rod to wait until the browser finishes the redirect/reload.
 	wait := rp.page.MustWaitNavigation()
 
-	fmt.Println("Confirming reception in modal...")
+	log.Info("Confirming reception in modal...")
 	if err := click(rp.page, modalConfirmBtnSelector); err != nil {
 		return err
 	}
@@ -84,8 +87,8 @@ func (rp *ReceptionPage) ConfirmReception() error {
 
 // Rows returns the collection of abstracted rows
 func (rp *ReceptionPage) Rows() ([]*ReceptionRow, error) {
-	elements, err := rp.page.ElementsX(tableRowSelector)
-	if err != nil {
+	elements, err := rp.page.Timeout(defaultTimeout).ElementsX(tableRowSelector)
+	if !errors.Is(err, context.DeadlineExceeded) && err != nil {
 		return nil, err
 	}
 
@@ -94,7 +97,7 @@ func (rp *ReceptionPage) Rows() ([]*ReceptionRow, error) {
 		rows = append(rows, &ReceptionRow{element: el})
 	}
 
-	log.Println("Rows: ", len(rows), rows)
+	log.Info("Rows: ", len(rows), rows)
 	return rows, nil
 }
 

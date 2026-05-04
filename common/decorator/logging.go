@@ -3,8 +3,9 @@ package decorator
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
@@ -23,9 +24,9 @@ func (d LoggingDecorator[C]) Handle(
 	session domain.Session,
 	cmd C,
 ) error {
-	log.Printf("starting command %s\n", generateActionName(cmd))
+	log.Infof("starting command %s\n", generateActionName(cmd))
 	err := d.base.Handle(ctx, session, cmd)
-	log.Printf("finished command %s\n", generateActionName(cmd))
+	log.Infof("finished command %s\n", generateActionName(cmd))
 
 	return err
 }

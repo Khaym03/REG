@@ -2,8 +2,9 @@ package pages
 
 import (
 	"fmt"
-	"log"
 	"regexp"
+
+	log "github.com/sirupsen/logrus"
 
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
@@ -69,7 +70,7 @@ func (lp *LoginPage) dismissOptionalModal() error {
 		return nil
 	}
 
-	log.Println("Random modal detected, dismissing...")
+	log.Info("Random modal detected, dismissing...")
 	modalBtn := elements.First()
 
 	// Click the button
@@ -120,7 +121,7 @@ func (lp *LoginPage) handleVerificationStep() error {
 		return nil
 	}
 
-	log.Println("Verification step triggered")
+	log.Info("Verification step triggered")
 
 	codeEl, err := lp.page.Timeout(defaultTimeout).ElementX(codeTextSelector)
 	if err != nil {
@@ -171,9 +172,9 @@ func extractVerificationCode(text string) string {
 	result := verificationRegex.FindString(text)
 
 	if result != "" {
-		log.Printf("Verification sequence found: %s", result)
+		log.Infof("Verification sequence found: %s", result)
 	} else {
-		log.Println("No 6-digit sequence was found in the provided text.")
+		log.Info("No 6-digit sequence was found in the provided text.")
 	}
 	return result
 }

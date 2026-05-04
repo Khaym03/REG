@@ -2,7 +2,8 @@ package app
 
 import (
 	"context"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
@@ -44,10 +45,10 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 
 	defer func() {
 		if cerr := session.Close(); cerr != nil {
-			log.Println("cleanup error:", cerr)
+			log.Error("cleanup error:", cerr)
 		}
 
-		log.Println("Done")
+		log.Info("Done")
 	}()
 
 	err = w.gatherHandler.Handle(ctx, session, command.GatherGuidesCommand{
