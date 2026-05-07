@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
@@ -11,8 +12,7 @@ import (
 
 var _ domain.GuideCollector = (*GuidesScraper)(nil)
 
-type GuidesScraper struct {
-}
+type GuidesScraper struct{}
 
 func NewGuidesScraper() *GuidesScraper {
 	return &GuidesScraper{}
@@ -23,7 +23,6 @@ func (g GuidesScraper) Collect(
 	session domain.Session,
 	date domain.DateRange,
 ) (guides []domain.Guide, err error) {
-
 	collect := func(p *rod.Page) error {
 		ReceptionPage := pages.NewReceptionPage(p)
 
@@ -53,7 +52,7 @@ func (g GuidesScraper) Collect(
 		return nil
 	}
 
-	collect = WithRetry(3, time.Second*10)(collect)
+	collect = browser.WithRetry(3, time.Second*10)(collect)
 
 	err = session.Do(ctx, collect)
 

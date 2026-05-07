@@ -1,10 +1,11 @@
-package session
+package auth
 
 import (
 	"context"
 	"errors"
 	"sync"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
@@ -37,9 +38,8 @@ func NewRodSession(browser *rod.Browser) (*RodSession, error) {
 	}, nil
 }
 
-func (s *RodSession) Do(ctx context.Context, fn domain.PageFunc) error {
+func (s *RodSession) Do(ctx context.Context, fn browser.PageFunc) error {
 	if s.isClosed() {
-
 		return SessionClosed
 	}
 

@@ -6,6 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
@@ -13,8 +14,7 @@ import (
 
 var _ domain.InventoryService = (*InventoryScraper)(nil)
 
-type InventoryScraper struct {
-}
+type InventoryScraper struct{}
 
 func NewInventoryScraper() *InventoryScraper {
 	return &InventoryScraper{}
@@ -25,7 +25,6 @@ func (i *InventoryScraper) Insert(
 	session domain.Session,
 	newItem domain.Rubro,
 ) (err error) {
-
 	s, err := session.NewIsolated(ctx)
 	if err != nil {
 		return err
@@ -56,7 +55,7 @@ func (i *InventoryScraper) Insert(
 		return nil
 	}
 
-	insert = WithRetry(3, time.Second*10)(insert)
+	insert = browser.WithRetry(3, time.Second*10)(insert)
 
 	return s.Do(ctx, insert)
 }
@@ -65,7 +64,6 @@ func (i InventoryScraper) Snapshot(
 	ctx context.Context,
 	session domain.Session,
 ) ([]domain.Rubro, error) {
-
 	var rubros []domain.Rubro
 
 	snapshot := func(p *rod.Page) error {
@@ -78,10 +76,9 @@ func (i InventoryScraper) Snapshot(
 		r, err := inventoryPage.ExtractExistingRubros()
 		rubros = r
 		return err
-
 	}
 
-	snapshot = WithRetry(3, time.Second*10)(snapshot)
+	snapshot = browser.WithRetry(3, time.Second*10)(snapshot)
 
 	return rubros, session.Do(ctx, snapshot)
 }

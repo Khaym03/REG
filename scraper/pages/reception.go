@@ -7,6 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
+	"github.com/Khaym03/REG/constants"
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
@@ -22,7 +24,7 @@ func NewReceptionPage(p *rod.Page) *ReceptionPage {
 }
 
 func (rp *ReceptionPage) Open() error {
-	if err := navigate(rp.page, c.ReceptionURL); err != nil {
+	if err := browser.Navigate(rp.page, c.ReceptionURL); err != nil {
 		return err
 	}
 
@@ -30,7 +32,7 @@ func (rp *ReceptionPage) Open() error {
 }
 
 func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
-	if err = click(rp.page, filterAccordionSelector); err != nil {
+	if err = browser.Click(rp.page, filterAccordionSelector); err != nil {
 		return err
 	}
 
@@ -39,21 +41,21 @@ func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
 		return fmt.Errorf("page did not stabilize after opening filters: %w", err)
 	}
 
-	if err = selectOption(rp.page, selectStatusSelector, selectStatusOption); err != nil {
+	if err = browser.SelectOption(rp.page, selectStatusSelector, selectStatusOption); err != nil {
 		return fmt.Errorf("failed to select status: %w", err)
 	}
-	if err = selectOption(rp.page, selectReceptionStatus, selectReceptionOption); err != nil {
+	if err = browser.SelectOption(rp.page, selectReceptionStatus, selectReceptionOption); err != nil {
 		return fmt.Errorf("failed to select reception status: %w", err)
 	}
 
-	if err = fillInputTime(rp.page, inputDateFromSelector, date.From); err != nil {
+	if err = browser.FillInputTime(rp.page, inputDateFromSelector, date.From); err != nil {
 		return err
 	}
-	if err = fillInputTime(rp.page, inputDateToSelector, date.To); err != nil {
+	if err = browser.FillInputTime(rp.page, inputDateToSelector, date.To); err != nil {
 		return err
 	}
 
-	if err = click(rp.page, filterButtonSelector); err != nil {
+	if err = browser.Click(rp.page, filterButtonSelector); err != nil {
 		return err
 	}
 
@@ -61,12 +63,12 @@ func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
 }
 
 func (rp *ReceptionPage) ConfirmReception() error {
-	modal, err := rp.page.Timeout(defaultTimeout).Element(modalSelector)
+	modal, err := rp.page.Timeout(constants.DefaultTimeout).Element(modalSelector)
 	if err != nil {
 		return err
 	}
 	// Wait for the modal to be fully visible
-	if err := modal.Timeout(defaultTimeout).WaitVisible(); err != nil {
+	if err := modal.Timeout(constants.DefaultTimeout).WaitVisible(); err != nil {
 		return err
 	}
 
@@ -75,7 +77,7 @@ func (rp *ReceptionPage) ConfirmReception() error {
 	wait := rp.page.MustWaitNavigation()
 
 	log.Info("Confirming reception in modal...")
-	if err := click(rp.page, modalConfirmBtnSelector); err != nil {
+	if err := browser.Click(rp.page, modalConfirmBtnSelector); err != nil {
 		return err
 	}
 
@@ -87,7 +89,7 @@ func (rp *ReceptionPage) ConfirmReception() error {
 
 // Rows returns the collection of abstracted rows
 func (rp *ReceptionPage) Rows() ([]*ReceptionRow, error) {
-	elements, err := rp.page.Timeout(defaultTimeout).ElementsX(tableRowSelector)
+	elements, err := rp.page.Timeout(constants.DefaultTimeout).ElementsX(tableRowSelector)
 	if !errors.Is(err, context.DeadlineExceeded) && err != nil {
 		return nil, err
 	}
@@ -107,12 +109,12 @@ type ReceptionRow struct {
 }
 
 func (r *ReceptionRow) ID() (string, error) {
-	el, err := r.element.Timeout(defaultTimeout).ElementX(dataIDColumnSelector)
+	el, err := r.element.Timeout(constants.DefaultTimeout).ElementX(dataIDColumnSelector)
 	if err != nil {
 		return "", err
 	}
 
-	val, err := el.Timeout(defaultTimeout).Attribute("data-id_")
+	val, err := el.Timeout(constants.DefaultTimeout).Attribute("data-id_")
 	if err != nil || val == nil {
 		return "", err
 	}
@@ -120,7 +122,7 @@ func (r *ReceptionRow) ID() (string, error) {
 }
 
 func (r *ReceptionRow) IsExpired() bool {
-	badge, err := r.element.Timeout(defaultTimeout).Element(".badge-danger")
+	badge, err := r.element.Timeout(constants.DefaultTimeout).Element(".badge-danger")
 	if err != nil || badge == nil {
 		return false
 	}
@@ -129,12 +131,12 @@ func (r *ReceptionRow) IsExpired() bool {
 }
 
 func (r *ReceptionRow) TriggerReception() error {
-	el, err := r.element.Timeout(defaultTimeout).Element(".recepcionar")
+	el, err := r.element.Timeout(constants.DefaultTimeout).Element(".recepcionar")
 	if err != nil {
 		return err
 	}
 
-	return el.Timeout(defaultTimeout).Click(proto.InputMouseButtonLeft, 1)
+	return el.Timeout(constants.DefaultTimeout).Click(proto.InputMouseButtonLeft, 1)
 }
 
 const (

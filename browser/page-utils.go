@@ -1,4 +1,4 @@
-package pages
+package browser
 
 import (
 	"fmt"
@@ -13,23 +13,23 @@ import (
 
 const defaultTimeout = 10 * time.Second
 
-func navigate(page *rod.Page, url string) (err error) {
+func Navigate(page *rod.Page, url string) (err error) {
 	log.Info("navigating to: ", url)
 	if err = page.Timeout(defaultTimeout).Navigate(url); err != nil {
 		return fmt.Errorf("failed to navigate: %w", err)
 	}
-	if err = waitLoad(page); err != nil {
+	if err = WaitLoad(page); err != nil {
 		return fmt.Errorf("wait load failed: %w", err)
 	}
 
 	return nil
 }
 
-func waitLoad(page *rod.Page) error {
+func WaitLoad(page *rod.Page) error {
 	return page.Timeout(defaultTimeout).WaitLoad()
 }
 
-func click(page *rod.Page, query string) error {
+func Click(page *rod.Page, query string) error {
 	el, err := page.Timeout(defaultTimeout).Search(query)
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func click(page *rod.Page, query string) error {
 	return el.First.Click(proto.InputMouseButtonLeft, 1)
 }
 
-func fillInput(page *rod.Page, selector, value string) error {
+func FillInput(page *rod.Page, selector, value string) error {
 	el, err := page.Timeout(defaultTimeout).Element(selector)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func fillInput(page *rod.Page, selector, value string) error {
 	return el.Input(value)
 }
 
-func fillInputTime(page *rod.Page, xpath string, t time.Time) error {
+func FillInputTime(page *rod.Page, xpath string, t time.Time) error {
 	log.Infof("filling input time with: %s", t.Format("2006-01-02"))
 	el, err := page.Timeout(defaultTimeout).ElementX(xpath)
 	if err != nil {
@@ -61,12 +61,12 @@ func fillInputTime(page *rod.Page, xpath string, t time.Time) error {
 	return nil
 }
 
-func selectOption(page *rod.Page, parentSelector string, optionXPath string) (err error) {
-	if err = click(page, parentSelector); err != nil {
+func SelectOption(page *rod.Page, parentSelector string, optionXPath string) (err error) {
+	if err = Click(page, parentSelector); err != nil {
 		return
 	}
 
-	if err = click(page, optionXPath); err != nil {
+	if err = Click(page, optionXPath); err != nil {
 		return err
 	}
 

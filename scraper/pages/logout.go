@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/constants"
 	"github.com/go-rod/rod"
 )
@@ -14,15 +15,15 @@ func NewLogoutPage(p *rod.Page) *LogoutPage {
 }
 
 func (lp *LogoutPage) Open() error {
-	return navigate(lp.page, constants.BaseURL)
+	return browser.Navigate(lp.page, constants.BaseURL)
 }
 
 func (lp *LogoutPage) Logout() (err error) {
-	if err = click(lp.page, profileDropdownSelector); err != nil {
+	if err = browser.Click(lp.page, profileDropdownSelector); err != nil {
 		return err
 	}
 
-	return click(lp.page, logoutSelector)
+	return browser.Click(lp.page, logoutSelector)
 }
 
 const (

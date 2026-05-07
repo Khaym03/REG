@@ -1,10 +1,11 @@
-package session
+package auth
 
 import (
 	"context"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 )
 
@@ -22,7 +23,6 @@ func NewAuthenticatedSession(
 	auth AuthService,
 	user domain.User,
 ) (*AuthenticatedSession, error) {
-
 	if err := auth.Login(ctx, base, user); err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func NewAuthenticatedSession(
 	}, nil
 }
 
-func (s *AuthenticatedSession) Do(ctx context.Context, fn domain.PageFunc) error {
+func (s *AuthenticatedSession) Do(ctx context.Context, fn browser.PageFunc) error {
 	return s.base.Do(ctx, fn)
 }
 

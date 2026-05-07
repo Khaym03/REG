@@ -1,10 +1,9 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/scraper"
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/Khaym03/REG/internal/auth"
 )
 
-func buildAuthService() session.AuthService {
-	return scraper.NewLoginScraper()
+func buildAuthService() auth.AuthService {
+	return auth.NewLoginScraper()
 }

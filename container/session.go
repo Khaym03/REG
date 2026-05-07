@@ -1,13 +1,13 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/Khaym03/REG/internal/auth"
 	"github.com/go-rod/rod"
 )
 
 func buildSessionProvider(
 	browser *rod.Browser,
-	auth session.AuthService,
-) *session.Provider {
-	return session.NewProvider(browser, auth)
+	service auth.AuthService,
+) *auth.Provider {
+	return auth.NewProvider(browser, service)
 }

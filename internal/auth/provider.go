@@ -1,4 +1,4 @@
-package session
+package auth
 
 import (
 	"context"
@@ -16,7 +16,6 @@ type Provider struct {
 func NewProvider(
 	browser *rod.Browser,
 	auth AuthService,
-
 ) *Provider {
 	return &Provider{
 		browser: browser,

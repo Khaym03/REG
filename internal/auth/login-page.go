@@ -1,4 +1,4 @@
-package pages
+package auth
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
@@ -22,7 +23,7 @@ func NewLoginPage(p *rod.Page) *LoginPage {
 }
 
 func (lp *LoginPage) Open() (err error) {
-	if err = navigate(lp.page, c.LoginURL); err != nil {
+	if err = browser.Navigate(lp.page, c.LoginURL); err != nil {
 		return err
 	}
 
@@ -30,10 +31,10 @@ func (lp *LoginPage) Open() (err error) {
 }
 
 func (lp *LoginPage) EnterCredentials(user domain.User) (err error) {
-	if err := fillInput(lp.page, emailInputSelector, user.Username); err != nil {
+	if err := browser.FillInput(lp.page, emailInputSelector, user.Username); err != nil {
 		return fmt.Errorf("email input failed: %w", err)
 	}
-	if err := fillInput(lp.page, passwordInputSelector, user.Password); err != nil {
+	if err := browser.FillInput(lp.page, passwordInputSelector, user.Password); err != nil {
 		return fmt.Errorf("password input failed: %w", err)
 	}
 
@@ -41,11 +42,11 @@ func (lp *LoginPage) EnterCredentials(user domain.User) (err error) {
 }
 
 func (lp *LoginPage) Submit() (err error) {
-	if err = click(lp.page, loginButtonSelector); err != nil {
+	if err = browser.Click(lp.page, loginButtonSelector); err != nil {
 		return
 	}
 
-	if err = waitLoad(lp.page); err != nil {
+	if err = browser.WaitLoad(lp.page); err != nil {
 		return fmt.Errorf("post-login wait failed: %w", err)
 	}
 
@@ -58,9 +59,8 @@ func (lp *LoginPage) Submit() (err error) {
 
 // dismissOptionalModal attempts to clear a popup if it exists.
 func (lp *LoginPage) dismissOptionalModal() error {
-	elements, err := lp.page.Timeout(defaultTimeout).
+	elements, err := lp.page.Timeout(c.DefaultTimeout).
 		ElementsX(makeInteracteableButtonSelector)
-
 	if err != nil {
 		return fmt.Errorf("failed to search for modal elements: %w", err)
 	}
@@ -116,14 +116,14 @@ func (lp *LoginPage) checkLoginError() error {
 }
 
 func (lp *LoginPage) handleVerificationStep() error {
-	verifyInput, err := lp.page.Timeout(defaultTimeout).ElementX(verifyInputSelector)
+	verifyInput, err := lp.page.Timeout(c.DefaultTimeout).ElementX(verifyInputSelector)
 	if err != nil {
 		return nil
 	}
 
 	log.Info("Verification step triggered")
 
-	codeEl, err := lp.page.Timeout(defaultTimeout).ElementX(codeTextSelector)
+	codeEl, err := lp.page.Timeout(c.DefaultTimeout).ElementX(codeTextSelector)
 	if err != nil {
 		return fmt.Errorf("verification code element not found: %w", err)
 	}
@@ -146,7 +146,7 @@ func (lp *LoginPage) handleVerificationStep() error {
 		return fmt.Errorf("failed to press enter: %w", err)
 	}
 
-	if err := waitLoad(lp.page); err != nil {
+	if err := browser.WaitLoad(lp.page); err != nil {
 		return fmt.Errorf("page failed to load after verification: %w", err)
 	}
 

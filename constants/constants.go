@@ -11,6 +11,7 @@ const (
 
 	DateKeyFormat = "2006-01"
 
-	TimeoutMedium = time.Second * 5
-	TimeoutShort  = time.Second * 2
+	TimeoutMedium  = time.Second * 5
+	TimeoutShort   = time.Second * 2
+	DefaultTimeout = time.Second * 15
 )

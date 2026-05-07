@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
@@ -19,12 +20,12 @@ func NewInventoryPage(p *rod.Page) *InventoryPage {
 }
 
 func (ip *InventoryPage) Open() error {
-	return navigate(ip.page, c.InventoryURL)
+	return browser.Navigate(ip.page, c.InventoryURL)
 }
 
 func (ip *InventoryPage) SelectItem(newItem domain.Rubro) (err error) {
 	// click the Select2 container to open the dropdown
-	if err = click(ip.page, select2Container); err != nil {
+	if err = browser.Click(ip.page, select2Container); err != nil {
 		return
 	}
 
@@ -33,7 +34,7 @@ func (ip *InventoryPage) SelectItem(newItem domain.Rubro) (err error) {
 		uppercase, lowercase, newItem.Name, uppercase, lowercase,
 	)
 
-	if err = click(ip.page, xpathOption); err != nil {
+	if err = browser.Click(ip.page, xpathOption); err != nil {
 		return fmt.Errorf("item option '%s' not found in dropdown: %w", newItem.Name, err)
 	}
 
@@ -67,7 +68,7 @@ func (ip *InventoryPage) ExtractExistingRubros() ([]domain.Rubro, error) {
 }
 
 func (ip *InventoryPage) Submit() error {
-	return click(ip.page, uploadButton)
+	return browser.Click(ip.page, uploadButton)
 }
 
 const (

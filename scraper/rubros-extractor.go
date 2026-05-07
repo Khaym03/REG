@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
@@ -77,11 +78,10 @@ func (w *RodRubroWorker) FromGuides(
 		return nil
 	}
 
-	extractTheRubros = WithRetry(3, time.Second*10)(extractTheRubros)
+	extractTheRubros = browser.WithRetry(3, time.Second*10)(extractTheRubros)
 	for i := 0; i < w.workers; i++ {
 		wg.Go(func() {
 			tempSession.Do(ctx, extractTheRubros)
-
 		})
 	}
 

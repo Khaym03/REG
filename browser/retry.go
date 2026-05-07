@@ -1,20 +1,18 @@
-package scraper
+package browser
 
 import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/domain"
 	"github.com/go-rod/rod"
 )
 
 func WithRetry(
 	attempts int,
 	delay time.Duration,
-) func(domain.PageFunc) domain.PageFunc {
-
-	return func(next domain.PageFunc) domain.PageFunc {
+) func(PageFunc) PageFunc {
+	return func(next PageFunc) PageFunc {
 		return func(p *rod.Page) error {
 			var err error
 

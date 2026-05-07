@@ -1,19 +1,18 @@
-package scraper
+package auth
 
 import (
 	"context"
 	"time"
 
+	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/scraper/pages"
-	"github.com/Khaym03/REG/scraper/session"
 	"github.com/go-rod/rod"
 )
 
-var _ session.AuthService = (*LoginScraper)(nil)
+var _ AuthService = (*LoginScraper)(nil)
 
-type LoginScraper struct {
-}
+type LoginScraper struct{}
 
 func NewLoginScraper() *LoginScraper {
 	return &LoginScraper{}
@@ -24,9 +23,8 @@ func (l *LoginScraper) Login(
 	s domain.Session,
 	user domain.User,
 ) (err error) {
-
 	login := func(p *rod.Page) (err error) {
-		loginPage := pages.NewLoginPage(p)
+		loginPage := NewLoginPage(p)
 
 		if err = loginPage.Open(); err != nil {
 			return
@@ -43,7 +41,7 @@ func (l *LoginScraper) Login(
 		return
 	}
 
-	login = WithRetry(3, time.Second*10)(login)
+	login = browser.WithRetry(3, time.Second*10)(login)
 
 	return s.Do(ctx, login)
 }
@@ -62,7 +60,7 @@ func (l *LoginScraper) Logout(
 		return logoutPage.Logout()
 	}
 
-	logout = WithRetry(3, time.Second*10)(logout)
+	logout = browser.WithRetry(3, time.Second*10)(logout)
 
 	return s.Do(ctx, logout)
 }

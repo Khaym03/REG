@@ -8,7 +8,7 @@ import (
 	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/Khaym03/REG/internal/auth"
 )
 
 type WorkFlowInput struct {
@@ -17,14 +17,14 @@ type WorkFlowInput struct {
 }
 
 type ReceptionWorkflow struct {
-	sessionProvider      *session.Provider
+	sessionProvider      *auth.Provider
 	gatherHandler        dcommand.CommandHandler[command.GatherGuidesCommand]
 	syncInventoryHandler dcommand.CommandHandler[command.SyncInventoryCommand]
 	receptionistHandler  dcommand.CommandHandler[command.ReceptionistCommand]
 }
 
 func NewReceptionWorkflow(
-	sp *session.Provider,
+	sp *auth.Provider,
 	gatherH dcommand.CommandHandler[command.GatherGuidesCommand],
 	syncInventoryH dcommand.CommandHandler[command.SyncInventoryCommand],
 	receptionistH dcommand.CommandHandler[command.ReceptionistCommand],
