@@ -10,24 +10,24 @@ import (
 )
 
 type ReceptionistCommand struct {
-	domain.DateRange
+	DateRange
 }
 
 type ReceptionistHandler struct {
 	repo    repo.ReceptionRepository
-	scraper domain.ReceptionService
+	scraper ReceptionService
 }
 
 func NewReceptionistHandler(
 	repo repo.ReceptionRepository,
-	scraper domain.ReceptionService,
+	scraper ReceptionService,
 ) *ReceptionistHandler {
 	return &ReceptionistHandler{repo: repo, scraper: scraper}
 }
 
 func (r *ReceptionistHandler) Handle(
 	ctx context.Context,
-	session domain.Session,
+	session Session,
 	cmd ReceptionistCommand,
 ) error {
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())

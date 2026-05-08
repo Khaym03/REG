@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 )
 
@@ -19,8 +18,8 @@ func NewLoginScraper() *LoginScraper {
 
 func (l *LoginScraper) Login(
 	ctx context.Context,
-	s domain.Session,
-	user domain.User,
+	s Session,
+	user User,
 ) (err error) {
 	login := func(p *rod.Page) (err error) {
 		loginPage := NewLoginPage(p)
@@ -47,7 +46,7 @@ func (l *LoginScraper) Login(
 
 func (l *LoginScraper) Logout(
 	ctx context.Context,
-	s domain.Session,
+	s Session,
 ) (err error) {
 	logout := func(p *rod.Page) error {
 		logoutPage := NewLogoutPage(p)

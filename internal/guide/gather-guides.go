@@ -9,21 +9,21 @@ import (
 )
 
 type GatherGuidesCommand struct {
-	domain.DateRange
+	DateRange
 }
 
 type GatherGuidesHandler struct {
 	guideRepo      repo.GuideRepository
 	rubroRepo      repo.RubroRepository
-	scraper        domain.GuideCollector
-	rubroExtractor domain.RubroExtractor
+	scraper        GuideCollector
+	rubroExtractor RubroExtractor
 }
 
 func NewGatherGuidesHandler(
 	guideRepo repo.GuideRepository,
 	rubroRepo repo.RubroRepository,
-	scraper domain.GuideCollector,
-	rubroExtractor domain.RubroExtractor,
+	scraper GuideCollector,
+	rubroExtractor RubroExtractor,
 ) *GatherGuidesHandler {
 	return &GatherGuidesHandler{
 		guideRepo:      guideRepo,
@@ -35,7 +35,7 @@ func NewGatherGuidesHandler(
 
 func (h GatherGuidesHandler) Handle(
 	ctx context.Context,
-	session domain.Session,
+	session Session,
 	cmd GatherGuidesCommand,
 ) (err error) {
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())

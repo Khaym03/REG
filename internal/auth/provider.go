@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 
-	"github.com/Khaym03/REG/internal/domain"
-
 	"github.com/go-rod/rod"
 )
 
@@ -25,8 +23,8 @@ func NewProvider(
 
 func (p *Provider) Start(
 	ctx context.Context,
-	user domain.User,
-) (domain.Session, error) {
+	user User,
+) (Session, error) {
 	base, err := NewRodSession(p.browser)
 	if err != nil {
 		return nil, err

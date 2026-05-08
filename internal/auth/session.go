@@ -6,10 +6,11 @@ import (
 	"sync"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )
+
+var _ Session = (*RodSession)(nil)
 
 var SessionClosed = errors.New("session closed")
 
@@ -46,7 +47,7 @@ func (s *RodSession) Do(ctx context.Context, fn browser.PageFunc) error {
 	return fn(s.page)
 }
 
-func (s *RodSession) NewIsolated(ctx context.Context) (domain.Session, error) {
+func (s *RodSession) NewIsolated(ctx context.Context) (Session, error) {
 	if s.isClosed() {
 		return nil, SessionClosed
 	}

@@ -7,8 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/common/decorator/command"
-	"github.com/Khaym03/REG/internal/domain"
 )
 
 type LoggingDecorator[C any] struct {
@@ -21,7 +21,7 @@ func NewLoggingDecorator[C any](base command.CommandHandler[C]) LoggingDecorator
 
 func (d LoggingDecorator[C]) Handle(
 	ctx context.Context,
-	session domain.Session,
+	session auth.Session,
 	cmd C,
 ) error {
 	log.Infof("starting command %s\n", generateActionName(cmd))

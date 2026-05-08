@@ -19,7 +19,7 @@ func NewJSONReceptionRepository(store *JSONStore) *JSONReceptionRepository {
 func (r *JSONReceptionRepository) SaveProgress(
 	ctx context.Context,
 	date domain.DateRange,
-	result domain.ReceptionResult,
+	result ReceptionResult,
 ) error {
 
 	return r.store.Update(func(data *repositoryData) error {

@@ -10,7 +10,6 @@ import (
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/constants"
 	c "github.com/Khaym03/REG/internal/constants"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )
@@ -31,7 +30,7 @@ func (rp *ReceptionPage) Open() error {
 	return rp.page.WaitIdle(c.TimeoutShort)
 }
 
-func (rp *ReceptionPage) ApplyFilters(date domain.DateRange) (err error) {
+func (rp *ReceptionPage) ApplyFilters(date DateRange) (err error) {
 	if err = browser.Click(rp.page, filterAccordionSelector); err != nil {
 		return err
 	}

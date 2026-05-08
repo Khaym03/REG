@@ -7,12 +7,11 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 
 	"github.com/go-rod/rod"
 )
 
-var _ domain.InventoryService = (*InventoryScraper)(nil)
+var _ InventoryService = (*InventoryScraper)(nil)
 
 type InventoryScraper struct{}
 
@@ -22,8 +21,8 @@ func NewInventoryScraper() *InventoryScraper {
 
 func (i *InventoryScraper) Insert(
 	ctx context.Context,
-	session domain.Session,
-	newItem domain.Rubro,
+	session Session,
+	newItem Rubro,
 ) (err error) {
 	s, err := session.NewIsolated(ctx)
 	if err != nil {
@@ -62,9 +61,9 @@ func (i *InventoryScraper) Insert(
 
 func (i InventoryScraper) Snapshot(
 	ctx context.Context,
-	session domain.Session,
-) ([]domain.Rubro, error) {
-	var rubros []domain.Rubro
+	session Session,
+) ([]Rubro, error) {
+	var rubros []Rubro
 
 	snapshot := func(p *rod.Page) error {
 		inventoryPage := NewInventoryPage(p)
