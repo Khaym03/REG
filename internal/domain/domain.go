@@ -33,6 +33,6 @@ func NewGuide(id string) (Guide, error) {
 }
 
 type ReceptionResult struct {
-	Processed int
+	Processed uint8
 	Completed bool
 }

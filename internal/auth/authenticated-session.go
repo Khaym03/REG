@@ -4,24 +4,21 @@ import (
 	"context"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 )
 
-var _ domain.Session = (*AuthenticatedSession)(nil)
+var _ Session = (*AuthenticatedSession)(nil)
 
 type AuthenticatedSession struct {
-	base domain.Session
+	base Session
 	auth AuthService
-	user domain.User
+	user User
 }
 
 func NewAuthenticatedSession(
 	ctx context.Context,
-	base domain.Session,
+	base Session,
 	auth AuthService,
-	user domain.User,
+	user User,
 ) (*AuthenticatedSession, error) {
 	if err := auth.Login(ctx, base, user); err != nil {
 		return nil, err
@@ -33,11 +30,11 @@ func NewAuthenticatedSession(
 	}, nil
 }
 
-func (s *AuthenticatedSession) Do(ctx context.Context, fn browser.PageFunc) error {
+func (s *AuthenticatedSession) Do(ctx context.Context, fn PageFunc) error {
 	return s.base.Do(ctx, fn)
 }
 
-func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (domain.Session, error) {
+func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (Session, error) {
 	return s.base.NewIsolated(ctx)
 }
 

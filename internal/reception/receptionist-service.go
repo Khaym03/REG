@@ -8,11 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 )
 
-var _ domain.ReceptionService = (*ReceptionistScraper)(nil)
+var _ ReceptionService = (*ReceptionistScraper)(nil)
 
 type ReceptionistScraper struct{}
 
@@ -22,10 +21,10 @@ func NewReceptionistScraper() *ReceptionistScraper {
 
 func (r *ReceptionistScraper) Receive(
 	ctx context.Context,
-	session domain.Session,
-	date domain.DateRange,
-) (domain.ReceptionResult, error) {
-	result := domain.ReceptionResult{}
+	session Session,
+	date DateRange,
+) (ReceptionResult, error) {
+	result := ReceptionResult{}
 
 	receive := func(p *rod.Page) error {
 		page := NewReceptionPage(p)
@@ -57,8 +56,8 @@ func (r *ReceptionistScraper) Receive(
 
 func (r *ReceptionistScraper) processNextExpiredGuide(
 	page *ReceptionPage,
-	date domain.DateRange,
-	result *domain.ReceptionResult,
+	date DateRange,
+	result *ReceptionResult,
 ) (bool, error) {
 	// Navigate to the receiver page at the start of every iteration
 	// to ensure we have a fresh, non-stale DOM context.

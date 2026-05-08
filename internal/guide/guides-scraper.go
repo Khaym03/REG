@@ -11,7 +11,7 @@ import (
 	"github.com/go-rod/rod"
 )
 
-var _ domain.GuideCollector = (*GuidesScraper)(nil)
+var _ GuideCollector = (*GuidesScraper)(nil)
 
 type GuidesScraper struct{}
 
@@ -21,9 +21,9 @@ func NewGuidesScraper() *GuidesScraper {
 
 func (g GuidesScraper) Collect(
 	ctx context.Context,
-	session domain.Session,
-	date domain.DateRange,
-) (guides []domain.Guide, err error) {
+	session Session,
+	date DateRange,
+) (guides []Guide, err error) {
 	collect := func(p *rod.Page) error {
 		ReceptionPage := reception.NewReceptionPage(p)
 

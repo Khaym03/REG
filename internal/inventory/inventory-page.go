@@ -7,7 +7,6 @@ import (
 
 	"github.com/Khaym03/REG/internal/browser"
 	c "github.com/Khaym03/REG/internal/constants"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 )
 
@@ -23,7 +22,7 @@ func (ip *InventoryPage) Open() error {
 	return browser.Navigate(ip.page, c.InventoryURL)
 }
 
-func (ip *InventoryPage) SelectItem(newItem domain.Rubro) (err error) {
+func (ip *InventoryPage) SelectItem(newItem Rubro) (err error) {
 	// click the Select2 container to open the dropdown
 	if err = browser.Click(ip.page, select2Container); err != nil {
 		return
@@ -41,13 +40,13 @@ func (ip *InventoryPage) SelectItem(newItem domain.Rubro) (err error) {
 	return
 }
 
-func (ip *InventoryPage) ExtractExistingRubros() ([]domain.Rubro, error) {
+func (ip *InventoryPage) ExtractExistingRubros() ([]Rubro, error) {
 	rows, err := ip.page.Elements(inventoryTableRows)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find inventory table rows: %w", err)
 	}
 
-	var existingOnes []domain.Rubro
+	var existingOnes []Rubro
 	for _, row := range rows {
 		// Get columns using relative XPath
 		// td[2] is the Item (Rubro)
@@ -59,7 +58,7 @@ func (ip *InventoryPage) ExtractExistingRubros() ([]domain.Rubro, error) {
 
 		rubro := cells[1].MustText()
 
-		existingOnes = append(existingOnes, domain.Rubro{
+		existingOnes = append(existingOnes, Rubro{
 			Name: rubro,
 		})
 	}

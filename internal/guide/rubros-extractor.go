@@ -8,11 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 )
 
-var _ domain.RubroExtractor = (*RodRubroWorker)(nil)
+var _ RubroExtractor = (*RodRubroWorker)(nil)
 
 type RodRubroWorker struct {
 	workers int
@@ -24,14 +23,14 @@ func NewRodRubroWorker(workers int) *RodRubroWorker {
 
 func (w *RodRubroWorker) FromGuides(
 	ctx context.Context,
-	session domain.Session,
-	guides []domain.Guide,
-) ([]domain.Rubro, error) {
+	session Session,
+	guides []Guide,
+) ([]Rubro, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	jobs := make(chan domain.Guide)
-	rubrosMap := make(map[string]domain.Rubro)
+	jobs := make(chan Guide)
+	rubrosMap := make(map[string]Rubro)
 
 	tempSession, err := session.NewIsolated(ctx)
 	if err != nil {
@@ -94,7 +93,7 @@ func (w *RodRubroWorker) FromGuides(
 
 	wg.Wait()
 
-	var result []domain.Rubro
+	var result []Rubro
 	for _, r := range rubrosMap {
 		result = append(result, r)
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,7 +17,7 @@ func NewGuideDetailsPage(p *rod.Page) *GuideDetailsPage {
 }
 
 // ExtractRubros finds the "RUBROS" table and parses its content into domain entities
-func (p *GuideDetailsPage) ExtractRubros() ([]domain.Rubro, error) {
+func (p *GuideDetailsPage) ExtractRubros() ([]Rubro, error) {
 	// Locate the header, then move to the table container
 	// Using Search instead of MustElement to handle missing elements gracefully
 	header, err := p.page.ElementR("h4", "RUBROS")
@@ -45,7 +44,7 @@ func (p *GuideDetailsPage) ExtractRubros() ([]domain.Rubro, error) {
 		return nil, fmt.Errorf("failed to fetch table rows: %w", err)
 	}
 
-	var results []domain.Rubro
+	var results []Rubro
 	for i, row := range rows {
 		rubro, err := p.parseRow(row)
 		if err != nil {
@@ -59,22 +58,22 @@ func (p *GuideDetailsPage) ExtractRubros() ([]domain.Rubro, error) {
 	return results, nil
 }
 
-func (p *GuideDetailsPage) parseRow(row *rod.Element) (domain.Rubro, error) {
+func (p *GuideDetailsPage) parseRow(row *rod.Element) (Rubro, error) {
 	cols, err := row.Elements("td")
 	if err != nil {
-		return domain.Rubro{}, err
+		return Rubro{}, err
 	}
 
 	if len(cols) < 1 {
-		return domain.Rubro{}, fmt.Errorf("insufficient columns in row")
+		return Rubro{}, fmt.Errorf("insufficient columns in row")
 	}
 
 	name, err := cols[0].Text()
 	if err != nil {
-		return domain.Rubro{}, fmt.Errorf("failed to get text from first column: %w", err)
+		return Rubro{}, fmt.Errorf("failed to get text from first column: %w", err)
 	}
 
-	return domain.Rubro{
+	return Rubro{
 		Name: strings.TrimSpace(name),
 	}, nil
 }

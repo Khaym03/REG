@@ -8,7 +8,6 @@ import (
 
 	"github.com/Khaym03/REG/internal/browser"
 	c "github.com/Khaym03/REG/internal/constants"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
 	"github.com/go-rod/rod/lib/proto"
@@ -30,7 +29,7 @@ func (lp *LoginPage) Open() (err error) {
 	return lp.dismissOptionalModal()
 }
 
-func (lp *LoginPage) EnterCredentials(user domain.User) (err error) {
+func (lp *LoginPage) EnterCredentials(user User) (err error) {
 	if err := browser.FillInput(lp.page, emailInputSelector, user.Username); err != nil {
 		return fmt.Errorf("email input failed: %w", err)
 	}

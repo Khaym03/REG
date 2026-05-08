@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
 )
 
@@ -13,12 +12,12 @@ type SyncInventoryCommand struct{}
 
 type SyncInventoryHandler struct {
 	repo    repo.RubroRepository
-	scraper domain.InventoryService
+	scraper InventoryService
 }
 
 func NewInventoryHandler(
 	repo repo.RubroRepository,
-	scraper domain.InventoryService,
+	scraper InventoryService,
 ) *SyncInventoryHandler {
 	return &SyncInventoryHandler{
 		repo:    repo,
@@ -28,7 +27,7 @@ func NewInventoryHandler(
 
 func (h *SyncInventoryHandler) Handle(
 	ctx context.Context,
-	session domain.Session,
+	session Session,
 	cmd SyncInventoryCommand,
 ) error {
 	remoteRubros, err := h.scraper.Snapshot(ctx, session)
