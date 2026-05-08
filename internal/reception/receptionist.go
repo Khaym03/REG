@@ -1,4 +1,4 @@
-package command
+package reception
 
 import (
 	"context"
@@ -29,12 +29,10 @@ func (r *ReceptionistHandler) Handle(
 	session domain.Session,
 	cmd ReceptionistCommand,
 ) error {
-
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
 
 	for _, d := range dates {
 		completed, err := r.repo.IsCompleted(ctx, d)
-
 		if err != nil {
 			return err
 		}

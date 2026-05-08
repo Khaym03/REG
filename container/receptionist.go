@@ -1,19 +1,17 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper"
+	"github.com/Khaym03/REG/internal/reception"
 )
 
 func buildReceptionHandler(
 	repo domain.ReceptionRepository,
-) dcommand.CommandHandler[command.ReceptionistCommand] {
-
-	base := command.NewReceptionistHandler(
+) dcommand.CommandHandler[reception.ReceptionistCommand] {
+	base := reception.NewReceptionistHandler(
 		repo,
-		scraper.NewReceptionistScraper(),
+		reception.NewReceptionistScraper(),
 	)
 
 	return withLogging(base)

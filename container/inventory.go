@@ -1,19 +1,17 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper"
+	"github.com/Khaym03/REG/internal/inventory"
 )
 
 func buildInventoryHandler(
 	repo domain.RubroRepository,
-) dcommand.CommandHandler[command.SyncInventoryCommand] {
-
-	base := command.NewInventoryHandler(
+) dcommand.CommandHandler[inventory.SyncInventoryCommand] {
+	base := inventory.NewInventoryHandler(
 		repo,
-		scraper.NewInventoryScraper(),
+		inventory.NewInventoryScraper(),
 	)
 
 	return withLogging(base)

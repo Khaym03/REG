@@ -5,11 +5,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/app/command"
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/guide"
+	"github.com/Khaym03/REG/internal/inventory"
+	"github.com/Khaym03/REG/internal/reception"
 )
 
 type WorkFlowInput struct {
@@ -20,15 +21,15 @@ type WorkFlowInput struct {
 type ReceptionWorkflow struct {
 	sessionProvider      *auth.Provider
 	gatherHandler        dcommand.CommandHandler[guide.GatherGuidesCommand]
-	syncInventoryHandler dcommand.CommandHandler[command.SyncInventoryCommand]
-	receptionistHandler  dcommand.CommandHandler[command.ReceptionistCommand]
+	syncInventoryHandler dcommand.CommandHandler[inventory.SyncInventoryCommand]
+	receptionistHandler  dcommand.CommandHandler[reception.ReceptionistCommand]
 }
 
 func NewReceptionWorkflow(
 	sp *auth.Provider,
 	gatherH dcommand.CommandHandler[guide.GatherGuidesCommand],
-	syncInventoryH dcommand.CommandHandler[command.SyncInventoryCommand],
-	receptionistH dcommand.CommandHandler[command.ReceptionistCommand],
+	syncInventoryH dcommand.CommandHandler[inventory.SyncInventoryCommand],
+	receptionistH dcommand.CommandHandler[reception.ReceptionistCommand],
 ) *ReceptionWorkflow {
 	return &ReceptionWorkflow{
 		sessionProvider:      sp,
@@ -59,12 +60,12 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 		return err
 	}
 
-	err = w.syncInventoryHandler.Handle(ctx, session, command.SyncInventoryCommand{})
+	err = w.syncInventoryHandler.Handle(ctx, session, inventory.SyncInventoryCommand{})
 	if err != nil {
 		return err
 	}
 
-	err = w.receptionistHandler.Handle(ctx, session, command.ReceptionistCommand{
+	err = w.receptionistHandler.Handle(ctx, session, reception.ReceptionistCommand{
 		DateRange: input.Date,
 	})
 	if err != nil {

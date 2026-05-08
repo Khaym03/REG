@@ -1,4 +1,4 @@
-package scraper
+package reception
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
 )
 
@@ -29,7 +28,7 @@ func (r *ReceptionistScraper) Receive(
 	result := domain.ReceptionResult{}
 
 	receive := func(p *rod.Page) error {
-		page := pages.NewReceptionPage(p)
+		page := NewReceptionPage(p)
 
 		for {
 
@@ -57,7 +56,7 @@ func (r *ReceptionistScraper) Receive(
 }
 
 func (r *ReceptionistScraper) processNextExpiredGuide(
-	page *pages.ReceptionPage,
+	page *ReceptionPage,
 	date domain.DateRange,
 	result *domain.ReceptionResult,
 ) (bool, error) {
