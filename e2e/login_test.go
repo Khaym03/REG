@@ -3,9 +3,8 @@ package e2e
 import (
 	"testing"
 
-	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper"
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,7 +18,7 @@ func TestLoginSuite(t *testing.T) {
 }
 
 func (suite *LoginTestSuite) TestLoginSuccess() {
-	provider := session.NewProvider(suite.NewBrowser(), scraper.NewLoginScraper())
+	provider := auth.NewProvider(suite.NewBrowser(), auth.NewLoginScraper())
 	username, password := suite.LoadCredential()
 	if username == "" || password == "" {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
@@ -41,7 +40,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 }
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
-	provider := session.NewProvider(suite.NewBrowser(), scraper.NewLoginScraper())
+	provider := auth.NewProvider(suite.NewBrowser(), auth.NewLoginScraper())
 	user := domain.User{
 		Username: "fake@example.com",
 		Password: "wrong",

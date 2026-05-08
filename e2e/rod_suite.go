@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Khaym03/REG/scraper/session"
+	"github.com/Khaym03/REG/internal/auth"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/joho/godotenv"
@@ -13,7 +13,7 @@ import (
 
 type RodSuite struct {
 	suite.Suite
-	provider *session.Provider
+	provider *auth.Provider
 }
 
 func (suite *RodSuite) SetupSuite() {
@@ -27,7 +27,6 @@ func (suite *RodSuite) SetupSuite() {
 	if os.Getenv("REG_E2E") != "1" {
 		suite.T().Skip("Skipping rod-based tests; set REG_E2E=1 to run")
 	}
-
 }
 
 // func (suite *RodSuite) TearDownSuite() {
