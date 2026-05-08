@@ -1,4 +1,4 @@
-package pages
+package guide
 
 import (
 	"fmt"

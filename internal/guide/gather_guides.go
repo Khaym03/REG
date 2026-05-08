@@ -1,4 +1,4 @@
-package command
+package guide
 
 import (
 	"context"
@@ -41,7 +41,6 @@ func (h GatherGuidesHandler) Handle(
 
 	for _, d := range dates {
 		exist, err := h.guideRepo.Exists(ctx, d)
-
 		if err != nil {
 			return err
 		}

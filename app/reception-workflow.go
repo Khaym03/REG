@@ -9,6 +9,7 @@ import (
 	dcommand "github.com/Khaym03/REG/common/decorator/command"
 	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/guide"
 )
 
 type WorkFlowInput struct {
@@ -18,14 +19,14 @@ type WorkFlowInput struct {
 
 type ReceptionWorkflow struct {
 	sessionProvider      *auth.Provider
-	gatherHandler        dcommand.CommandHandler[command.GatherGuidesCommand]
+	gatherHandler        dcommand.CommandHandler[guide.GatherGuidesCommand]
 	syncInventoryHandler dcommand.CommandHandler[command.SyncInventoryCommand]
 	receptionistHandler  dcommand.CommandHandler[command.ReceptionistCommand]
 }
 
 func NewReceptionWorkflow(
 	sp *auth.Provider,
-	gatherH dcommand.CommandHandler[command.GatherGuidesCommand],
+	gatherH dcommand.CommandHandler[guide.GatherGuidesCommand],
 	syncInventoryH dcommand.CommandHandler[command.SyncInventoryCommand],
 	receptionistH dcommand.CommandHandler[command.ReceptionistCommand],
 ) *ReceptionWorkflow {
@@ -51,7 +52,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 		log.Info("Done")
 	}()
 
-	err = w.gatherHandler.Handle(ctx, session, command.GatherGuidesCommand{
+	err = w.gatherHandler.Handle(ctx, session, guide.GatherGuidesCommand{
 		DateRange: input.Date,
 	})
 	if err != nil {

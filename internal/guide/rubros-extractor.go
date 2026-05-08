@@ -1,4 +1,4 @@
-package scraper
+package guide
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
 )
 
@@ -45,7 +44,7 @@ func (w *RodRubroWorker) FromGuides(
 	}()
 
 	extractTheRubros := func(p *rod.Page) error {
-		guidePage := pages.NewGuideDetailsPage(p)
+		guidePage := NewGuideDetailsPage(p)
 
 		for guide := range jobs {
 			if ctx.Err() != nil {
