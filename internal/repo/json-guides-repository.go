@@ -1,4 +1,4 @@
-package adapters
+package repo
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 )
 
-var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
+var _ GuideRepository = (*JSONGuideRepository)(nil)
 
 type JSONGuideRepository struct {
 	store *JSONStore

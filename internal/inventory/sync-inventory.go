@@ -6,17 +6,18 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/repo"
 )
 
 type SyncInventoryCommand struct{}
 
 type SyncInventoryHandler struct {
-	repo    domain.RubroRepository
+	repo    repo.RubroRepository
 	scraper domain.InventoryService
 }
 
 func NewInventoryHandler(
-	repo domain.RubroRepository,
+	repo repo.RubroRepository,
 	scraper domain.InventoryService,
 ) *SyncInventoryHandler {
 	return &SyncInventoryHandler{

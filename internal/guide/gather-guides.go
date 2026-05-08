@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/repo"
 )
 
 type GatherGuidesCommand struct {
@@ -12,15 +13,15 @@ type GatherGuidesCommand struct {
 }
 
 type GatherGuidesHandler struct {
-	guideRepo      domain.GuideRepository
-	rubroRepo      domain.RubroRepository
+	guideRepo      repo.GuideRepository
+	rubroRepo      repo.RubroRepository
 	scraper        domain.GuideCollector
 	rubroExtractor domain.RubroExtractor
 }
 
 func NewGatherGuidesHandler(
-	guideRepo domain.GuideRepository,
-	rubroRepo domain.RubroRepository,
+	guideRepo repo.GuideRepository,
+	rubroRepo repo.RubroRepository,
 	scraper domain.GuideCollector,
 	rubroExtractor domain.RubroExtractor,
 ) *GatherGuidesHandler {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/repo"
 )
 
 type ReceptionistCommand struct {
@@ -13,12 +14,12 @@ type ReceptionistCommand struct {
 }
 
 type ReceptionistHandler struct {
-	repo    domain.ReceptionRepository
+	repo    repo.ReceptionRepository
 	scraper domain.ReceptionService
 }
 
 func NewReceptionistHandler(
-	repo domain.ReceptionRepository,
+	repo repo.ReceptionRepository,
 	scraper domain.ReceptionService,
 ) *ReceptionistHandler {
 	return &ReceptionistHandler{repo: repo, scraper: scraper}

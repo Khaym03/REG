@@ -2,13 +2,13 @@ package container
 
 import (
 	dcommand "github.com/Khaym03/REG/internal/common/decorator/command"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/guide"
+	"github.com/Khaym03/REG/internal/repo"
 )
 
 func buildGatherGuidesHandler(
-	guideRepo domain.GuideRepository,
-	rubroRepo domain.RubroRepository,
+	guideRepo repo.GuideRepository,
+	rubroRepo repo.RubroRepository,
 ) dcommand.CommandHandler[guide.GatherGuidesCommand] {
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)

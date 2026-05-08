@@ -1,4 +1,4 @@
-package adapters
+package repo
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 )
 
-var _ domain.RubroRepository = (*JSONRubroRepository)(nil)
+var _ RubroRepository = (*JSONRubroRepository)(nil)
 
 type JSONRubroRepository struct {
 	store *JSONStore

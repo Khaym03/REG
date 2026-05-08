@@ -1,8 +1,8 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/adapters"
 	"github.com/Khaym03/REG/app"
+	"github.com/Khaym03/REG/internal/repo"
 	"github.com/go-rod/rod"
 )
 
@@ -11,10 +11,10 @@ type Container struct {
 }
 
 func BuildContainer(browser *rod.Browser) *Container {
-	store := adapters.NewJSONStore("state.json")
-	guideRepo := adapters.NewJSONGuideRepository(store)
-	receptionRepo := adapters.NewJSONReceptionRepository(store)
-	rubroRepo := adapters.NewJSONRubroRepository(store)
+	store := repo.NewJSONStore("state.json")
+	guideRepo := repo.NewJSONGuideRepository(store)
+	receptionRepo := repo.NewJSONReceptionRepository(store)
+	rubroRepo := repo.NewJSONRubroRepository(store)
 
 	authService := buildAuthService()
 	sessionProvider := buildSessionProvider(browser, authService)
