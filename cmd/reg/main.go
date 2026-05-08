@@ -17,44 +17,39 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+}
 
+func main() {
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		syscall.SIGINT,
 		syscall.SIGTERM,
-		syscall.SIGKILL,
 	)
 	defer stop()
 
-	mustLoadEnv()
-
-	dateRange := getDateRangeFromFlags()
-	user := loadCredential()
 	browser := browser.BuildBrowser(ctx)
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
 
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- c.Workflow.Run(
-			ctx,
-			app.WorkFlowInput{
-				User: user,
-				Date: dateRange,
-			},
-		)
-	}()
+	err := c.Workflow.Run(
+		ctx,
+		app.WorkFlowInput{
+			User: loadCredential(),
+			Date: getDateRangeFromFlags(),
+		},
+	)
 
-	err := <-errCh
 	if err != nil {
 		log.Println(err)
 	}
 
 	<-ctx.Done()
-
 }
 
 func getDateRangeFromFlags() domain.DateRange {
@@ -89,12 +84,6 @@ func getDateRangeFromFlags() domain.DateRange {
 	}
 
 	return dateRange
-}
-
-func mustLoadEnv() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
 }
 
 func loadCredential() domain.User {
