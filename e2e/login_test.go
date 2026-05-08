@@ -3,8 +3,8 @@ package e2e
 import (
 	"testing"
 
-	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )

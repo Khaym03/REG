@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	c "github.com/Khaym03/REG/constants"
+	c "github.com/Khaym03/REG/internal/constants"
 )
 
 type DateRange struct {

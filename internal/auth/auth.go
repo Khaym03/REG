@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/domain"
 )
 
 type AuthService interface {

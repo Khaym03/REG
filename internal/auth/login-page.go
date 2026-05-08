@@ -6,9 +6,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	c "github.com/Khaym03/REG/constants"
-	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/internal/browser"
+	c "github.com/Khaym03/REG/internal/constants"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/input"
 	"github.com/go-rod/rod/lib/proto"

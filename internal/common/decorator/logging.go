@@ -7,8 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/common/decorator/command"
-	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/common/decorator/command"
+	"github.com/Khaym03/REG/internal/domain"
 )
 
 type LoggingDecorator[C any] struct {

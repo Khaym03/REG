@@ -6,7 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	c "github.com/Khaym03/REG/constants"
+	c "github.com/Khaym03/REG/internal/constants"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )

@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 
-	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/domain"
 )
 
 type CommandHandler[C any] interface {

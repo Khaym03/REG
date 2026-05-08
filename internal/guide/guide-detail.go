@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/go-rod/rod"
 	log "github.com/sirupsen/logrus"
 )

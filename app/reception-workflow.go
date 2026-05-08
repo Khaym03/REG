@@ -5,9 +5,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	dcommand "github.com/Khaym03/REG/common/decorator/command"
-	"github.com/Khaym03/REG/domain"
 	"github.com/Khaym03/REG/internal/auth"
+	dcommand "github.com/Khaym03/REG/internal/common/decorator/command"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/guide"
 	"github.com/Khaym03/REG/internal/inventory"
 	"github.com/Khaym03/REG/internal/reception"

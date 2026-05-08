@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Khaym03/REG/constants"
+	"github.com/Khaym03/REG/internal/constants"
 )
 
 type User struct {

@@ -1,8 +1,8 @@
 package container
 
 import (
-	"github.com/Khaym03/REG/common/decorator"
-	"github.com/Khaym03/REG/common/decorator/command"
+	"github.com/Khaym03/REG/internal/common/decorator"
+	"github.com/Khaym03/REG/internal/common/decorator/command"
 )
 
 func withLogging[T any](handler command.CommandHandler[T]) command.CommandHandler[T] {

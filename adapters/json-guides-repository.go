@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 
-	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/domain"
 )
 
 var _ domain.GuideRepository = (*JSONGuideRepository)(nil)
