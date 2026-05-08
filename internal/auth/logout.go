@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/constants"
+	"github.com/Khaym03/REG/internal/browser"
 	"github.com/go-rod/rod"
 )
 

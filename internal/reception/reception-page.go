@@ -7,10 +7,10 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/constants"
 	c "github.com/Khaym03/REG/constants"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/browser"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )

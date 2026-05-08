@@ -5,8 +5,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
+	"github.com/Khaym03/REG/internal/browser"
 )
 
 var _ domain.Session = (*AuthenticatedSession)(nil)
