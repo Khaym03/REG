@@ -1,4 +1,4 @@
-package command
+package inventory
 
 import (
 	"context"
@@ -30,7 +30,6 @@ func (h *SyncInventoryHandler) Handle(
 	session domain.Session,
 	cmd SyncInventoryCommand,
 ) error {
-
 	remoteRubros, err := h.scraper.Snapshot(ctx, session)
 	if err != nil {
 		return fmt.Errorf("snapshot inventory: %w", err)
