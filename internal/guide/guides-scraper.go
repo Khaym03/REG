@@ -6,7 +6,8 @@ import (
 
 	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/pages"
+	"github.com/Khaym03/REG/internal/reception"
+
 	"github.com/go-rod/rod"
 )
 
@@ -24,7 +25,7 @@ func (g GuidesScraper) Collect(
 	date domain.DateRange,
 ) (guides []domain.Guide, err error) {
 	collect := func(p *rod.Page) error {
-		ReceptionPage := pages.NewReceptionPage(p)
+		ReceptionPage := reception.NewReceptionPage(p)
 
 		ReceptionPage.Open()
 		ReceptionPage.ApplyFilters(date)

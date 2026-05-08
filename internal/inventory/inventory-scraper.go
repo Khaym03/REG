@@ -8,7 +8,7 @@ import (
 
 	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/pages"
+
 	"github.com/go-rod/rod"
 )
 
@@ -36,7 +36,7 @@ func (i *InventoryScraper) Insert(
 	}()
 
 	insert := func(p *rod.Page) error {
-		inventoryPage := pages.NewInventoryPage(p)
+		inventoryPage := NewInventoryPage(p)
 
 		if err := inventoryPage.Open(); err != nil {
 			return err
@@ -67,7 +67,7 @@ func (i InventoryScraper) Snapshot(
 	var rubros []domain.Rubro
 
 	snapshot := func(p *rod.Page) error {
-		inventoryPage := pages.NewInventoryPage(p)
+		inventoryPage := NewInventoryPage(p)
 
 		if err := inventoryPage.Open(); err != nil {
 			return err

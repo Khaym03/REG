@@ -6,7 +6,6 @@ import (
 
 	"github.com/Khaym03/REG/browser"
 	"github.com/Khaym03/REG/domain"
-	"github.com/Khaym03/REG/scraper/pages"
 	"github.com/go-rod/rod"
 )
 
@@ -51,7 +50,7 @@ func (l *LoginScraper) Logout(
 	s domain.Session,
 ) (err error) {
 	logout := func(p *rod.Page) error {
-		logoutPage := pages.NewLogoutPage(p)
+		logoutPage := NewLogoutPage(p)
 
 		if err = logoutPage.Open(); err != nil {
 			return err
