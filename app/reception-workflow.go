@@ -14,7 +14,7 @@ import (
 )
 
 type WorkFlowInput struct {
-	User domain.User
+	User auth.User
 	Date domain.DateRange
 }
 

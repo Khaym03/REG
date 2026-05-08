@@ -7,11 +7,6 @@ import (
 	"github.com/Khaym03/REG/internal/constants"
 )
 
-type User struct {
-	Username string
-	Password string
-}
-
 type Rubro struct {
 	Name string `json:"name"`
 }

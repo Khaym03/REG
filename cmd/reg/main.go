@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/app"
+	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/container"
 	"github.com/Khaym03/REG/internal/domain"
@@ -86,8 +87,8 @@ func getDateRangeFromFlags() domain.DateRange {
 	return dateRange
 }
 
-func loadCredential() domain.User {
-	return domain.User{
+func loadCredential() auth.User {
+	return auth.User{
 		Username: os.Getenv("REG_TEST_USERNAME"),
 		Password: os.Getenv("REG_TEST_PASSWORD"),
 	}

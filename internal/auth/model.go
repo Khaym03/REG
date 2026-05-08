@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/domain"
 )
 
 // Session provides controlled access to browser pages.
@@ -28,7 +27,11 @@ type AuthService interface {
 	Logout(context.Context, Session) error
 }
 
+type User struct {
+	Username string
+	Password string
+}
+
 type (
-	User     = domain.User
 	PageFunc = browser.PageFunc
 )

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/domain"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -24,7 +23,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
 	}
 
-	user := domain.User{
+	user := auth.User{
 		Username: username,
 		Password: password,
 	}
@@ -41,7 +40,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 	provider := auth.NewProvider(suite.NewBrowser(), auth.NewLoginScraper())
-	user := domain.User{
+	user := auth.User{
 		Username: "fake@example.com",
 		Password: "wrong",
 	}
