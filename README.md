@@ -2,7 +2,11 @@
 
 REG is short for **Receiver of Expired Guides**.
 
-This repository automates workflow actions against the sica.sunagro.gob.ve web app, including login flow and subsequent receipt/inventory features
+This repository automates workflow actions against the sica.sunagro.gob.ve web app, including login flow and subsequent receipt/inventory features.
+
+## Architecture overview
+
+![System overview diagram](doc/reg.png)
 
 ### Required environment variables
 
