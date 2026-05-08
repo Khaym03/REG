@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 
-	"github.com/Khaym03/REG/browser"
+	"github.com/Khaym03/REG/internal/browser"
 )
 
 // Session provides controlled access to browser pages.
