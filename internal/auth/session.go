@@ -44,7 +44,19 @@ func (s *RodSession) Do(ctx context.Context, fn browser.PageFunc) error {
 		return SessionClosed
 	}
 
-	return fn(s.page)
+	errCh := make(chan error, 1)
+
+	page := s.page.Context(ctx)
+	go func() {
+		errCh <- fn(page)
+	}()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		return context.Cause(ctx)
+	}
 }
 
 func (s *RodSession) NewIsolated(ctx context.Context) (Session, error) {
