@@ -2,3 +2,7 @@
 rod_data/
 state.json
 bin/
+
+build/bin
+node_modules
+frontend/dist
