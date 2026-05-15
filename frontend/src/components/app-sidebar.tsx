@@ -11,6 +11,7 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import { RowsIcon, TreeStructureIcon, GearIcon } from '@phosphor-icons/react'
+import { ModeToggle } from './mode-toggle'
 
 interface NavData {
   user: User
@@ -53,6 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavREG items={data.navItems} />
       </SidebarContent>
       <SidebarFooter>
+        <ModeToggle/>
         <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />
