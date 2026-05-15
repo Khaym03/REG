@@ -67,11 +67,6 @@ type QuickSelector = {
 
 const QUICK_SELECTORS: QuickSelector[] = [
   {
-    label: 'This year',
-    startMonth: new Date(new Date().getFullYear(), 0),
-    endMonth: new Date(new Date().getFullYear(), 11)
-  },
-  {
     label: 'Last 6 month',
     startMonth: new Date(addMonths(new Date(), -6)),
     endMonth: new Date()
@@ -366,7 +361,7 @@ function MonthRangeCal({
       </div>
 
       {showQuickSelectors ? (
-        <div className=" grid grid-cols-4  gap-1 justify-center">
+        <div className=" grid grid-cols-3  gap-2 justify-center">
           {quickSelectors.map(s => {
             return (
               <Button
