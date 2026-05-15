@@ -202,6 +202,7 @@ function MonthRangeCal({
                 buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
                 'inline-flex items-center justify-center h-7 w-7 p-0 absolute left-1'
               )}
+              type="button"
             >
               <CaretLeftIcon className="opacity-50 h-4 w-4" />
             </button>
@@ -214,6 +215,7 @@ function MonthRangeCal({
                 buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
                 'inline-flex items-center justify-center h-7 w-7 p-0 absolute right-1'
               )}
+              type="button"
             >
               <CaretRightIcon className="opacity-50 h-4 w-4" />
             </button>
@@ -345,6 +347,7 @@ function MonthRangeCal({
                             }),
                             'h-full w-full p-0 font-normal aria-selected:opacity-100'
                           )}
+                          type="button"
                         >
                           {callbacks?.monthLabel
                             ? callbacks.monthLabel(m)
@@ -378,6 +381,7 @@ function MonthRangeCal({
                 }}
                 key={s.label}
                 variant={s.variant ?? 'outline'}
+                type="button"
               >
                 {s.label}
               </Button>
