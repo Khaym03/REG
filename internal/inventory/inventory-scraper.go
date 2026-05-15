@@ -54,7 +54,7 @@ func (i *InventoryScraper) Insert(
 		return nil
 	}
 
-	insert = browser.WithRetry(3, time.Second*10)(insert)
+	insert = browser.WithRetry(ctx, 3, time.Second*10)(insert)
 
 	return s.Do(ctx, insert)
 }
@@ -77,7 +77,7 @@ func (i InventoryScraper) Snapshot(
 		return err
 	}
 
-	snapshot = browser.WithRetry(3, time.Second*10)(snapshot)
+	snapshot = browser.WithRetry(ctx, 3, time.Second*10)(snapshot)
 
 	return rubros, session.Do(ctx, snapshot)
 }

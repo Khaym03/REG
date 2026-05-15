@@ -39,7 +39,7 @@ func (l *LoginScraper) Login(
 		return
 	}
 
-	login = browser.WithRetry(3, time.Second*10)(login)
+	login = browser.WithRetry(ctx, 3, time.Second*10)(login)
 
 	return s.Do(ctx, login)
 }
@@ -58,7 +58,7 @@ func (l *LoginScraper) Logout(
 		return logoutPage.Logout()
 	}
 
-	logout = browser.WithRetry(3, time.Second*10)(logout)
+	logout = browser.WithRetry(ctx, 3, time.Second*10)(logout)
 
 	return s.Do(ctx, logout)
 }

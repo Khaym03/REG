@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"context"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -9,6 +10,7 @@ import (
 )
 
 func WithRetry(
+	ctx context.Context,
 	attempts int,
 	delay time.Duration,
 ) func(PageFunc) PageFunc {
@@ -26,7 +28,11 @@ func WithRetry(
 					break
 				}
 
-				time.Sleep(delay)
+				select {
+				case <-ctx.Done():
+					return context.Cause(ctx)
+				case <-time.After(delay):
+				}
 				delay *= 2
 				log.Warn("Retrying")
 			}
