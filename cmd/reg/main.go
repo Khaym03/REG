@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -33,7 +32,7 @@ func main() {
 	)
 	defer stop()
 
-	browser := browser.BuildBrowser(ctx)
+	browser := browser.BuildBrowser(ctx, browser.BrowserConfig{})
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
@@ -41,7 +40,7 @@ func main() {
 	err := c.Workflow.Run(
 		ctx,
 		app.WorkFlowInput{
-			User: loadCredential(),
+			User: auth.LoadCredential(),
 			Date: getDateRangeFromFlags(),
 		},
 	)
@@ -85,11 +84,4 @@ func getDateRangeFromFlags() domain.DateRange {
 	}
 
 	return dateRange
-}
-
-func loadCredential() auth.User {
-	return auth.User{
-		Username: os.Getenv("REG_TEST_USERNAME"),
-		Password: os.Getenv("REG_TEST_PASSWORD"),
-	}
 }

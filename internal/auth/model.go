@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"os"
 
 	"github.com/Khaym03/REG/internal/browser"
 )
@@ -28,10 +29,17 @@ type AuthService interface {
 }
 
 type User struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type (
 	PageFunc = browser.PageFunc
 )
+
+func LoadCredential() User {
+	return User{
+		Username: os.Getenv("REG_TEST_USERNAME"),
+		Password: os.Getenv("REG_TEST_PASSWORD"),
+	}
+}

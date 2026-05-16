@@ -3,10 +3,23 @@ package main
 import (
 	"embed"
 
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		ForceColors:      false,
+		DisableTimestamp: true,
+	})
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+
+}
 
 //go:embed all:frontend/dist
 var assets embed.FS

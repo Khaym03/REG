@@ -14,8 +14,8 @@ import (
 )
 
 type WorkFlowInput struct {
-	User auth.User
-	Date domain.DateRange
+	User auth.User        `json:"user"`
+	Date domain.DateRange `json:"date"`
 }
 
 type ReceptionWorkflow struct {
