@@ -4,6 +4,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar'
+import { Link } from '@tanstack/react-router'
 
 export interface NavItem {
   name: string
@@ -18,10 +19,10 @@ export function NavREG({ items }: { items: NavItem[] }) {
         {items.map(item => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <Link to={item.url}>
                 {item.icon}
                 <span>{item.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

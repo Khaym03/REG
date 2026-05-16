@@ -41,12 +41,12 @@ const data: NavData = {
   navItems: [
     {
       name: 'Workflow',
-      url: '#',
+      url: '/',
       icon: <TreeStructureIcon />
     },
     {
       name: 'Settings',
-      url: '#',
+      url: '/settings',
       icon: <GearIcon />
     }
   ]
