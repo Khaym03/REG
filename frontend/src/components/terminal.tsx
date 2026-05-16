@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { EventsOn } from 'wails/runtime'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { TerminalWindowIcon } from '@phosphor-icons/react'
 
 interface LogEntry {
   id: string
@@ -83,19 +84,25 @@ export function TerminalLogs({ eventName = 'LOG', maxEntries = 500 }) {
         ref={viewportRef}
         data-slot="scroll-area"
         style={{
-          height: `248px`,
-          width: `720px`,
+          height: `266px`,
+          width: `799px`,
           overflow: 'auto'
         }}
-        className="p-4 border"
+        className=""
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
+            height: `
+            ${rowVirtualizer.getTotalSize() > 0 ? rowVirtualizer.getTotalSize() + 'px' : '100%'}`,
             width: '100%',
             position: 'relative'
           }}
         >
+          {entries.length == 0 && (
+            <div className="size-full flex justify-center items-center text-foreground/10">
+              <TerminalWindowIcon size={96} />
+            </div>
+          )}
           {rowVirtualizer.getVirtualItems().map(virtualRow => (
             <div
               key={virtualRow.index}

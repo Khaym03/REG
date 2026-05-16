@@ -186,7 +186,7 @@ function MonthRangeCal({
   if (minDate && maxDate && minDate > maxDate) minDate = maxDate
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="grid flex-col  gap-4">
       <div className="min-w-100 space-y-4">
         <div className="flex justify-evenly pt-1 relative items-center">
           <div className="text-sm font-medium">
