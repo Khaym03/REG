@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/container"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/joho/godotenv"
@@ -33,7 +33,7 @@ func main() {
 	)
 	defer stop()
 
-	browser, err := browser.BuildBrowser(ctx, browserConfFromENV())
+	browser, err := browser.BuildBrowser(ctx, config.BrowserConfFromENV())
 	if err != nil {
 		log.Error(err)
 		return
@@ -89,11 +89,4 @@ func getDateRangeFromFlags() domain.DateRange {
 	}
 
 	return dateRange
-}
-
-func browserConfFromENV() browser.BrowserConfig {
-	return browser.BrowserConfig{
-		Headless: os.Getenv("REG_HEADLESS") == "1",
-		Trace:    os.Getenv("REG_ROD_VERBOSE") == "1",
-	}
 }
