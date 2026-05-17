@@ -33,12 +33,16 @@ func main() {
 	)
 	defer stop()
 
-	browser := browser.BuildBrowser(ctx, browserConfFromENV())
+	browser, err := browser.BuildBrowser(ctx, browserConfFromENV())
+	if err != nil {
+		log.Error(err)
+		return
+	}
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
 
-	err := c.Workflow.Run(
+	err = c.Workflow.Run(
 		ctx,
 		app.WorkFlowInput{
 			User: auth.LoadCredential(),

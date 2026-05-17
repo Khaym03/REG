@@ -85,12 +85,16 @@ func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf browser.BrowserCo
 		}()
 
 		browserConf.LoggerOut = a.loggerOut
-		browser := browser.BuildBrowser(ctx, browserConf)
+		browser, err := browser.BuildBrowser(ctx, browserConf)
+		if err != nil {
+			log.Error(err)
+			return
+		}
 		defer browser.MustClose()
 
 		c := container.BuildContainer(browser)
 
-		err := c.Workflow.Run(
+		err = c.Workflow.Run(
 			ctx,
 			app.WorkFlowInput{
 				User: input.User,
