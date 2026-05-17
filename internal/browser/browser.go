@@ -12,6 +12,8 @@ import (
 
 type BrowserConfig struct {
 	LoggerOut io.Writer
+	Headless  bool `json:"headless,omitempty"`
+	Trace     bool `json:"trace,omitempty"`
 }
 
 func BuildBrowser(ctx context.Context, conf BrowserConfig) *rod.Browser {
@@ -21,7 +23,7 @@ func BuildBrowser(ctx context.Context, conf BrowserConfig) *rod.Browser {
 	}
 
 	l := launcher.New().
-		Headless(os.Getenv("REG_HEADLESS") == "1").
+		Headless(conf.Headless).
 		Devtools(false).
 		Leakless(false).
 		UserDataDir(filepath.Join(rootDir, "rod_data"))
@@ -29,7 +31,7 @@ func BuildBrowser(ctx context.Context, conf BrowserConfig) *rod.Browser {
 	browser := rod.New().
 		Context(ctx).
 		ControlURL(l.MustLaunch()).
-		Trace(os.Getenv("REG_ROD_VERBOSE") == "1")
+		Trace(conf.Trace)
 
 	if conf.LoggerOut != nil {
 		l = l.Logger(conf.LoggerOut)
