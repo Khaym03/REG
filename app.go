@@ -53,8 +53,9 @@ func (a *App) startup(ctx context.Context) {
 	log.SetOutput(a.loggerOut)
 }
 
-func (a *App) RunWorkflow(input app.WorkFlowInput) {
+func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf browser.BrowserConfig) {
 	log.Info(input)
+	log.Info(browserConf)
 
 	a.mu.Lock()
 
@@ -74,7 +75,6 @@ func (a *App) RunWorkflow(input app.WorkFlowInput) {
 		defer func() {
 			a.mu.Lock()
 
-			// limpiar solo si sigue siendo el actual
 			if a.cancel != nil {
 				a.cancel = nil
 			}
@@ -84,9 +84,8 @@ func (a *App) RunWorkflow(input app.WorkFlowInput) {
 			cancel()
 		}()
 
-		browser := browser.BuildBrowser(ctx, browser.BrowserConfig{
-			LoggerOut: a.loggerOut,
-		})
+		browserConf.LoggerOut = a.loggerOut
+		browser := browser.BuildBrowser(ctx, browserConf)
 		defer browser.MustClose()
 
 		c := container.BuildContainer(browser)
