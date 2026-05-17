@@ -3,6 +3,7 @@ export namespace app {
 	export class WorkFlowInput {
 	    user: auth.User;
 	    date: domain.DateRange;
+	    receive_guides_in_transit?: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new WorkFlowInput(source);
@@ -12,6 +13,7 @@ export namespace app {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.user = this.convertValues(source["user"], auth.User);
 	        this.date = this.convertValues(source["date"], domain.DateRange);
+	        this.receive_guides_in_transit = source["receive_guides_in_transit"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -49,6 +51,27 @@ export namespace auth {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.username = source["username"];
 	        this.password = source["password"];
+	    }
+	}
+
+}
+
+export namespace browser {
+	
+	export class BrowserConfig {
+	    LoggerOut: any;
+	    headless?: boolean;
+	    trace?: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new BrowserConfig(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.LoggerOut = source["LoggerOut"];
+	        this.headless = source["headless"];
+	        this.trace = source["trace"];
 	    }
 	}
 

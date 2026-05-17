@@ -14,8 +14,9 @@ import (
 )
 
 type WorkFlowInput struct {
-	User auth.User        `json:"user"`
-	Date domain.DateRange `json:"date"`
+	User                   auth.User        `json:"user"`
+	Date                   domain.DateRange `json:"date"`
+	ReceiveGuidesInTransit bool             `json:"receive_guides_in_transit,omitempty"`
 }
 
 type ReceptionWorkflow struct {

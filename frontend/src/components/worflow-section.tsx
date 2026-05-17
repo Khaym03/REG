@@ -9,49 +9,18 @@ import {
 } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
 import { SpinnerGapIcon } from '@phosphor-icons/react'
-import { useForm, useStore } from '@tanstack/react-form'
+import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
-import { app, domain } from 'wails/go/models'
-import { GetUser, RunWorkflow, StopWorkflow } from 'wails/go/main/App'
+import { StopWorkflow } from 'wails/go/main/App'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TerminalLogs } from '@/components/terminal'
 import DisplaySelectedDate from '@/components/display-selected-date'
-import type { DateRange } from '@/types/types'
-
-interface WorkflowInput {
-  dateRange: DateRange
-  receptionPendingGuides: boolean
-}
-
-const defaultWorkflowInput: WorkflowInput = {
-  dateRange: {
-    from: new Date(),
-    to: new Date()
-  },
-  receptionPendingGuides: false
-}
+import { useAppForms } from './use-app'
 
 export default function App() {
-  const form = useForm({
-    defaultValues: defaultWorkflowInput,
-    onSubmit: async ({ value }) => {
-      console.log(value)
+  const { workflowForm } = useAppForms()
 
-      const date = new domain.DateRange()
-      date.from = value.dateRange.from
-      date.to = value.dateRange.to
-
-      const work = new app.WorkFlowInput()
-      work.user = await GetUser()
-      work.date = date
-
-      console.log(work)
-
-      await RunWorkflow(work)
-    }
-  })
-
-  const dates = useStore(form.store, state => state.values.dateRange)
+  const dates = useStore(workflowForm.store, state => state.values.dateRange)
 
   return (
     <>
@@ -60,11 +29,11 @@ export default function App() {
           onSubmit={e => {
             e.preventDefault()
             e.stopPropagation()
-            form.handleSubmit()
+            workflowForm.handleSubmit()
           }}
           className="flex justify-between gap-4"
         >
-          <form.Field
+          <workflowForm.Field
             name="dateRange"
             children={field => (
               <MonthRangePicker
@@ -83,8 +52,8 @@ export default function App() {
           />
           <div className="grid grid-cols-1 gap-2">
             <DisplaySelectedDate dates={dates} />
-            <form.Field
-              name="receptionPendingGuides"
+            <workflowForm.Field
+              name="receive_guides_in_transit"
               children={field => {
                 return (
                   <FieldLabel htmlFor={field.name}>
@@ -108,7 +77,7 @@ export default function App() {
               }}
             />
 
-            <form.Subscribe
+            <workflowForm.Subscribe
               selector={state => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
                 <div className="flex flex-col justify-end gap-1">
@@ -130,7 +99,7 @@ export default function App() {
                     onClick={e => {
                       // Avoid unexpected resets of form elements (especially <select> elements)
                       e.preventDefault()
-                      form.reset()
+                      workflowForm.reset()
                     }}
                   >
                     Reset
