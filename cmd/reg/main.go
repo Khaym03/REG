@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -32,7 +33,7 @@ func main() {
 	)
 	defer stop()
 
-	browser := browser.BuildBrowser(ctx, browser.BrowserConfig{})
+	browser := browser.BuildBrowser(ctx, browserConfFromENV())
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
@@ -84,4 +85,11 @@ func getDateRangeFromFlags() domain.DateRange {
 	}
 
 	return dateRange
+}
+
+func browserConfFromENV() browser.BrowserConfig {
+	return browser.BrowserConfig{
+		Headless: os.Getenv("REG_HEADLESS") == "1",
+		Trace:    os.Getenv("REG_ROD_VERBOSE") == "1",
+	}
 }
