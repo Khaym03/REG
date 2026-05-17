@@ -1,11 +1,11 @@
 import { createContext, useContext } from 'react'
 import { useForm } from '@tanstack/react-form'
-import { app, browser, domain } from 'wails/go/models'
+import { app, config, domain } from 'wails/go/models'
 import { GetUser, RunWorkflow } from 'wails/go/main/App'
 import type { WorkflowInput } from '@/types/types'
 
 export type BrowserConfigForm = ReturnType<typeof useBrowserConfigFormInstance>
-const defaultBrowserConfig = new browser.BrowserConfig({
+const defaultBrowserConfig = new config.BrowserConfig({
   headless: true,
   trace: true
 })
@@ -45,7 +45,7 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
 
       await RunWorkflow(
         work,
-        new browser.BrowserConfig({
+        new config.BrowserConfig({
           headless: browserForm.state.values.headless,
 
           trace: browserForm.state.values.trace

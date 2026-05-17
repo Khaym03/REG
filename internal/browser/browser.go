@@ -2,21 +2,15 @@ package browser
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/Khaym03/REG/internal/config"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 )
 
-type BrowserConfig struct {
-	LoggerOut io.Writer
-	Headless  bool `json:"headless,omitempty"`
-	Trace     bool `json:"trace,omitempty"`
-}
-
-func BuildBrowser(ctx context.Context, conf BrowserConfig) (*rod.Browser, error) {
+func BuildBrowser(ctx context.Context, conf config.BrowserConfig) (*rod.Browser, error) {
 	rootDir, err := os.Getwd()
 	if err != nil {
 		panic(err)

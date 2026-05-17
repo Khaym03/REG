@@ -10,6 +10,7 @@ import (
 	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/container"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -45,15 +46,21 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
+	writers := make([]io.Writer, 0, 2)
+	writers = []io.Writer{&WailsLogWriter{ctx: a.ctx}}
+
+	if config.IsDev() {
+		writers = append(writers, os.Stdout)
+	}
+
 	a.loggerOut = io.MultiWriter(
-		os.Stdout,
-		&WailsLogWriter{ctx: a.ctx},
+		writers...,
 	)
 
 	log.SetOutput(a.loggerOut)
 }
 
-func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf browser.BrowserConfig) {
+func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf config.BrowserConfig) {
 	log.Info(input)
 	log.Info(browserConf)
 

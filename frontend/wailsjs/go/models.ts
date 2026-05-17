@@ -56,7 +56,7 @@ export namespace auth {
 
 }
 
-export namespace browser {
+export namespace config {
 	
 	export class BrowserConfig {
 	    LoggerOut: any;
