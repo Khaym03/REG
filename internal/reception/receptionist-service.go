@@ -47,7 +47,7 @@ func (r *ReceptionistScraper) Receive(
 		}
 	}
 
-	receive = browser.WithRetry(3, time.Second*10)(receive)
+	receive = browser.WithRetry(ctx, 3, time.Second*10)(receive)
 
 	err := session.Do(ctx, receive)
 

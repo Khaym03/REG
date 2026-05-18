@@ -53,7 +53,7 @@ func (g GuidesScraper) Collect(
 		return nil
 	}
 
-	collect = browser.WithRetry(3, time.Second*10)(collect)
+	collect = browser.WithRetry(ctx, 3, time.Second*10)(collect)
 
 	err = session.Do(ctx, collect)
 

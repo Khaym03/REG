@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/container"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/joho/godotenv"
@@ -33,15 +33,19 @@ func main() {
 	)
 	defer stop()
 
-	browser := browser.BuildBrowser(ctx)
+	browser, err := browser.BuildBrowser(ctx, config.BrowserConfFromENV())
+	if err != nil {
+		log.Error(err)
+		return
+	}
 	defer browser.MustClose()
 
 	c := container.BuildContainer(browser)
 
-	err := c.Workflow.Run(
+	err = c.Workflow.Run(
 		ctx,
 		app.WorkFlowInput{
-			User: loadCredential(),
+			User: auth.LoadCredential(),
 			Date: getDateRangeFromFlags(),
 		},
 	)
@@ -85,11 +89,4 @@ func getDateRangeFromFlags() domain.DateRange {
 	}
 
 	return dateRange
-}
-
-func loadCredential() auth.User {
-	return auth.User{
-		Username: os.Getenv("REG_TEST_USERNAME"),
-		Password: os.Getenv("REG_TEST_PASSWORD"),
-	}
 }

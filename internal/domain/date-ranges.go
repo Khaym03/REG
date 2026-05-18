@@ -8,8 +8,8 @@ import (
 )
 
 type DateRange struct {
-	From time.Time
-	To   time.Time
+	From time.Time `json:"from"`
+	To   time.Time `json:"to"`
 }
 
 func (d DateRange) MonthKey() string {

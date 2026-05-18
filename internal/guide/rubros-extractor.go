@@ -76,7 +76,7 @@ func (w *RodRubroWorker) FromGuides(
 		return nil
 	}
 
-	extractTheRubros = browser.WithRetry(3, time.Second*10)(extractTheRubros)
+	extractTheRubros = browser.WithRetry(ctx, 3, time.Second*10)(extractTheRubros)
 	for i := 0; i < w.workers; i++ {
 		wg.Go(func() {
 			tempSession.Do(ctx, extractTheRubros)

@@ -28,6 +28,6 @@ func NewGuide(id string) (Guide, error) {
 }
 
 type ReceptionResult struct {
-	Processed uint8
-	Completed bool
+	Processed uint8 `json:"processed"`
+	Completed bool  `json:"completed"`
 }
