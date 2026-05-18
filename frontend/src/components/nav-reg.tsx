@@ -4,13 +4,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar'
+import type { NavItem } from '@/types/types'
 import { Link } from '@tanstack/react-router'
-
-export interface NavItem {
-  name: string
-  url: string
-  icon: React.ReactNode
-}
 
 export function NavREG({ items }: { items: NavItem[] }) {
   return (

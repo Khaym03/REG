@@ -1,16 +1,10 @@
-import * as React from 'react'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar'
-
-export interface NavLogoData {
-  name: string
-  logo: React.ReactNode
-  plan: string
-}
+import type { NavLogoData } from '@/types/types'
 
 export function NavLogo({ data }: { data: NavLogoData }) {
   const { toggleSidebar } = useSidebar()

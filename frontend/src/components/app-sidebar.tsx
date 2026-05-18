@@ -1,8 +1,6 @@
-import * as React from 'react'
-
-import { NavREG, type NavItem } from '@/components/nav-reg'
-import { NavUser, type User } from '@/components/nav-user'
-import { NavLogo, type NavLogoData } from '@/components/nav-logo'
+import { NavREG } from '@/components/nav-reg'
+import { NavUser } from '@/components/nav-user'
+import { NavLogo } from '@/components/nav-logo'
 import {
   Sidebar,
   SidebarContent,
@@ -10,49 +8,17 @@ import {
   SidebarHeader,
   SidebarRail
 } from '@/components/ui/sidebar'
-import {
-  RowsIcon,
-  TreeStructureIcon,
-  GearIcon,
-  XIcon,
-  MinusIcon
-} from '@phosphor-icons/react'
+import { XIcon, MinusIcon } from '@phosphor-icons/react'
 import { ModeToggle } from './mode-toggle'
 import { Button } from './ui/button'
 import { Quit, WindowMinimise } from 'wails/runtime/runtime'
+import type { ComponentProps } from 'react'
+import type { NavData } from '@/types/types'
 
-interface NavData {
-  user: User
-  data: NavLogoData
-  navItems: NavItem[]
+interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
+  navData: NavData
 }
-
-const data: NavData = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg'
-  },
-  data: {
-    name: 'REG',
-    logo: <RowsIcon />,
-    plan: 'free'
-  },
-  navItems: [
-    {
-      name: 'Workflow',
-      url: '/',
-      icon: <TreeStructureIcon />
-    },
-    {
-      name: 'Settings',
-      url: '/settings',
-      icon: <GearIcon />
-    }
-  ]
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ navData, ...props }: AppSidebarProps) {
   return (
     <Sidebar side="right" collapsible="icon" {...props}>
       <div className="grid grid-cols-3">
@@ -73,13 +39,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Button>
       </div>
       <SidebarHeader>
-        <NavLogo data={data.data} />
+        {navData && <NavLogo data={navData.data} />}
       </SidebarHeader>
       <SidebarContent>
-        <NavREG items={data.navItems} />
+        {navData && <NavREG items={navData.navItems} />}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {navData && <NavUser user={navData.user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
