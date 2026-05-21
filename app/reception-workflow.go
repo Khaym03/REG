@@ -67,7 +67,8 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	}
 
 	err = w.receptionistHandler.Handle(ctx, session, reception.ReceptionistCommand{
-		DateRange: input.Date,
+		Date:                   input.Date,
+		ReceiveGuidesInTransit: input.ReceiveGuidesInTransit,
 	})
 	if err != nil {
 		return err

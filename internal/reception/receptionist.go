@@ -10,7 +10,8 @@ import (
 )
 
 type ReceptionistCommand struct {
-	DateRange
+	Date                   DateRange
+	ReceiveGuidesInTransit bool
 }
 
 type ReceptionistHandler struct {
@@ -30,7 +31,7 @@ func (r *ReceptionistHandler) Handle(
 	session Session,
 	cmd ReceptionistCommand,
 ) error {
-	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
+	dates := domain.MonthlyDateRanges(cmd.Date.From, cmd.Date.To, time.Now())
 
 	for _, d := range dates {
 		completed, err := r.repo.IsCompleted(ctx, d)
@@ -38,11 +39,15 @@ func (r *ReceptionistHandler) Handle(
 			return err
 		}
 
-		if completed {
+		isNotCurrentMonth := d.From.Month() != time.Now().Month()
+		if completed && isNotCurrentMonth {
 			continue
 		}
 
-		result, err := r.scraper.Receive(ctx, session, d)
+		result, err := r.scraper.Receive(ctx, session, ReceptionOptions{
+			Date:                   cmd.Date,
+			ReceiveGuidesInTransit: cmd.ReceiveGuidesInTransit,
+		})
 		r.repo.SaveProgress(ctx, d, result)
 
 		if err != nil {

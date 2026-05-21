@@ -7,8 +7,13 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 )
 
+type ReceptionOptions struct {
+	Date                   DateRange
+	ReceiveGuidesInTransit bool
+}
+
 type ReceptionService interface {
-	Receive(context.Context, Session, DateRange) (ReceptionResult, error)
+	Receive(context.Context, Session, ReceptionOptions) (ReceptionResult, error)
 }
 
 type (

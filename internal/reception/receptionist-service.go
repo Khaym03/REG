@@ -22,7 +22,7 @@ func NewReceptionistScraper() *ReceptionistScraper {
 func (r *ReceptionistScraper) Receive(
 	ctx context.Context,
 	session Session,
-	date DateRange,
+	opt ReceptionOptions,
 ) (ReceptionResult, error) {
 	result := ReceptionResult{}
 
@@ -31,14 +31,14 @@ func (r *ReceptionistScraper) Receive(
 
 		for {
 
-			processed, err := r.processNextExpiredGuide(page, date, &result)
+			processed, err := r.processNextExpiredGuide(page, opt, &result)
 			if err != nil {
 				return err
 			}
 
 			if !processed {
 				result.Completed = true
-				log.Info("No more expired guides found for this range.", date)
+				log.Info("No more expired guides found for this range.", opt.Date)
 				return nil
 			}
 
@@ -56,7 +56,7 @@ func (r *ReceptionistScraper) Receive(
 
 func (r *ReceptionistScraper) processNextExpiredGuide(
 	page *ReceptionPage,
-	date DateRange,
+	opt ReceptionOptions,
 	result *ReceptionResult,
 ) (bool, error) {
 	// Navigate to the receiver page at the start of every iteration
@@ -65,7 +65,7 @@ func (r *ReceptionistScraper) processNextExpiredGuide(
 		return false, err
 	}
 
-	if err := page.ApplyFilters(date); err != nil {
+	if err := page.ApplyFilters(opt.Date); err != nil {
 		return false, err
 	}
 
@@ -75,7 +75,7 @@ func (r *ReceptionistScraper) processNextExpiredGuide(
 	}
 
 	for _, row := range rows {
-		if !row.IsExpired() {
+		if !opt.ReceiveGuidesInTransit {
 			continue
 		}
 

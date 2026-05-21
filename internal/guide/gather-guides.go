@@ -46,7 +46,9 @@ func (h GatherGuidesHandler) Handle(
 			return err
 		}
 
-		if exist {
+		isNotCurrentMonth := d.From.Month() != time.Now().Month()
+
+		if exist && isNotCurrentMonth {
 			continue
 		}
 
