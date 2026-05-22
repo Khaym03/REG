@@ -58,9 +58,9 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 		log.Info("Done")
 	}()
 
-	s := w.statsHandler.Handle(ctx, session, stats.StatsCMD{})
-	if s.IsZero() {
-		log.Info("No guides found, avoiding unnecessary work")
+	stats := w.statsHandler.Handle(ctx, session, stats.StatsCMD{})
+	if !stats.HasActionableGuides(input.ReceiveGuidesInTransit) {
+		log.Info("No actionable guides found")
 		return nil
 	}
 

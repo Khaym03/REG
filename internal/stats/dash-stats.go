@@ -145,6 +145,15 @@ func normalizeValue(value, title string) string {
 	return strings.TrimSpace(value)
 }
 
+func (s Stats) HasActionableGuides(receiveInTransit bool) bool {
+	hasExpiredGuides := s.ExpiredGuides > 0
+
+	canReceiveInTransit := receiveInTransit &&
+		s.InTransitGuides > 0
+
+	return hasExpiredGuides || canReceiveInTransit
+}
+
 func (s *Stats) add(statType string, value int) {
 	switch statType {
 	case labelOutstandingDebt:
