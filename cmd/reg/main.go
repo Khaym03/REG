@@ -32,12 +32,16 @@ func main() {
 	)
 	defer stop()
 
-	application, cleanup := service.NewApplication(ctx, config.BrowserConfFromENV())
+	application, cleanup, err := service.NewApplication(ctx, config.BrowserConfFromENV())
+	if err != nil {
+		log.Error(err)
+		return
+	}
 	defer cleanup()
 
 	work := workflow.NewReceptionWorkflow(application)
 
-	err := work.Run(
+	err = work.Run(
 		ctx,
 		workflow.WorkFlowInput{
 			User: auth.LoadCredential(),

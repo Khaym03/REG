@@ -91,12 +91,16 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 		}()
 
 		browserConf.LoggerOut = a.loggerOut
-		application, cleanup := service.NewApplication(ctx, browserConf)
+		application, cleanup, err := service.NewApplication(ctx, browserConf)
+		if err != nil {
+			log.Error(err)
+			return
+		}
 		defer cleanup()
 
 		work := workflow.NewReceptionWorkflow(application)
 
-		err := work.Run(
+		err = work.Run(
 			ctx,
 			input,
 		)

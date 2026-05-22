@@ -3,17 +3,16 @@ package service
 import (
 	"context"
 
-	"github.com/Khaym03/REG/app/commands/stats"
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/repo"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
 	"github.com/Khaym03/REG/internal/workflow/command/guide"
 	"github.com/Khaym03/REG/internal/workflow/command/inventory"
 	"github.com/Khaym03/REG/internal/workflow/command/reception"
+	"github.com/Khaym03/REG/internal/workflow/queries/stats"
 )
 
 type CleanUpFunc func()
@@ -21,14 +20,12 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	conf config.BrowserConfig,
-) (*app.Application, CleanUpFunc) {
+) (*app.Application, CleanUpFunc, error) {
 
 	browser, err := browser.BuildBrowser(ctx, conf)
 	if err != nil {
-		log.Error(err)
-		panic(err)
+		return nil, nil, err
 	}
-	defer browser.MustClose()
 
 	store := repo.NewJSONStore("state.json")
 	guideRepo := repo.NewJSONGuideRepository(store)
@@ -70,5 +67,6 @@ func NewApplication(
 		},
 		func() {
 			browser.MustClose()
-		}
+		},
+		nil
 }
