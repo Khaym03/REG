@@ -1,29 +1,27 @@
-package stats_test
+package stats
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/Khaym03/REG/internal/stats"
 )
 
 func TestStats_HasActionableGuides(t *testing.T) {
 	tests := []struct {
 		name               string
-		stats              stats.Stats
+		stats              Stats
 		receiveInTransit   bool
 		expectedActionable bool
 	}{
 		{
 			name:               "no guides at all",
-			stats:              stats.Stats{},
+			stats:              Stats{},
 			receiveInTransit:   false,
 			expectedActionable: false,
 		},
 		{
 			name: "expired guides should always be actionable",
-			stats: stats.Stats{
+			stats: Stats{
 				ExpiredGuides: 2,
 			},
 			receiveInTransit:   false,
@@ -31,7 +29,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "in-transit guides enabled",
-			stats: stats.Stats{
+			stats: Stats{
 				InTransitGuides: 3,
 			},
 			receiveInTransit:   true,
@@ -39,7 +37,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "in-transit guides disabled",
-			stats: stats.Stats{
+			stats: Stats{
 				InTransitGuides: 3,
 			},
 			receiveInTransit:   false,
@@ -47,7 +45,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "expired guides take precedence even if in-transit disabled",
-			stats: stats.Stats{
+			stats: Stats{
 				InTransitGuides: 2,
 				ExpiredGuides:   1,
 			},
@@ -56,7 +54,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "expired and in-transit enabled",
-			stats: stats.Stats{
+			stats: Stats{
 				InTransitGuides: 4,
 				ExpiredGuides:   2,
 			},
@@ -65,7 +63,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "other stats alone are not actionable",
-			stats: stats.Stats{
+			stats: Stats{
 				OutstandingDebt:   100,
 				PendingProcedures: 1,
 			},
@@ -74,7 +72,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "all stats populated with in-transit enabled",
-			stats: stats.Stats{
+			stats: Stats{
 				OutstandingDebt:   100,
 				InTransitGuides:   5,
 				ExpiredGuides:     1,
@@ -85,7 +83,7 @@ func TestStats_HasActionableGuides(t *testing.T) {
 		},
 		{
 			name: "all stats populated with only expired actionable",
-			stats: stats.Stats{
+			stats: Stats{
 				OutstandingDebt:   100,
 				InTransitGuides:   5,
 				ExpiredGuides:     1,

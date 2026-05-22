@@ -8,15 +8,18 @@ import (
 	"sync"
 
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/common/decorator"
 
 	"github.com/go-rod/rod"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
-type StatsCMD struct{}
+type StatsQuery struct{}
 
-type StatsHandler struct{}
+type StatsHandler decorator.QueryHandler[StatsQuery, Stats]
+
+type statsHandler struct{}
 
 type Stats struct {
 	OutstandingDebt   uint16 `json:"outstanding_debt,omitempty"`
@@ -25,8 +28,8 @@ type Stats struct {
 	PendingProcedures uint16 `json:"pending_procedures,omitempty"`
 }
 
-func NewStatsHandler() *StatsHandler {
-	return &StatsHandler{}
+func NewStatsHandler() StatsHandler {
+	return &statsHandler{}
 }
 
 func (s Stats) IsZero() bool {
@@ -46,11 +49,11 @@ func (s Stats) String() string {
 	return builder.String()
 }
 
-func (svc *StatsHandler) Handle(
+func (svc *statsHandler) Handle(
 	ctx context.Context,
 	session auth.Session,
-	_ StatsCMD,
-) Stats {
+	_ StatsQuery,
+) (Stats, error) {
 	var result Stats
 	var mutex sync.Mutex
 
@@ -82,7 +85,7 @@ func (svc *StatsHandler) Handle(
 
 	log.Info(result.String())
 
-	return result
+	return result, nil
 }
 
 func extractCardData(card *rod.Element) (string, int, error) {

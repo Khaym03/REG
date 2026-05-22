@@ -7,11 +7,10 @@ import (
 
 	"sync"
 
-	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
-	"github.com/Khaym03/REG/internal/container"
+	"github.com/Khaym03/REG/internal/workflow"
+	"github.com/Khaym03/REG/internal/workflow/service"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -60,7 +59,7 @@ func (a *App) startup(ctx context.Context) {
 	log.SetOutput(a.loggerOut)
 }
 
-func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf config.BrowserConfig) {
+func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
 	log.Info(input)
 	log.Info(browserConf)
 
@@ -92,21 +91,14 @@ func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf config.BrowserCon
 		}()
 
 		browserConf.LoggerOut = a.loggerOut
-		browser, err := browser.BuildBrowser(ctx, browserConf)
-		if err != nil {
-			log.Error(err)
-			return
-		}
-		defer browser.MustClose()
+		application, cleanup := service.NewApplication(ctx, browserConf)
+		defer cleanup()
 
-		c := container.BuildContainer(browser)
+		work := workflow.NewReceptionWorkflow(application)
 
-		err = c.Workflow.Run(
+		err := work.Run(
 			ctx,
-			app.WorkFlowInput{
-				User: input.User,
-				Date: input.Date,
-			},
+			input,
 		)
 
 		if err != nil {
@@ -117,9 +109,7 @@ func (a *App) RunWorkflow(input app.WorkFlowInput, browserConf config.BrowserCon
 
 	select {
 	case <-ctx.Done():
-		return
 	case <-done:
-		return
 	}
 }
 

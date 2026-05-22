@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
 )
@@ -12,7 +13,9 @@ type GatherGuidesCommand struct {
 	DateRange
 }
 
-type GatherGuidesHandler struct {
+type GatherGuidesHandler decorator.CommandHandler[GatherGuidesCommand]
+
+type gatherGuidesHandler struct {
 	guideRepo      repo.GuideRepository
 	rubroRepo      repo.RubroRepository
 	scraper        GuideCollector
@@ -24,8 +27,8 @@ func NewGatherGuidesHandler(
 	rubroRepo repo.RubroRepository,
 	scraper GuideCollector,
 	rubroExtractor RubroExtractor,
-) *GatherGuidesHandler {
-	return &GatherGuidesHandler{
+) GatherGuidesHandler {
+	return &gatherGuidesHandler{
 		guideRepo:      guideRepo,
 		rubroRepo:      rubroRepo,
 		scraper:        scraper,
@@ -33,7 +36,7 @@ func NewGatherGuidesHandler(
 	}
 }
 
-func (h GatherGuidesHandler) Handle(
+func (h gatherGuidesHandler) Handle(
 	ctx context.Context,
 	session Session,
 	cmd GatherGuidesCommand,

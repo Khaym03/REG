@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
 )
@@ -14,7 +15,9 @@ type ReceptionistCommand struct {
 	ReceiveGuidesInTransit bool
 }
 
-type ReceptionistHandler struct {
+type ReceptionistHandler decorator.CommandHandler[ReceptionistCommand]
+
+type receptionistHandler struct {
 	repo    repo.ReceptionRepository
 	scraper ReceptionService
 }
@@ -22,11 +25,11 @@ type ReceptionistHandler struct {
 func NewReceptionistHandler(
 	repo repo.ReceptionRepository,
 	scraper ReceptionService,
-) *ReceptionistHandler {
-	return &ReceptionistHandler{repo: repo, scraper: scraper}
+) ReceptionistHandler {
+	return &receptionistHandler{repo: repo, scraper: scraper}
 }
 
-func (r *ReceptionistHandler) Handle(
+func (r *receptionistHandler) Handle(
 	ctx context.Context,
 	session Session,
 	cmd ReceptionistCommand,

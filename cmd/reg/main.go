@@ -9,12 +9,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Khaym03/REG/app"
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
-	"github.com/Khaym03/REG/internal/container"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/workflow"
+	"github.com/Khaym03/REG/internal/workflow/service"
 	"github.com/joho/godotenv"
 )
 
@@ -33,18 +32,14 @@ func main() {
 	)
 	defer stop()
 
-	browser, err := browser.BuildBrowser(ctx, config.BrowserConfFromENV())
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	defer browser.MustClose()
+	application, cleanup := service.NewApplication(ctx, config.BrowserConfFromENV())
+	defer cleanup()
 
-	c := container.BuildContainer(browser)
+	work := workflow.NewReceptionWorkflow(application)
 
-	err = c.Workflow.Run(
+	err := work.Run(
 		ctx,
-		app.WorkFlowInput{
+		workflow.WorkFlowInput{
 			User: auth.LoadCredential(),
 			Date: getDateRangeFromFlags(),
 		},

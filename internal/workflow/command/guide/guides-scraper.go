@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/Khaym03/REG/internal/app/command/reception"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/domain"
-	"github.com/Khaym03/REG/internal/reception"
 
 	"github.com/go-rod/rod"
 )

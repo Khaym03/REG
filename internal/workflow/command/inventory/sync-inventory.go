@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/repo"
 )
 
 type SyncInventoryCommand struct{}
 
-type SyncInventoryHandler struct {
+type SyncInventoryHandler decorator.CommandHandler[SyncInventoryCommand]
+
+type syncInventoryHandler struct {
 	repo    repo.RubroRepository
 	scraper InventoryService
 }
@@ -18,14 +21,14 @@ type SyncInventoryHandler struct {
 func NewInventoryHandler(
 	repo repo.RubroRepository,
 	scraper InventoryService,
-) *SyncInventoryHandler {
-	return &SyncInventoryHandler{
+) SyncInventoryHandler {
+	return &syncInventoryHandler{
 		repo:    repo,
 		scraper: scraper,
 	}
 }
 
-func (h *SyncInventoryHandler) Handle(
+func (h *syncInventoryHandler) Handle(
 	ctx context.Context,
 	session Session,
 	cmd SyncInventoryCommand,
