@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"regexp"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -78,7 +81,7 @@ func (lp *LoginPage) dismissOptionalModal() error {
 	}
 
 	// Wait for the element to disappear
-	if err := modalBtn.WaitInvisible(); err != nil {
+	if err := modalBtn.Timeout(time.Second * 3).WaitInvisible(); err != nil {
 		return fmt.Errorf("modal button did not disappear: %w", err)
 	}
 
@@ -115,9 +118,12 @@ func (lp *LoginPage) checkLoginError() error {
 }
 
 func (lp *LoginPage) handleVerificationStep() error {
-	verifyInput, err := lp.page.Timeout(c.DefaultTimeout).ElementX(verifyInputSelector)
+	verifyInput, err := lp.page.Timeout(time.Second * 3).ElementX(verifyInputSelector)
 	if err != nil {
-		return nil
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil
+		}
+		return err
 	}
 
 	log.Info("Verification step triggered")
