@@ -8,14 +8,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/common/decorator/command"
 )
 
 type LoggingDecorator[C any] struct {
-	base command.CommandHandler[C]
+	base CommandHandler[C]
 }
 
-func NewLoggingDecorator[C any](base command.CommandHandler[C]) LoggingDecorator[C] {
+func NewLoggingDecorator[C any](base CommandHandler[C]) LoggingDecorator[C] {
 	return LoggingDecorator[C]{base: base}
 }
 

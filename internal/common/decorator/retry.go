@@ -7,7 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/common/decorator/command"
 )
 
 var DefaultRetryConfig = RetryDecoratorConfig{
@@ -23,13 +22,13 @@ type RetryDecoratorConfig struct {
 }
 
 type RetryDecorator[C any] struct {
-	base           command.CommandHandler[C]
+	base           CommandHandler[C]
 	attempts       int
 	delay          time.Duration
 	attemptTimeout time.Duration
 }
 
-func NewRetryDecorator[C any](base command.CommandHandler[C], cfg RetryDecoratorConfig) RetryDecorator[C] {
+func NewRetryDecorator[C any](base CommandHandler[C], cfg RetryDecoratorConfig) RetryDecorator[C] {
 	if cfg.Attempts < 1 {
 		cfg.Attempts = 1
 	}
