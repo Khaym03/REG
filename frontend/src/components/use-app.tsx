@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 import { useForm } from '@tanstack/react-form'
-import { app, config, domain } from 'wails/go/models'
+import { workflow, config, domain } from 'wails/go/models'
 import { GetUser, RunWorkflow } from 'wails/go/main/App'
 import type { WorkflowInput } from '@/types/types'
 
@@ -36,7 +36,7 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
       date.from = value.dateRange.from
       date.to = value.dateRange.to
 
-      const work = new app.WorkFlowInput({
+      const work = new workflow.WorkFlowInput({
         user: await GetUser(),
         receive_guides_in_transit: value.receive_guides_in_transit
       })
