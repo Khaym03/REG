@@ -11,6 +11,7 @@ import (
 	"github.com/Khaym03/REG/internal/guide"
 	"github.com/Khaym03/REG/internal/inventory"
 	"github.com/Khaym03/REG/internal/reception"
+	"github.com/Khaym03/REG/internal/stats"
 )
 
 type WorkFlowInput struct {
@@ -21,6 +22,7 @@ type WorkFlowInput struct {
 
 type ReceptionWorkflow struct {
 	sessionProvider      *auth.Provider
+	statsHandler         *stats.StatsHandler
 	gatherHandler        dcommand.CommandHandler[guide.GatherGuidesCommand]
 	syncInventoryHandler dcommand.CommandHandler[inventory.SyncInventoryCommand]
 	receptionistHandler  dcommand.CommandHandler[reception.ReceptionistCommand]
@@ -28,12 +30,14 @@ type ReceptionWorkflow struct {
 
 func NewReceptionWorkflow(
 	sp *auth.Provider,
+	statsHandler *stats.StatsHandler,
 	gatherH dcommand.CommandHandler[guide.GatherGuidesCommand],
 	syncInventoryH dcommand.CommandHandler[inventory.SyncInventoryCommand],
 	receptionistH dcommand.CommandHandler[reception.ReceptionistCommand],
 ) *ReceptionWorkflow {
 	return &ReceptionWorkflow{
 		sessionProvider:      sp,
+		statsHandler:         statsHandler,
 		gatherHandler:        gatherH,
 		syncInventoryHandler: syncInventoryH,
 		receptionistHandler:  receptionistH,
@@ -53,6 +57,12 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 
 		log.Info("Done")
 	}()
+
+	s := w.statsHandler.Handle(ctx, session, stats.StatsCMD{})
+	if s.IsZero() {
+		log.Info("No guides found, avoiding unnecessary work")
+		return nil
+	}
 
 	err = w.gatherHandler.Handle(ctx, session, guide.GatherGuidesCommand{
 		DateRange: input.Date,

@@ -1,0 +1,171 @@
+package stats
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+	"strings"
+	"sync"
+
+	"github.com/Khaym03/REG/internal/auth"
+
+	"github.com/go-rod/rod"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
+)
+
+type StatsCMD struct{}
+
+type StatsHandler struct{}
+
+type Stats struct {
+	OutstandingDebt   uint16 `json:"outstanding_debt,omitempty"`
+	InTransitGuides   uint16 `json:"intransit_guides,omitempty"`
+	ExpiredGuides     uint16 `json:"expired_guides,omitempty"`
+	PendingProcedures uint16 `json:"pending_procedures,omitempty"`
+}
+
+func NewStatsHandler() *StatsHandler {
+	return &StatsHandler{}
+}
+
+func (s Stats) IsZero() bool {
+	return s.InTransitGuides == 0 && s.ExpiredGuides == 0
+}
+
+func (s Stats) String() string {
+	var builder strings.Builder
+
+	builder.Grow(120)
+
+	fmt.Fprintf(&builder, "Outstanding Debt: %d\n", s.OutstandingDebt)
+	fmt.Fprintf(&builder, "In-transit Guides: %d\n", s.InTransitGuides)
+	fmt.Fprintf(&builder, "Expired Guides: %d\n", s.ExpiredGuides)
+	fmt.Fprintf(&builder, "Pending Procedures: %d", s.PendingProcedures)
+
+	return builder.String()
+}
+
+func (svc *StatsHandler) Handle(
+	ctx context.Context,
+	session auth.Session,
+	_ StatsCMD,
+) Stats {
+	var result Stats
+	var mutex sync.Mutex
+
+	session.Do(ctx, func(page *rod.Page) error {
+		cards, err := page.Elements(cardSelector)
+		if err != nil {
+			return err
+		}
+
+		group, _ := errgroup.WithContext(ctx)
+
+		for _, card := range cards {
+			group.Go(func() error {
+				statType, value, err := extractCardData(card)
+				if err != nil {
+					return err
+				}
+
+				mutex.Lock()
+				result.add(statType, value)
+				mutex.Unlock()
+
+				return nil
+			})
+		}
+
+		return group.Wait()
+	})
+
+	log.Info(result.String())
+
+	return result
+}
+
+func extractCardData(card *rod.Element) (string, int, error) {
+	title, err := extractCardTitle(card)
+	if err != nil {
+		return "", 0, err
+	}
+
+	value, err := extractCardValue(card, title)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return title, value, nil
+}
+
+func extractCardTitle(card *rod.Element) (string, error) {
+	element, err := card.Element("p")
+	if err != nil {
+		return "", err
+	}
+
+	text, err := element.Text()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(text), nil
+}
+
+func extractCardValue(card *rod.Element, title string) (int, error) {
+	element, err := card.Element("div")
+	if err != nil {
+		return 0, err
+	}
+
+	rawValue, err := element.Text()
+	if err != nil {
+		return 0, err
+	}
+
+	value := normalizeValue(rawValue, title)
+
+	parsedValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, err
+	}
+
+	return parsedValue, nil
+}
+
+func normalizeValue(value, title string) string {
+	value = strings.Split(value, "\n")[0]
+
+	if title == labelOutstandingDebt {
+		value = strings.ReplaceAll(value, "BS", "")
+		value = strings.ReplaceAll(value, ",", "")
+	}
+
+	return strings.TrimSpace(value)
+}
+
+func (s *Stats) add(statType string, value int) {
+	switch statType {
+	case labelOutstandingDebt:
+		s.OutstandingDebt += uint16(value)
+
+	case labelInTransitGuides:
+		s.InTransitGuides += uint16(value)
+
+	case labelExpiredGuides:
+		s.ExpiredGuides += uint16(value)
+
+	case labelPendingProcedures:
+		s.PendingProcedures += uint16(value)
+	}
+}
+
+const cardSelector = `.card .text-white`
+
+const (
+	labelOutstandingDebt   = "DEUDA PENDIENTE"
+	labelInTransitGuides   = "GUIAS EN TRANSITO"
+	labelExpiredGuides     = "GUIAS VENCIDAS"
+	labelPendingProcedures = "TRAMITES PENDIENTES"
+)
