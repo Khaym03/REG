@@ -31,7 +31,7 @@ func (r *ReceptionistScraper) Receive(
 
 		for {
 
-			processed, err := r.processNextExpiredGuide(page, opt, &result)
+			processed, err := ProcessNextExpiredGuide(page, opt, &result)
 			if err != nil {
 				return err
 			}
@@ -53,8 +53,7 @@ func (r *ReceptionistScraper) Receive(
 
 	return result, err
 }
-
-func (r *ReceptionistScraper) processNextExpiredGuide(
+func ProcessNextExpiredGuide(
 	page Page,
 	opt ReceptionOptions,
 	result *ReceptionResult,
