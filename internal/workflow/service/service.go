@@ -7,6 +7,7 @@ import (
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
@@ -21,6 +22,7 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	conf config.BrowserConfig,
+	eventBus *bus.Bus,
 ) (*app.Application, CleanUpFunc, error) {
 
 	browser, err := browser.BuildBrowser(ctx, conf)
@@ -41,7 +43,7 @@ func NewApplication(
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)
 
-	statsHandler := stats.NewStatsHandler(logger)
+	statsHandler := stats.NewStatsHandler(logger, eventBus)
 	gatherHandler := guide.NewGatherGuidesHandler(
 		guideRepo,
 		rubroRepo,

@@ -9,8 +9,11 @@ import (
 
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/config"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/workflow"
+	"github.com/Khaym03/REG/internal/workflow/queries/stats"
 	"github.com/Khaym03/REG/internal/workflow/service"
+	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -31,12 +34,14 @@ type App struct {
 	cancel    context.CancelFunc
 	mu        sync.Mutex
 	loggerOut io.Writer
+	eventBus  *bus.Bus
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
-		mu: sync.Mutex{},
+		mu:       sync.Mutex{},
+		eventBus: event.NewBus(),
 	}
 }
 
@@ -57,6 +62,8 @@ func (a *App) startup(ctx context.Context) {
 	)
 
 	log.SetOutput(a.loggerOut)
+
+	a.registerEventHandlers()
 }
 
 func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
@@ -91,7 +98,11 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 		}()
 
 		browserConf.LoggerOut = a.loggerOut
-		application, cleanup, err := service.NewApplication(ctx, browserConf)
+		application, cleanup, err := service.NewApplication(
+			ctx,
+			browserConf,
+			a.eventBus,
+		)
 		if err != nil {
 			log.Error(err)
 			return
@@ -127,6 +138,22 @@ func (a *App) StopWorkflow() {
 		a.cancel = nil
 	}
 }
+
+func (a *App) registerEventHandlers() {
+	onStatResult := bus.Handler{
+		Handle: func(ctx context.Context, e bus.Event) {
+			runtime.EventsEmit(ctx, event.StatsTopic, e.Data.(stats.Stats))
+		},
+	}
+
+	a.eventBus.RegisterHandler(event.StatsTopic, onStatResult)
+}
+
+func (a *App) Topics() event.Topics {
+	return event.StructTopics()
+}
+
+func (a *App) Ignore(_ stats.Stats) {}
 
 func (a *App) GetUser() auth.User {
 	return auth.LoadCredential()

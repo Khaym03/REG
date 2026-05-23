@@ -9,6 +9,8 @@ import (
 
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/common/decorator"
+	"github.com/Khaym03/REG/internal/event"
+	"github.com/mustafaturan/bus/v3"
 
 	"github.com/go-rod/rod"
 	"github.com/sirupsen/logrus"
@@ -21,20 +23,22 @@ type StatsQuery struct{}
 type StatsHandler decorator.QueryHandler[StatsQuery, Stats]
 
 type statsHandler struct {
-	logger *logrus.Entry
+	logger   *logrus.Entry
+	eventBus *bus.Bus
 }
 
 type Stats struct {
-	OutstandingDebt   uint16 `json:"outstanding_debt,omitempty"`
-	InTransitGuides   uint16 `json:"intransit_guides,omitempty"`
-	ExpiredGuides     uint16 `json:"expired_guides,omitempty"`
-	PendingProcedures uint16 `json:"pending_procedures,omitempty"`
+	OutstandingDebt   uint16 `json:"outstanding_debt"`
+	InTransitGuides   uint16 `json:"intransit_guides"`
+	ExpiredGuides     uint16 `json:"expired_guides"`
+	PendingProcedures uint16 `json:"pending_procedures"`
 }
 
-func NewStatsHandler(logger *logrus.Entry) StatsHandler {
+func NewStatsHandler(logger *logrus.Entry, eventBus *bus.Bus) StatsHandler {
 	return decorator.ApplyQueryDecorators(
 		&statsHandler{
-			logger: logger,
+			logger:   logger,
+			eventBus: eventBus,
 		},
 		logger,
 	)
@@ -92,6 +96,8 @@ func (svc *statsHandler) Handle(
 	})
 
 	log.Info(result.String())
+
+	svc.eventBus.Emit(ctx, event.StatsTopic, result)
 
 	return result, nil
 }

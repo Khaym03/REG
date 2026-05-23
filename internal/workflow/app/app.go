@@ -6,10 +6,12 @@ import (
 	"github.com/Khaym03/REG/internal/workflow/command/inventory"
 	"github.com/Khaym03/REG/internal/workflow/command/reception"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
+	"github.com/mustafaturan/bus/v3"
 )
 
 type Application struct {
 	SessionProvider *auth.Provider
+	EventBust       *bus.Bus
 	Commands        Commands
 	Queries         Queries
 }
