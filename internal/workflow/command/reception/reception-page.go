@@ -14,15 +14,17 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
-type ReceptionPage struct {
+var _ Page = (*receptionPage)(nil)
+
+type receptionPage struct {
 	page *rod.Page
 }
 
-func NewReceptionPage(p *rod.Page) *ReceptionPage {
-	return &ReceptionPage{page: p}
+func NewReceptionPage(p *rod.Page) *receptionPage {
+	return &receptionPage{page: p}
 }
 
-func (rp *ReceptionPage) Open() error {
+func (rp *receptionPage) Open() error {
 	if err := browser.Navigate(rp.page, c.ReceptionURL); err != nil {
 		return err
 	}
@@ -30,7 +32,7 @@ func (rp *ReceptionPage) Open() error {
 	return rp.page.WaitIdle(c.TimeoutShort)
 }
 
-func (rp *ReceptionPage) ApplyFilters(date DateRange) (err error) {
+func (rp *receptionPage) ApplyFilters(date DateRange) (err error) {
 	if err = browser.Click(rp.page, filterAccordionSelector); err != nil {
 		return err
 	}
@@ -61,7 +63,7 @@ func (rp *ReceptionPage) ApplyFilters(date DateRange) (err error) {
 	return rp.page.WaitDOMStable(c.TimeoutShort, 0.5)
 }
 
-func (rp *ReceptionPage) ConfirmReception() error {
+func (rp *receptionPage) ConfirmReception() error {
 	modal, err := rp.page.Timeout(constants.DefaultTimeout).Element(modalSelector)
 	if err != nil {
 		return err
@@ -87,27 +89,28 @@ func (rp *ReceptionPage) ConfirmReception() error {
 }
 
 // Rows returns the collection of abstracted rows
-func (rp *ReceptionPage) Rows() ([]*ReceptionRow, error) {
+func (rp *receptionPage) Rows() ([]TableRow, error) {
 	elements, err := rp.page.Timeout(constants.DefaultTimeout).ElementsX(tableRowSelector)
 	if !errors.Is(err, context.DeadlineExceeded) && err != nil {
 		return nil, err
 	}
 
-	var rows []*ReceptionRow
+	var rows []TableRow
 	for _, el := range elements {
-		rows = append(rows, &ReceptionRow{element: el})
+		rows = append(rows, &receptionRow{element: el})
 	}
 
 	log.Info("Rows: ", len(rows), rows)
 	return rows, nil
 }
 
-// ReceptionRow represents a single line in the results table
-type ReceptionRow struct {
+var _ TableRow = (*receptionRow)(nil)
+
+type receptionRow struct {
 	element *rod.Element
 }
 
-func (r *ReceptionRow) ID() (string, error) {
+func (r *receptionRow) ID() (string, error) {
 	el, err := r.element.Timeout(constants.DefaultTimeout).ElementX(dataIDColumnSelector)
 	if err != nil {
 		return "", err
@@ -120,7 +123,7 @@ func (r *ReceptionRow) ID() (string, error) {
 	return *val, nil
 }
 
-func (r *ReceptionRow) IsExpired() bool {
+func (r *receptionRow) IsExpired() bool {
 	badge, err := r.element.Timeout(constants.DefaultTimeout).Element(".badge-danger")
 	if err != nil || badge == nil {
 		return false
@@ -129,7 +132,7 @@ func (r *ReceptionRow) IsExpired() bool {
 	return text == "VENCIDA"
 }
 
-func (r *ReceptionRow) TriggerReception() error {
+func (r *receptionRow) TriggerReception() error {
 	el, err := r.element.Timeout(constants.DefaultTimeout).Element(".recepcionar")
 	if err != nil {
 		return err

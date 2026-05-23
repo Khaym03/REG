@@ -25,12 +25,17 @@ func (g GuidesScraper) Collect(
 	date DateRange,
 ) (guides []Guide, err error) {
 	collect := func(p *rod.Page) error {
-		ReceptionPage := reception.NewReceptionPage(p)
+		var page reception.Page = reception.NewReceptionPage(p)
 
-		ReceptionPage.Open()
-		ReceptionPage.ApplyFilters(date)
+		if err = page.Open(); err != nil {
+			return err
+		}
 
-		rows, err := ReceptionPage.Rows()
+		if err = page.ApplyFilters(date); err != nil {
+			return err
+		}
+
+		rows, err := page.Rows()
 		if err != nil {
 			return err
 		}

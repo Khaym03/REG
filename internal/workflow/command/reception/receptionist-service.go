@@ -27,7 +27,7 @@ func (r *ReceptionistScraper) Receive(
 	result := ReceptionResult{}
 
 	receive := func(p *rod.Page) error {
-		page := NewReceptionPage(p)
+		var page Page = NewReceptionPage(p)
 
 		for {
 
@@ -55,7 +55,7 @@ func (r *ReceptionistScraper) Receive(
 }
 
 func (r *ReceptionistScraper) processNextExpiredGuide(
-	page *ReceptionPage,
+	page Page,
 	opt ReceptionOptions,
 	result *ReceptionResult,
 ) (bool, error) {

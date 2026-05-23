@@ -16,6 +16,20 @@ type ReceptionService interface {
 	Receive(context.Context, Session, ReceptionOptions) (ReceptionResult, error)
 }
 
+type Page interface {
+	Open() error
+	ApplyFilters(DateRange) error
+	Rows() ([]TableRow, error)
+	ConfirmReception() error
+}
+
+// TableRow represents a single line in the results table
+type TableRow interface {
+	ID() (string, error)
+	IsExpired() bool
+	TriggerReception() error
+}
+
 type (
 	Session         = auth.Session
 	DateRange       = domain.DateRange
