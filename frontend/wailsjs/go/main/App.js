@@ -6,10 +6,18 @@ export function GetUser() {
   return window['go']['main']['App']['GetUser']();
 }
 
+export function Ignore(arg1) {
+  return window['go']['main']['App']['Ignore'](arg1);
+}
+
 export function RunWorkflow(arg1, arg2) {
   return window['go']['main']['App']['RunWorkflow'](arg1, arg2);
 }
 
 export function StopWorkflow() {
   return window['go']['main']['App']['StopWorkflow']();
+}
+
+export function Topics() {
+  return window['go']['main']['App']['Topics']();
 }

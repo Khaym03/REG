@@ -77,6 +77,46 @@ export namespace domain {
 
 }
 
+export namespace event {
+	
+	export class Topics {
+	    stats_result: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Topics(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stats_result = source["stats_result"];
+	    }
+	}
+
+}
+
+export namespace stats {
+	
+	export class Stats {
+	    outstanding_debt: number;
+	    intransit_guides: number;
+	    expired_guides: number;
+	    pending_procedures: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Stats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.outstanding_debt = source["outstanding_debt"];
+	        this.intransit_guides = source["intransit_guides"];
+	        this.expired_guides = source["expired_guides"];
+	        this.pending_procedures = source["pending_procedures"];
+	    }
+	}
+
+}
+
 export namespace workflow {
 	
 	export class WorkFlowInput {
