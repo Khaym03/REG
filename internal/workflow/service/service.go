@@ -7,6 +7,7 @@ import (
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
 	"github.com/Khaym03/REG/internal/workflow/command/guide"
@@ -27,6 +28,8 @@ func NewApplication(
 		return nil, nil, err
 	}
 
+	logger := logrus.NewEntry(logrus.StandardLogger())
+
 	store := repo.NewJSONStore("state.json")
 	guideRepo := repo.NewJSONGuideRepository(store)
 	receptionRepo := repo.NewJSONReceptionRepository(store)
@@ -38,20 +41,23 @@ func NewApplication(
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)
 
-	statsHandler := stats.NewStatsHandler()
+	statsHandler := stats.NewStatsHandler(logger)
 	gatherHandler := guide.NewGatherGuidesHandler(
 		guideRepo,
 		rubroRepo,
 		scraperSvc,
 		worker,
+		logger,
 	)
 	inventoryHandler := inventory.NewInventoryHandler(
 		rubroRepo,
 		inventory.NewInventoryScraper(),
+		logger,
 	)
 	receptionHandler := reception.NewReceptionistHandler(
 		receptionRepo,
 		reception.NewReceptionistScraper(),
+		logger,
 	)
 
 	return &app.Application{

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/sirupsen/logrus"
 )
 
 type SyncInventoryCommand struct{}
@@ -21,11 +22,15 @@ type syncInventoryHandler struct {
 func NewInventoryHandler(
 	repo repo.RubroRepository,
 	scraper InventoryService,
+	logger *logrus.Entry,
 ) SyncInventoryHandler {
-	return &syncInventoryHandler{
-		repo:    repo,
-		scraper: scraper,
-	}
+	return decorator.ApplyCommandDecorators(
+		&syncInventoryHandler{
+			repo:    repo,
+			scraper: scraper,
+		},
+		logger,
+	)
 }
 
 func (h *syncInventoryHandler) Handle(

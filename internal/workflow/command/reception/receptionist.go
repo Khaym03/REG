@@ -8,6 +8,7 @@ import (
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/sirupsen/logrus"
 )
 
 type ReceptionistCommand struct {
@@ -25,8 +26,14 @@ type receptionistHandler struct {
 func NewReceptionistHandler(
 	repo repo.ReceptionRepository,
 	scraper ReceptionService,
+	logger *logrus.Entry,
 ) ReceptionistHandler {
-	return &receptionistHandler{repo: repo, scraper: scraper}
+	return decorator.ApplyCommandDecorators(
+		&receptionistHandler{
+			repo:    repo,
+			scraper: scraper},
+		logger,
+	)
 }
 
 func (r *receptionistHandler) Handle(

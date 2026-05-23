@@ -11,6 +11,7 @@ import (
 	"github.com/Khaym03/REG/internal/common/decorator"
 
 	"github.com/go-rod/rod"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,7 +20,9 @@ type StatsQuery struct{}
 
 type StatsHandler decorator.QueryHandler[StatsQuery, Stats]
 
-type statsHandler struct{}
+type statsHandler struct {
+	logger *logrus.Entry
+}
 
 type Stats struct {
 	OutstandingDebt   uint16 `json:"outstanding_debt,omitempty"`
@@ -28,8 +31,13 @@ type Stats struct {
 	PendingProcedures uint16 `json:"pending_procedures,omitempty"`
 }
 
-func NewStatsHandler() StatsHandler {
-	return &statsHandler{}
+func NewStatsHandler(logger *logrus.Entry) StatsHandler {
+	return decorator.ApplyQueryDecorators(
+		&statsHandler{
+			logger: logger,
+		},
+		logger,
+	)
 }
 
 func (s Stats) IsZero() bool {

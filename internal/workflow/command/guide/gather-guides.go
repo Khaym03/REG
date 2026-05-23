@@ -7,6 +7,7 @@ import (
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/sirupsen/logrus"
 )
 
 type GatherGuidesCommand struct {
@@ -27,13 +28,17 @@ func NewGatherGuidesHandler(
 	rubroRepo repo.RubroRepository,
 	scraper GuideCollector,
 	rubroExtractor RubroExtractor,
+	logger *logrus.Entry,
 ) GatherGuidesHandler {
-	return &gatherGuidesHandler{
+
+	return decorator.ApplyCommandDecorators(&gatherGuidesHandler{
 		guideRepo:      guideRepo,
 		rubroRepo:      rubroRepo,
 		scraper:        scraper,
 		rubroExtractor: rubroExtractor,
-	}
+	},
+		logger,
+	)
 }
 
 func (h gatherGuidesHandler) Handle(
