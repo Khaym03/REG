@@ -130,8 +130,8 @@ function Stats() {
   return (
     <div className="grid grid-rows-4 gap-1">
       {statItems.map(item => (
-        <div key={item.key} className="flex gap-4 text-2xl">
-          <div className=" flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
+        <div key={item.key} className="flex gap-4 text-2xl text-foreground">
+          <div className=" flex aspect-square size-8 items-center justify-center rounded-lg">
             <item.Icon weight="light" />
           </div>
           <div className="flex flex-col flex-3">
