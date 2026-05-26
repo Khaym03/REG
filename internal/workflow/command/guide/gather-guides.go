@@ -6,8 +6,11 @@ import (
 
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type GatherGuidesCommand struct {
@@ -21,6 +24,8 @@ type gatherGuidesHandler struct {
 	rubroRepo      repo.RubroRepository
 	scraper        GuideCollector
 	rubroExtractor RubroExtractor
+
+	eventBus *bus.Bus
 }
 
 func NewGatherGuidesHandler(
@@ -29,6 +34,7 @@ func NewGatherGuidesHandler(
 	scraper GuideCollector,
 	rubroExtractor RubroExtractor,
 	logger *logrus.Entry,
+	eventBus *bus.Bus,
 ) GatherGuidesHandler {
 
 	return decorator.ApplyCommandDecorators(&gatherGuidesHandler{
@@ -36,6 +42,7 @@ func NewGatherGuidesHandler(
 		rubroRepo:      rubroRepo,
 		scraper:        scraper,
 		rubroExtractor: rubroExtractor,
+		eventBus:       eventBus,
 	},
 		logger,
 	)
@@ -46,6 +53,11 @@ func (h gatherGuidesHandler) Handle(
 	session Session,
 	cmd GatherGuidesCommand,
 ) (err error) {
+
+	if err := h.eventBus.Emit(ctx, event.GuidesGatherTopic, struct{}{}); err != nil {
+		log.Error(err)
+	}
+
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
 
 	for _, d := range dates {

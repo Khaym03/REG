@@ -10,6 +10,25 @@ const (
 	StatsTopic = "stats:result" // stats.Stats
 )
 
+const (
+	WorkflowStartedTopic = "workflow.started"
+
+	LogginTopic = "loggin"
+
+	GuidesGatherTopic = "guides.gather"
+	// GuidesGatherFinished = "guides.gather.finished"
+
+	InventorySyncTopic = "inventory.sync"
+	// InventorySyncFinished = "inventory.sync.finished"
+
+	ReceptionTopic = "reception"
+	// ReceptionFinished = "reception.finished"
+
+	LogoutTopic = "logout"
+
+	WorkflowFinishedTopic = "workflow.finished"
+)
+
 type Topics struct {
 	StatsResult string `json:"stats_result"`
 }

@@ -38,7 +38,7 @@ func NewApplication(
 	rubroRepo := repo.NewJSONRubroRepository(store)
 
 	authService := auth.NewLoginScraper()
-	sessionProvider := auth.NewProvider(browser, authService)
+	sessionProvider := auth.NewProvider(browser, authService, eventBus)
 
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)
@@ -50,16 +50,19 @@ func NewApplication(
 		scraperSvc,
 		worker,
 		logger,
+		eventBus,
 	)
 	inventoryHandler := inventory.NewInventoryHandler(
 		rubroRepo,
 		inventory.NewInventoryScraper(),
 		logger,
+		eventBus,
 	)
 	receptionHandler := reception.NewReceptionistHandler(
 		receptionRepo,
 		reception.NewReceptionistScraper(),
 		logger,
+		eventBus,
 	)
 
 	return &app.Application{
