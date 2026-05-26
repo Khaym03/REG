@@ -145,8 +145,28 @@ func (a *App) registerEventHandlers() {
 			runtime.EventsEmit(ctx, event.StatsTopic, e.Data.(stats.Stats))
 		},
 	}
-
 	a.eventBus.RegisterHandler(event.StatsTopic, onStatResult)
+
+	events := []string{
+		event.LogginTopic,
+		event.LogoutTopic,
+		event.GuidesGatherTopic,
+		event.InventorySyncTopic,
+		event.ReceptionTopic,
+	}
+
+	justEmitEvent := func(e string) bus.Handler {
+		return bus.Handler{
+			Handle: func(ctx context.Context, _ bus.Event) {
+				runtime.EventsEmit(ctx, e, struct{}{})
+			},
+		}
+	}
+
+	for _, e := range events {
+		a.eventBus.RegisterHandler(e, justEmitEvent(e))
+	}
+
 }
 
 func (a *App) Topics() event.Topics {

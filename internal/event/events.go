@@ -16,13 +16,10 @@ const (
 	LogginTopic = "loggin"
 
 	GuidesGatherTopic = "guides.gather"
-	// GuidesGatherFinished = "guides.gather.finished"
 
 	InventorySyncTopic = "inventory.sync"
-	// InventorySyncFinished = "inventory.sync.finished"
 
 	ReceptionTopic = "reception"
-	// ReceptionFinished = "reception.finished"
 
 	LogoutTopic = "logout"
 
@@ -30,12 +27,26 @@ const (
 )
 
 type Topics struct {
-	StatsResult string `json:"stats_result"`
+	StatsResult           string `json:"stats_result"`
+	WorkflowStartedTopic  string `json:"workflow_started_topic"`
+	LogginTopic           string `json:"loggin_topic"`
+	GuidesGatherTopic     string `json:"guides_gather_topic"`
+	InventorySyncTopic    string `json:"inventory_sync_topic"`
+	ReceptionTopic        string `json:"reception_topic"`
+	LogoutTopic           string `json:"logout_topic"`
+	WorkflowFinishedTopic string `json:"workflow_finished_topic"`
 }
 
 func StructTopics() Topics {
 	return Topics{
-		StatsResult: StatsTopic,
+		StatsResult:           StatsTopic,
+		WorkflowStartedTopic:  WorkflowStartedTopic,
+		LogginTopic:           LogginTopic,
+		GuidesGatherTopic:     GuidesGatherTopic,
+		InventorySyncTopic:    InventorySyncTopic,
+		ReceptionTopic:        ReceptionTopic,
+		LogoutTopic:           LogoutTopic,
+		WorkflowFinishedTopic: WorkflowFinishedTopic,
 	}
 }
 
