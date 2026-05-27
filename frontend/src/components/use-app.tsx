@@ -59,6 +59,8 @@ type AppFormsContextType = {
   browserForm: BrowserConfigForm
 
   workflowForm: WorkflowForm
+
+  currentState: string
 }
 
 export const AppFormsContext = createContext<AppFormsContextType | null>(null)

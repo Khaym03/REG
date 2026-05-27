@@ -18,8 +18,7 @@ import DisplaySelectedDate from '@/components/display-selected-date'
 import { useAppForms } from './use-app'
 
 export default function App() {
-  const { workflowForm } = useAppForms()
-
+  const { workflowForm, currentState } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
 
   return (
@@ -121,7 +120,7 @@ export default function App() {
         >
           <TabsList className="">
             <TabsTrigger value="terminal">Terminal</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="workflow">Workflow</TabsTrigger>
           </TabsList>
 
           <TabsContent
@@ -130,6 +129,7 @@ export default function App() {
           >
             <TerminalLogs />
           </TabsContent>
+          <TabsContent value="workflow">{currentState}</TabsContent>
         </Tabs>
       </Card>
     </>

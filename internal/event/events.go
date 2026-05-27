@@ -1,6 +1,8 @@
 package event
 
 import (
+	"regexp"
+
 	"github.com/mustafaturan/bus/v3"
 	"github.com/mustafaturan/monoton/v2"
 	"github.com/mustafaturan/monoton/v2/sequencer"
@@ -9,6 +11,10 @@ import (
 const (
 	StatsTopic = "stats:result" // stats.Stats
 )
+
+func Matcher(event string) string {
+	return "^" + regexp.QuoteMeta(event) + "$"
+}
 
 const (
 	WorkflowStartedTopic = "workflow.started"
@@ -69,7 +75,16 @@ func NewBus() *bus.Bus {
 	}
 
 	// maybe register topics in here
-	b.RegisterTopics(StatsTopic)
+	b.RegisterTopics(
+		StatsTopic,
+		WorkflowStartedTopic,
+		LogginTopic,
+		GuidesGatherTopic,
+		InventorySyncTopic,
+		ReceptionTopic,
+		LogoutTopic,
+		WorkflowFinishedTopic,
+	)
 
 	return b
 }

@@ -142,12 +142,18 @@ func (a *App) StopWorkflow() {
 func (a *App) registerEventHandlers() {
 	onStatResult := bus.Handler{
 		Handle: func(ctx context.Context, e bus.Event) {
-			runtime.EventsEmit(ctx, event.StatsTopic, e.Data.(stats.Stats))
+			d, ok := e.Data.(stats.Stats)
+			if !ok {
+				return
+			}
+
+			runtime.EventsEmit(a.ctx, event.StatsTopic, d)
 		},
+		Matcher: event.Matcher(event.StatsTopic),
 	}
 	a.eventBus.RegisterHandler(event.StatsTopic, onStatResult)
 
-	events := []string{
+	activeEvents := []string{
 		event.LogginTopic,
 		event.LogoutTopic,
 		event.GuidesGatherTopic,
@@ -157,13 +163,16 @@ func (a *App) registerEventHandlers() {
 
 	justEmitEvent := func(e string) bus.Handler {
 		return bus.Handler{
-			Handle: func(ctx context.Context, _ bus.Event) {
-				runtime.EventsEmit(ctx, e, struct{}{})
+			Handle: func(ctx context.Context, ev bus.Event) {
+				log.Printf("HANDLER REGISTERED FOR: %s", e)
+				log.Printf("EVENT RECEIVED: %+v", ev)
+				runtime.EventsEmit(a.ctx, e, "")
 			},
+			Matcher: event.Matcher(e),
 		}
 	}
 
-	for _, e := range events {
+	for _, e := range activeEvents {
 		a.eventBus.RegisterHandler(e, justEmitEvent(e))
 	}
 
