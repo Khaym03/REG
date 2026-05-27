@@ -81,13 +81,13 @@ export namespace event {
 	
 	export class Topics {
 	    stats_result: string;
-	    workflow_started_topic: string;
-	    loggin_topic: string;
-	    guides_gather_topic: string;
-	    inventory_sync_topic: string;
-	    reception_topic: string;
-	    logout_topic: string;
-	    workflow_finished_topic: string;
+	    workflow_started: string;
+	    login: string;
+	    guides_gather: string;
+	    inventory_sync: string;
+	    reception: string;
+	    logout: string;
+	    workflow_finished: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Topics(source);
@@ -96,13 +96,13 @@ export namespace event {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.stats_result = source["stats_result"];
-	        this.workflow_started_topic = source["workflow_started_topic"];
-	        this.loggin_topic = source["loggin_topic"];
-	        this.guides_gather_topic = source["guides_gather_topic"];
-	        this.inventory_sync_topic = source["inventory_sync_topic"];
-	        this.reception_topic = source["reception_topic"];
-	        this.logout_topic = source["logout_topic"];
-	        this.workflow_finished_topic = source["workflow_finished_topic"];
+	        this.workflow_started = source["workflow_started"];
+	        this.login = source["login"];
+	        this.guides_gather = source["guides_gather"];
+	        this.inventory_sync = source["inventory_sync"];
+	        this.reception = source["reception"];
+	        this.logout = source["logout"];
+	        this.workflow_finished = source["workflow_finished"];
 	    }
 	}
 

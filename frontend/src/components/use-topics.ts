@@ -20,13 +20,13 @@ export const useWorkflowTopics = () => {
         if (!isMounted) return
 
         const activeTopics = [
-          topics.workflow_started_topic,
-          topics.loggin_topic,
-          topics.guides_gather_topic,
-          topics.inventory_sync_topic,
-          topics.reception_topic,
-          topics.logout_topic,
-          topics.workflow_finished_topic
+          topics.workflow_finished,
+          topics.login,
+          topics.guides_gather,
+          topics.inventory_sync,
+          topics.reception,
+          topics.logout,
+          topics.workflow_finished
         ]
 
         console.log('active topics: ', activeTopics)
