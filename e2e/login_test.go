@@ -36,7 +36,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 	s, err := provider.Start(suite.T().Context(), user)
 	require.NoError(suite.T(), err)
 	defer func() {
-		require.NoError(suite.T(), s.Close())
+		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
 
 	require.NoError(suite.T(), err)
@@ -56,7 +56,7 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 
 	s, err := provider.Start(suite.T().Context(), user)
 	defer func() {
-		require.NoError(suite.T(), s.Close())
+		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
 
 	require.Error(suite.T(), err)

@@ -21,11 +21,13 @@ export const useWorkflowTopics = () => {
 
         const activeTopics = [
           topics.workflow_finished,
+          topics.building_browser,
           topics.login,
           topics.guides_gather,
           topics.inventory_sync,
           topics.reception,
           topics.logout,
+          topics.destroying_browser,
           topics.workflow_finished
         ]
 

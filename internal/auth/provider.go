@@ -30,14 +30,14 @@ func (p *Provider) Start(
 	ctx context.Context,
 	user User,
 ) (Session, error) {
-	base, err := NewRodSession(p.browser)
+	base, err := NewRodSession(p.browser, p.eventBus)
 	if err != nil {
 		return nil, err
 	}
 
 	sess, err := NewAuthenticatedSession(ctx, base, p.auth, user, p.eventBus)
 	if err != nil {
-		base.Close()
+		base.Close(ctx)
 		return nil, err
 	}
 

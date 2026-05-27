@@ -88,6 +88,8 @@ export namespace event {
 	    reception: string;
 	    logout: string;
 	    workflow_finished: string;
+	    building_browser: string;
+	    destroying_browser: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Topics(source);
@@ -103,6 +105,8 @@ export namespace event {
 	        this.reception = source["reception"];
 	        this.logout = source["logout"];
 	        this.workflow_finished = source["workflow_finished"];
+	        this.building_browser = source["building_browser"];
+	        this.destroying_browser = source["destroying_browser"];
 	    }
 	}
 

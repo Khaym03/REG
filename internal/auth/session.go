@@ -6,8 +6,11 @@ import (
 	"sync"
 
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
+	"github.com/mustafaturan/bus/v3"
+	"github.com/sirupsen/logrus"
 )
 
 var _ Session = (*RodSession)(nil)
@@ -19,10 +22,12 @@ type RodSession struct {
 	page    *rod.Page
 	mu      sync.Mutex
 	closed  bool
+
+	eventBus *bus.Bus
 }
 
 // This implementation only allow 1 page
-func NewRodSession(browser *rod.Browser) (*RodSession, error) {
+func NewRodSession(browser *rod.Browser, eventBus *bus.Bus) (*RodSession, error) {
 	page, err := browser.Page(proto.TargetCreateTarget{URL: ""})
 	if err != nil {
 		return nil, err
@@ -33,9 +38,10 @@ func NewRodSession(browser *rod.Browser) (*RodSession, error) {
 	}
 
 	return &RodSession{
-		browser: browser,
-		page:    page,
-		mu:      sync.Mutex{},
+		browser:  browser,
+		page:     page,
+		mu:       sync.Mutex{},
+		eventBus: eventBus,
 	}, nil
 }
 
@@ -69,10 +75,10 @@ func (s *RodSession) NewIsolated(ctx context.Context) (Session, error) {
 		return nil, err
 	}
 
-	return NewRodSession(incognito)
+	return NewRodSession(incognito, s.eventBus)
 }
 
-func (s *RodSession) Close() error {
+func (s *RodSession) Close(ctx context.Context) error {
 	if s.isClosed() {
 		return nil
 	}
@@ -81,6 +87,9 @@ func (s *RodSession) Close() error {
 	s.closed = true
 	s.mu.Unlock()
 
+	if err := s.eventBus.Emit(ctx, event.DestroyingBrowser, struct{}{}); err != nil {
+		logrus.Error(err)
+	}
 	return s.browser.Close()
 }
 

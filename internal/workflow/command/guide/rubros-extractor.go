@@ -37,7 +37,7 @@ func (w *RodRubroWorker) FromGuides(
 		return nil, err
 	}
 	defer func() {
-		if err := tempSession.Close(); err != nil {
+		if err := tempSession.Close(ctx); err != nil {
 			log.Println(err)
 		}
 	}()

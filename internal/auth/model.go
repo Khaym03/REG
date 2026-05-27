@@ -20,7 +20,7 @@ type Session interface {
 	NewIsolated(ctx context.Context) (Session, error)
 
 	// Close cleans up the Session and its resources.
-	Close() error
+	Close(context.Context) error
 }
 
 type AuthService interface {

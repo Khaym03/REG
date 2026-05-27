@@ -154,11 +154,15 @@ func (a *App) registerEventHandlers() {
 	a.eventBus.RegisterHandler(event.Stats, onStatResult)
 
 	activeEvents := []string{
+		event.WorkflowStarted,
 		event.Login,
-		event.Logout,
+		event.BuildingBrowser,
 		event.GuidesGather,
 		event.InventorySync,
 		event.Reception,
+		event.Logout,
+		event.DestroyingBrowser,
+		event.WorkflowFinished,
 	}
 
 	justEmitEvent := func(e string) bus.Handler {

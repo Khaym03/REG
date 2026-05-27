@@ -6,6 +6,7 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
 	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
@@ -24,6 +25,9 @@ func NewApplication(
 	conf config.BrowserConfig,
 	eventBus *bus.Bus,
 ) (*app.Application, CleanUpFunc, error) {
+	if err := eventBus.Emit(ctx, event.BuildingBrowser, struct{}{}); err != nil {
+		logrus.Error(err)
+	}
 
 	browser, err := browser.BuildBrowser(ctx, conf)
 	if err != nil {

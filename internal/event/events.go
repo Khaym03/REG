@@ -30,29 +30,36 @@ const (
 	Logout = "logout"
 
 	WorkflowFinished = "workflow.finished"
+
+	BuildingBrowser   = "bulding.browser"
+	DestroyingBrowser = "destroying.browser"
 )
 
 type Topics struct {
-	Stats            string `json:"stats_result"`
-	WorkflowStarted  string `json:"workflow_started"`
-	Login            string `json:"login"`
-	GuidesGather     string `json:"guides_gather"`
-	InventorySync    string `json:"inventory_sync"`
-	Reception        string `json:"reception"`
-	Logout           string `json:"logout"`
-	WorkflowFinished string `json:"workflow_finished"`
+	Stats             string `json:"stats_result"`
+	WorkflowStarted   string `json:"workflow_started"`
+	Login             string `json:"login"`
+	GuidesGather      string `json:"guides_gather"`
+	InventorySync     string `json:"inventory_sync"`
+	Reception         string `json:"reception"`
+	Logout            string `json:"logout"`
+	WorkflowFinished  string `json:"workflow_finished"`
+	BuildingBrowser   string `json:"building_browser"`
+	DestroyingBrowser string `json:"destroying_browser"`
 }
 
 func All() Topics {
 	return Topics{
-		Stats:            Stats,
-		WorkflowStarted:  WorkflowStarted,
-		Login:            Login,
-		GuidesGather:     GuidesGather,
-		InventorySync:    InventorySync,
-		Reception:        Reception,
-		Logout:           Logout,
-		WorkflowFinished: WorkflowFinished,
+		Stats:             Stats,
+		WorkflowStarted:   WorkflowStarted,
+		BuildingBrowser:   BuildingBrowser,
+		Login:             Login,
+		GuidesGather:      GuidesGather,
+		InventorySync:     InventorySync,
+		Reception:         Reception,
+		Logout:            Logout,
+		DestroyingBrowser: DestroyingBrowser,
+		WorkflowFinished:  WorkflowFinished,
 	}
 }
 
@@ -78,11 +85,13 @@ func NewBus() *bus.Bus {
 	b.RegisterTopics(
 		Stats,
 		WorkflowStarted,
+		BuildingBrowser,
 		Login,
 		GuidesGather,
 		InventorySync,
 		Reception,
 		Logout,
+		DestroyingBrowser,
 		WorkflowFinished,
 	)
 
