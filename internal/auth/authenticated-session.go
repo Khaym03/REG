@@ -25,7 +25,7 @@ func NewAuthenticatedSession(
 	user User,
 	eventBus *bus.Bus,
 ) (*AuthenticatedSession, error) {
-	if err := eventBus.Emit(ctx, event.LogginTopic, struct{}{}); err != nil {
+	if err := eventBus.Emit(ctx, event.Login, struct{}{}); err != nil {
 		log.Error(err)
 	}
 
@@ -49,7 +49,7 @@ func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (Session, error)
 }
 
 func (s *AuthenticatedSession) Close() error {
-	s.eventBus.Emit(context.TODO(), event.LogoutTopic, struct{}{})
+	s.eventBus.Emit(context.TODO(), event.Logout, struct{}{})
 	// logout first, then close
 	if err := s.auth.Logout(context.Background(), s.base); err != nil {
 		log.Error(err)

@@ -46,7 +46,7 @@ func (h *syncInventoryHandler) Handle(
 	cmd SyncInventoryCommand,
 ) error {
 
-	if err := h.eventBust.Emit(ctx, event.InventorySyncTopic, struct{}{}); err != nil {
+	if err := h.eventBust.Emit(ctx, event.InventorySync, struct{}{}); err != nil {
 		log.Error(err)
 	}
 

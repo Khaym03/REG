@@ -50,7 +50,7 @@ func (r *receptionistHandler) Handle(
 	cmd ReceptionistCommand,
 ) error {
 
-	if err := r.eventBus.Emit(ctx, event.ReceptionTopic, struct{}{}); err != nil {
+	if err := r.eventBus.Emit(ctx, event.Reception, struct{}{}); err != nil {
 		log.Error(err)
 	}
 

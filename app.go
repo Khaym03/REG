@@ -147,18 +147,18 @@ func (a *App) registerEventHandlers() {
 				return
 			}
 
-			runtime.EventsEmit(a.ctx, event.StatsTopic, d)
+			runtime.EventsEmit(a.ctx, event.Stats, d)
 		},
-		Matcher: event.Matcher(event.StatsTopic),
+		Matcher: event.Matcher(event.Stats),
 	}
-	a.eventBus.RegisterHandler(event.StatsTopic, onStatResult)
+	a.eventBus.RegisterHandler(event.Stats, onStatResult)
 
 	activeEvents := []string{
-		event.LogginTopic,
-		event.LogoutTopic,
-		event.GuidesGatherTopic,
-		event.InventorySyncTopic,
-		event.ReceptionTopic,
+		event.Login,
+		event.Logout,
+		event.GuidesGather,
+		event.InventorySync,
+		event.Reception,
 	}
 
 	justEmitEvent := func(e string) bus.Handler {
@@ -179,7 +179,7 @@ func (a *App) registerEventHandlers() {
 }
 
 func (a *App) Topics() event.Topics {
-	return event.StructTopics()
+	return event.All()
 }
 
 func (a *App) Ignore(_ stats.Stats) {}

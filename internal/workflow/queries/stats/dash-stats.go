@@ -97,7 +97,7 @@ func (svc *statsHandler) Handle(
 
 	log.Info(result.String())
 
-	svc.eventBus.Emit(ctx, event.StatsTopic, result)
+	svc.eventBus.Emit(ctx, event.Stats, result)
 
 	return result, nil
 }

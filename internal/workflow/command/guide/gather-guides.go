@@ -54,7 +54,7 @@ func (h gatherGuidesHandler) Handle(
 	cmd GatherGuidesCommand,
 ) (err error) {
 
-	if err := h.eventBus.Emit(ctx, event.GuidesGatherTopic, struct{}{}); err != nil {
+	if err := h.eventBus.Emit(ctx, event.GuidesGather, struct{}{}); err != nil {
 		log.Error(err)
 	}
 

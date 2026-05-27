@@ -8,51 +8,51 @@ import (
 	"github.com/mustafaturan/monoton/v2/sequencer"
 )
 
-const (
-	StatsTopic = "stats:result" // stats.Stats
-)
+const ()
 
 func Matcher(event string) string {
 	return "^" + regexp.QuoteMeta(event) + "$"
 }
 
 const (
-	WorkflowStartedTopic = "workflow.started"
+	WorkflowStarted = "workflow.started"
 
-	LogginTopic = "loggin"
+	Login = "loggin"
 
-	GuidesGatherTopic = "guides.gather"
+	Stats = "stats:result" // stats.Stats
 
-	InventorySyncTopic = "inventory.sync"
+	GuidesGather = "guides.gather"
 
-	ReceptionTopic = "reception"
+	InventorySync = "inventory.sync"
 
-	LogoutTopic = "logout"
+	Reception = "reception"
 
-	WorkflowFinishedTopic = "workflow.finished"
+	Logout = "logout"
+
+	WorkflowFinished = "workflow.finished"
 )
 
 type Topics struct {
-	StatsResult           string `json:"stats_result"`
-	WorkflowStartedTopic  string `json:"workflow_started_topic"`
-	LogginTopic           string `json:"loggin_topic"`
-	GuidesGatherTopic     string `json:"guides_gather_topic"`
-	InventorySyncTopic    string `json:"inventory_sync_topic"`
-	ReceptionTopic        string `json:"reception_topic"`
-	LogoutTopic           string `json:"logout_topic"`
-	WorkflowFinishedTopic string `json:"workflow_finished_topic"`
+	Stats            string `json:"stats_result"`
+	WorkflowStarted  string `json:"workflow_started"`
+	Login            string `json:"login"`
+	GuidesGather     string `json:"guides_gather"`
+	InventorySync    string `json:"inventory_sync"`
+	Reception        string `json:"reception"`
+	Logout           string `json:"logout"`
+	WorkflowFinished string `json:"workflow_finished"`
 }
 
-func StructTopics() Topics {
+func All() Topics {
 	return Topics{
-		StatsResult:           StatsTopic,
-		WorkflowStartedTopic:  WorkflowStartedTopic,
-		LogginTopic:           LogginTopic,
-		GuidesGatherTopic:     GuidesGatherTopic,
-		InventorySyncTopic:    InventorySyncTopic,
-		ReceptionTopic:        ReceptionTopic,
-		LogoutTopic:           LogoutTopic,
-		WorkflowFinishedTopic: WorkflowFinishedTopic,
+		Stats:            Stats,
+		WorkflowStarted:  WorkflowStarted,
+		Login:            Login,
+		GuidesGather:     GuidesGather,
+		InventorySync:    InventorySync,
+		Reception:        Reception,
+		Logout:           Logout,
+		WorkflowFinished: WorkflowFinished,
 	}
 }
 
@@ -76,14 +76,14 @@ func NewBus() *bus.Bus {
 
 	// maybe register topics in here
 	b.RegisterTopics(
-		StatsTopic,
-		WorkflowStartedTopic,
-		LogginTopic,
-		GuidesGatherTopic,
-		InventorySyncTopic,
-		ReceptionTopic,
-		LogoutTopic,
-		WorkflowFinishedTopic,
+		Stats,
+		WorkflowStarted,
+		Login,
+		GuidesGather,
+		InventorySync,
+		Reception,
+		Logout,
+		WorkflowFinished,
 	)
 
 	return b
