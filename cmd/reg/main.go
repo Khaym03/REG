@@ -12,6 +12,7 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/Khaym03/REG/internal/workflow/service"
 	"github.com/joho/godotenv"
@@ -32,7 +33,11 @@ func main() {
 	)
 	defer stop()
 
-	application, cleanup, err := service.NewApplication(ctx, config.BrowserConfFromENV())
+	application, cleanup, err := service.NewApplication(
+		ctx,
+		config.BrowserConfFromENV(),
+		event.NewBus(),
+	)
 	if err != nil {
 		log.Error(err)
 		return

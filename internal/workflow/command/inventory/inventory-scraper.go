@@ -29,7 +29,7 @@ func (i *InventoryScraper) Insert(
 		return err
 	}
 	defer func() {
-		if err = s.Close(); err != nil {
+		if err = s.Close(ctx); err != nil {
 			log.Println(err)
 		}
 	}()

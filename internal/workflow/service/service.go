@@ -6,7 +6,9 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
@@ -21,7 +23,11 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	conf config.BrowserConfig,
+	eventBus *bus.Bus,
 ) (*app.Application, CleanUpFunc, error) {
+	if err := eventBus.Emit(ctx, event.BuildingBrowser, struct{}{}); err != nil {
+		logrus.Error(err)
+	}
 
 	browser, err := browser.BuildBrowser(ctx, conf)
 	if err != nil {
@@ -36,28 +42,31 @@ func NewApplication(
 	rubroRepo := repo.NewJSONRubroRepository(store)
 
 	authService := auth.NewLoginScraper()
-	sessionProvider := auth.NewProvider(browser, authService)
+	sessionProvider := auth.NewProvider(browser, authService, eventBus)
 
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)
 
-	statsHandler := stats.NewStatsHandler(logger)
+	statsHandler := stats.NewStatsHandler(logger, eventBus)
 	gatherHandler := guide.NewGatherGuidesHandler(
 		guideRepo,
 		rubroRepo,
 		scraperSvc,
 		worker,
 		logger,
+		eventBus,
 	)
 	inventoryHandler := inventory.NewInventoryHandler(
 		rubroRepo,
 		inventory.NewInventoryScraper(),
 		logger,
+		eventBus,
 	)
 	receptionHandler := reception.NewReceptionistHandler(
 		receptionRepo,
 		reception.NewReceptionistScraper(),
 		logger,
+		eventBus,
 	)
 
 	return &app.Application{

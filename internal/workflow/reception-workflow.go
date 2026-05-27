@@ -40,7 +40,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	}
 
 	defer func() {
-		if cerr := session.Close(); cerr != nil {
+		if cerr := session.Close(ctx); cerr != nil {
 			log.Error("cleanup error:", cerr)
 		}
 

@@ -77,6 +77,64 @@ export namespace domain {
 
 }
 
+export namespace event {
+	
+	export class Topics {
+	    stats_result: string;
+	    workflow_started: string;
+	    login: string;
+	    guides_gather: string;
+	    inventory_sync: string;
+	    reception: string;
+	    logout: string;
+	    workflow_finished: string;
+	    building_browser: string;
+	    destroying_browser: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Topics(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stats_result = source["stats_result"];
+	        this.workflow_started = source["workflow_started"];
+	        this.login = source["login"];
+	        this.guides_gather = source["guides_gather"];
+	        this.inventory_sync = source["inventory_sync"];
+	        this.reception = source["reception"];
+	        this.logout = source["logout"];
+	        this.workflow_finished = source["workflow_finished"];
+	        this.building_browser = source["building_browser"];
+	        this.destroying_browser = source["destroying_browser"];
+	    }
+	}
+
+}
+
+export namespace stats {
+	
+	export class Stats {
+	    outstanding_debt: number;
+	    intransit_guides: number;
+	    expired_guides: number;
+	    pending_procedures: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Stats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.outstanding_debt = source["outstanding_debt"];
+	        this.intransit_guides = source["intransit_guides"];
+	        this.expired_guides = source["expired_guides"];
+	        this.pending_procedures = source["pending_procedures"];
+	    }
+	}
+
+}
+
 export namespace workflow {
 	
 	export class WorkFlowInput {

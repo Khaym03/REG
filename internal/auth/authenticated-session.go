@@ -3,6 +3,8 @@ package auth
 import (
 	"context"
 
+	"github.com/Khaym03/REG/internal/event"
+	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -12,6 +14,8 @@ type AuthenticatedSession struct {
 	base Session
 	auth AuthService
 	user User
+
+	eventBus *bus.Bus
 }
 
 func NewAuthenticatedSession(
@@ -19,14 +23,20 @@ func NewAuthenticatedSession(
 	base Session,
 	auth AuthService,
 	user User,
+	eventBus *bus.Bus,
 ) (*AuthenticatedSession, error) {
+	if err := eventBus.Emit(ctx, event.Login, struct{}{}); err != nil {
+		log.Error(err)
+	}
+
 	if err := auth.Login(ctx, base, user); err != nil {
 		return nil, err
 	}
 
 	return &AuthenticatedSession{
-		base: base,
-		auth: auth,
+		base:     base,
+		auth:     auth,
+		eventBus: eventBus,
 	}, nil
 }
 
@@ -38,11 +48,12 @@ func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (Session, error)
 	return s.base.NewIsolated(ctx)
 }
 
-func (s *AuthenticatedSession) Close() error {
+func (s *AuthenticatedSession) Close(ctx context.Context) error {
+	s.eventBus.Emit(ctx, event.Logout, struct{}{})
 	// logout first, then close
-	if err := s.auth.Logout(context.Background(), s.base); err != nil {
+	if err := s.auth.Logout(ctx, s.base); err != nil {
 		log.Error(err)
 	}
 
-	return s.base.Close()
+	return s.base.Close(ctx)
 }

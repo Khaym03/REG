@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,7 +18,11 @@ func TestLoginSuite(t *testing.T) {
 }
 
 func (suite *LoginTestSuite) TestLoginSuccess() {
-	provider := auth.NewProvider(suite.NewBrowser(), auth.NewLoginScraper())
+	provider := auth.NewProvider(
+		suite.NewBrowser(),
+		auth.NewLoginScraper(),
+		event.NewBus(),
+	)
 	username, password := suite.LoadCredential()
 	if username == "" || password == "" {
 		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
@@ -31,7 +36,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 	s, err := provider.Start(suite.T().Context(), user)
 	require.NoError(suite.T(), err)
 	defer func() {
-		require.NoError(suite.T(), s.Close())
+		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
 
 	require.NoError(suite.T(), err)
@@ -39,7 +44,11 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 }
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
-	provider := auth.NewProvider(suite.NewBrowser(), auth.NewLoginScraper())
+	provider := auth.NewProvider(
+		suite.NewBrowser(),
+		auth.NewLoginScraper(),
+		event.NewBus(),
+	)
 	user := auth.User{
 		Username: "fake@example.com",
 		Password: "wrong",
@@ -47,7 +56,7 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 
 	s, err := provider.Start(suite.T().Context(), user)
 	defer func() {
-		require.NoError(suite.T(), s.Close())
+		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
 
 	require.Error(suite.T(), err)

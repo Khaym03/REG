@@ -6,8 +6,11 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/common/decorator"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type SyncInventoryCommand struct{}
@@ -17,17 +20,21 @@ type SyncInventoryHandler decorator.CommandHandler[SyncInventoryCommand]
 type syncInventoryHandler struct {
 	repo    repo.RubroRepository
 	scraper InventoryService
+
+	eventBust *bus.Bus
 }
 
 func NewInventoryHandler(
 	repo repo.RubroRepository,
 	scraper InventoryService,
 	logger *logrus.Entry,
+	eventBust *bus.Bus,
 ) SyncInventoryHandler {
 	return decorator.ApplyCommandDecorators(
 		&syncInventoryHandler{
-			repo:    repo,
-			scraper: scraper,
+			repo:      repo,
+			scraper:   scraper,
+			eventBust: eventBust,
 		},
 		logger,
 	)
@@ -38,6 +45,11 @@ func (h *syncInventoryHandler) Handle(
 	session Session,
 	cmd SyncInventoryCommand,
 ) error {
+
+	if err := h.eventBust.Emit(ctx, event.InventorySync, struct{}{}); err != nil {
+		log.Error(err)
+	}
+
 	remoteRubros, err := h.scraper.Snapshot(ctx, session)
 	if err != nil {
 		return fmt.Errorf("snapshot inventory: %w", err)
