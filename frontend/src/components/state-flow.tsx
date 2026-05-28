@@ -19,9 +19,13 @@ import { useTheme } from './use-theme'
 import { LoadingNode } from './loading-node'
 import { useWorkflowTopics } from './use-topics'
 import { useAppForms } from './use-app'
+import { SuccessNode } from './success-node'
+import { InitialNode } from './initial-node'
 
 const nodeTypes = {
-  loadingNode: LoadingNode
+  initialNode: InitialNode,
+  loadingNode: LoadingNode,
+  successNode: SuccessNode
 }
 
 const X_ORIGIN = -400
@@ -42,31 +46,36 @@ const getNodes = async (): Promise<Node[]> => {
       id: topics.building_browser,
       position: { x: X_ORIGIN, y: 0 },
       data: { label: topics.building_browser },
-      sourcePosition: Position.Bottom
+      sourcePosition: Position.Bottom,
+      type: 'initialNode'
     },
     {
       id: topics.login,
       position: { x: X_ORIGIN, y: Y_GAP },
       data: { label: topics.login },
       sourcePosition: Position.Right,
-      targetPosition: Position.Top
+      targetPosition: Position.Top,
+      type: 'initialNode'
     },
     {
       id: topics.guides_gather,
       position: { x: X_GAP + X_ORIGIN, y: Y_GAP },
       data: { label: topics.guides_gather },
+      type: 'initialNode',
       ...nodeDefaults
     },
     {
       id: topics.inventory_sync,
       position: { x: X_GAP * 2 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.inventory_sync },
+      type: 'initialNode',
       ...nodeDefaults
     },
     {
       id: topics.reception,
       position: { x: X_GAP * 3 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.reception },
+      type: 'initialNode',
       ...nodeDefaults
     },
     {
@@ -74,13 +83,15 @@ const getNodes = async (): Promise<Node[]> => {
       position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.logout },
       sourcePosition: Position.Bottom,
-      targetPosition: Position.Left
+      targetPosition: Position.Left,
+      type: 'initialNode'
     },
     {
       id: topics.destroying_browser,
       position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP * 2 },
       data: { label: topics.destroying_browser },
-      targetPosition: Position.Top
+      targetPosition: Position.Top,
+      type: 'initialNode'
     }
   ]
 }
@@ -150,12 +161,12 @@ export default function StateFlow() {
     params => setEdges(edgesSnapshot => addEdge(params, edgesSnapshot)),
     []
   )
-  const { currentState } = useWorkflowTopics()
+  const { currentState, stateHistory } = useWorkflowTopics()
   const { isWorkflowRunning } = useAppForms()
   useEffect(() => {
     if (!isWorkflowRunning) {
       setNodes(prevNodes =>
-        prevNodes.map(node => ({ ...node, type: undefined }))
+        prevNodes.map(node => ({ ...node, type: 'initialNode' }))
       )
       return
     }
@@ -165,7 +176,11 @@ export default function StateFlow() {
         if (currentState === node.id) {
           return { ...node, type: 'loadingNode' }
         }
-        return { ...node, type: undefined }
+
+        if (stateHistory.includes(node.id)) {
+          return { ...node, type: 'successNode' }
+        }
+        return { ...node, type: 'initialNode' }
       })
     )
   }, [currentState, isWorkflowRunning])

@@ -4,6 +4,7 @@ import { EventsOn } from 'wails/runtime/runtime'
 
 export const useWorkflowTopics = () => {
   const [currentState, setCurrentState] = useState<string>('')
+  const [stateHistory, setStateHistory] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
@@ -36,8 +37,12 @@ export const useWorkflowTopics = () => {
         activeTopics.forEach(event => {
           unsubscribers.push(
             EventsOn(event, data => {
-              console.log(`[Backend Event] Triggered! Topic: ${event}`, data)
+              console.log(
+                `[Backend Event] Triggered! Topic: ${event} - history ${stateHistory}`,
+                data
+              )
 
+              setStateHistory(prev => [...prev, event])
               setCurrentState(event)
             })
           )
@@ -60,5 +65,5 @@ export const useWorkflowTopics = () => {
     }
   }, [])
 
-  return { currentState, isLoading }
+  return { currentState, isLoading, stateHistory }
 }
