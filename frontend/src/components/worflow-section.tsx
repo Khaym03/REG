@@ -16,9 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TerminalLogs } from '@/components/terminal'
 import DisplaySelectedDate from '@/components/display-selected-date'
 import { useAppForms } from './use-app'
+import StateFlow from './state-flow'
 
 export default function App() {
-  const { workflowForm, currentState } = useAppForms()
+  const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
 
   return (
@@ -129,7 +130,9 @@ export default function App() {
           >
             <TerminalLogs />
           </TabsContent>
-          <TabsContent value="workflow">{currentState}</TabsContent>
+          <TabsContent value="workflow">
+            <StateFlow />
+          </TabsContent>
         </Tabs>
       </Card>
     </>
