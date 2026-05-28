@@ -10,7 +10,7 @@ export const LoadingNode = ({
   targetPosition
 }: NodeProps<LodingNode>) => {
   return (
-    <NodeStatusIndicator status="initial" variant="border">
+    <NodeStatusIndicator status="loading" variant="border">
       <BaseNode className=" ">
         <BaseNodeContent>{data.label}</BaseNodeContent>
       </BaseNode>

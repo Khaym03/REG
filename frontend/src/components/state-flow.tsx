@@ -17,6 +17,8 @@ import { Topics } from 'wails/go/main/App'
 import { useTheme } from './use-theme'
 // import DevTools from './devtools'
 import { LoadingNode } from './loading-node'
+import { useWorkflowTopics } from './use-topics'
+import { useAppForms } from './use-app'
 
 const nodeTypes = {
   loadingNode: LoadingNode
@@ -40,52 +42,45 @@ const getNodes = async (): Promise<Node[]> => {
       id: topics.building_browser,
       position: { x: X_ORIGIN, y: 0 },
       data: { label: topics.building_browser },
-      sourcePosition: Position.Bottom,
-      type: 'loadingNode'
+      sourcePosition: Position.Bottom
     },
     {
       id: topics.login,
       position: { x: X_ORIGIN, y: Y_GAP },
       data: { label: topics.login },
       sourcePosition: Position.Right,
-      targetPosition: Position.Top,
-      type: 'loadingNode'
+      targetPosition: Position.Top
     },
     {
       id: topics.guides_gather,
       position: { x: X_GAP + X_ORIGIN, y: Y_GAP },
       data: { label: topics.guides_gather },
-      ...nodeDefaults,
-      type: 'loadingNode'
+      ...nodeDefaults
     },
     {
       id: topics.inventory_sync,
       position: { x: X_GAP * 2 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.inventory_sync },
-      ...nodeDefaults,
-      type: 'loadingNode'
+      ...nodeDefaults
     },
     {
       id: topics.reception,
       position: { x: X_GAP * 3 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.reception },
-      ...nodeDefaults,
-      type: 'loadingNode'
+      ...nodeDefaults
     },
     {
       id: topics.logout,
       position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP },
       data: { label: topics.logout },
       sourcePosition: Position.Bottom,
-      targetPosition: Position.Left,
-      type: 'loadingNode'
+      targetPosition: Position.Left
     },
     {
       id: topics.destroying_browser,
       position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP * 2 },
       data: { label: topics.destroying_browser },
-      targetPosition: Position.Top,
-      type: 'loadingNode'
+      targetPosition: Position.Top
     }
   ]
 }
@@ -155,6 +150,25 @@ export default function StateFlow() {
     params => setEdges(edgesSnapshot => addEdge(params, edgesSnapshot)),
     []
   )
+  const { currentState } = useWorkflowTopics()
+  const { isWorkflowRunning } = useAppForms()
+  useEffect(() => {
+    if (!isWorkflowRunning) {
+      setNodes(prevNodes =>
+        prevNodes.map(node => ({ ...node, type: undefined }))
+      )
+      return
+    }
+
+    setNodes(prevNodes =>
+      prevNodes.map(node => {
+        if (currentState === node.id) {
+          return { ...node, type: 'loadingNode' }
+        }
+        return { ...node, type: undefined }
+      })
+    )
+  }, [currentState, isWorkflowRunning])
 
   return (
     <>

@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react'
+import { useState, type PropsWithChildren } from 'react'
 import {
   AppFormsContext,
   useBrowserConfigFormInstance,
@@ -8,8 +8,11 @@ import { useWorkflowTopics } from './use-topics'
 
 export function AppFormsProvider({ children }: PropsWithChildren) {
   const browserForm = useBrowserConfigFormInstance()
-
-  const workflowForm = useWorkflowFormInstance(browserForm)
+  const [isWorkflowRunning, setIsWorkflowRunning] = useState<boolean>(false)
+  const workflowForm = useWorkflowFormInstance(
+    browserForm,
+    setIsWorkflowRunning
+  )
 
   const { currentState } = useWorkflowTopics()
 
@@ -18,7 +21,9 @@ export function AppFormsProvider({ children }: PropsWithChildren) {
       value={{
         browserForm,
         workflowForm,
-        currentState
+        currentState,
+        isWorkflowRunning,
+        setIsWorkflowRunning
       }}
     >
       {children}

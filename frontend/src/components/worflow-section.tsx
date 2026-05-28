@@ -19,7 +19,7 @@ import { useAppForms } from './use-app'
 import StateFlow from './state-flow'
 
 export default function App() {
-  const { workflowForm } = useAppForms()
+  const { workflowForm, setIsWorkflowRunning } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
 
   return (
@@ -84,9 +84,16 @@ export default function App() {
                   {isSubmitting ? (
                     <Button
                       type="button"
-                      onClick={async () => await StopWorkflow()}
+                      className="flex gap-1 justify-center items-center"
+                      onClick={async () => {
+                        await StopWorkflow()
+                        setIsWorkflowRunning(false)
+                      }}
                     >
-                      Cancel <SpinnerGapIcon className=" animate-spin" />
+                      <div>Cancel</div>{' '}
+                      <div className="relative w-8 flex justify-center items-center">
+                        <SpinnerGapIcon className=" absolute top-1/2 left-1/2 animate-spin" />
+                      </div>
                     </Button>
                   ) : (
                     <Button type="submit">Submit</Button>
