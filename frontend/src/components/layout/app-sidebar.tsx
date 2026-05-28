@@ -1,6 +1,6 @@
-import { NavREG } from '@/components/nav-reg'
-import { NavUser } from '@/components/nav-user'
-import { NavLogo } from '@/components/nav-logo'
+import { NavREG } from '@/components/layout/nav-reg'
+import { NavUser } from '@/components/layout/nav-user'
+import { NavLogo } from '@/components/layout/nav-logo'
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,7 @@ import {
   ClockUserIcon
 } from '@phosphor-icons/react'
 import { ModeToggle } from './mode-toggle'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Quit,
   WindowMinimise,
@@ -28,7 +28,7 @@ import { useEffect, useState, type ComponentProps } from 'react'
 import type { NavData } from '@/types/types'
 import { Topics } from 'wails/go/main/App'
 import { stats } from 'wails/go/models'
-import { Label } from './ui/label'
+import { Label } from '@/components/ui/label'
 
 interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
   navData: NavData

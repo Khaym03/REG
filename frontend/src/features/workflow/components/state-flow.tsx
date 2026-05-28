@@ -14,13 +14,13 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { Topics } from 'wails/go/main/App'
-import { useTheme } from './use-theme'
+import { useTheme } from '../../../hooks/use-theme'
 // import DevTools from './devtools'
-import { LoadingNode } from './loading-node'
-import { useWorkflowTopics } from './use-topics'
-import { useAppForms } from './use-app'
-import { SuccessNode } from './success-node'
-import { InitialNode } from './initial-node'
+import { LoadingNode } from './node/loading-node'
+import { useWorkflowTopics } from '../hooks/use-topics'
+import { useAppForms } from '../../../hooks/use-app'
+import { SuccessNode } from './node/success-node'
+import { InitialNode } from './node/initial-node'
 
 const nodeTypes = {
   initialNode: InitialNode,

@@ -1,16 +1,19 @@
-import { BaseNode, BaseNodeContent } from '@/components/base-node'
-import { NodeStatusIndicator } from '@/components/node-status-indicator'
+import {
+  BaseNode,
+  BaseNodeContent
+} from '@/features/workflow/components/node/base-node'
+import { NodeStatusIndicator } from '@/features/workflow/components/node/node-status-indicator'
 import { Handle, type Node, type NodeProps } from '@xyflow/react'
 
-type initialNode = Node<{ label: string }, 'label'>
+type LodingNode = Node<{ label: string }, 'label'>
 
-export const InitialNode = ({
+export const LoadingNode = ({
   data,
   sourcePosition,
   targetPosition
-}: NodeProps<initialNode>) => {
+}: NodeProps<LodingNode>) => {
   return (
-    <NodeStatusIndicator status="initial" variant="border">
+    <NodeStatusIndicator status="loading" variant="border">
       <BaseNode className=" ">
         <BaseNodeContent>{data.label}</BaseNodeContent>
       </BaseNode>

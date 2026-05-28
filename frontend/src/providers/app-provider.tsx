@@ -3,8 +3,8 @@ import {
   AppFormsContext,
   useBrowserConfigFormInstance,
   useWorkflowFormInstance
-} from './use-app'
-import { useWorkflowTopics } from './use-topics'
+} from '../hooks/use-app'
+import { useWorkflowTopics } from '../features/workflow/hooks/use-topics'
 
 export function AppFormsProvider({ children }: PropsWithChildren) {
   const browserForm = useBrowserConfigFormInstance()

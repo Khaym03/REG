@@ -13,10 +13,10 @@ import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
 import { StopWorkflow } from 'wails/go/main/App'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TerminalLogs } from '@/components/terminal'
-import DisplaySelectedDate from '@/components/display-selected-date'
-import { useAppForms } from './use-app'
-import StateFlow from './state-flow'
+import { TerminalLogs } from '@/features/workflow/components/terminal'
+import DisplaySelectedDate from '@/features/workflow/components/display-selected-date'
+import { useAppForms } from '../../hooks/use-app'
+import StateFlow from './components/state-flow'
 
 export default function App() {
   const { workflowForm, setIsWorkflowRunning } = useAppForms()

@@ -1,5 +1,8 @@
-import { BaseNode, BaseNodeContent } from '@/components/base-node'
-import { NodeStatusIndicator } from '@/components/node-status-indicator'
+import {
+  BaseNode,
+  BaseNodeContent
+} from '@/features/workflow/components/node/base-node'
+import { NodeStatusIndicator } from '@/features/workflow/components/node/node-status-indicator'
 import { Handle, type Node, type NodeProps } from '@xyflow/react'
 
 type successNode = Node<{ label: string }, 'label'>

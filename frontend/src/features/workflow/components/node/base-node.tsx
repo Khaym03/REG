@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
-import { Card } from './ui/card'
+import { Card } from '../../../../components/ui/card'
 
 export function BaseNode({ className, ...props }: ComponentProps<'div'>) {
   return (
