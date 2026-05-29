@@ -4,9 +4,6 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/browser"
-	"github.com/Khaym03/REG/internal/config"
-	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
 	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
@@ -22,17 +19,8 @@ type CleanUpFunc func()
 
 func NewApplication(
 	ctx context.Context,
-	conf config.BrowserConfig,
 	eventBus *bus.Bus,
-) (*app.Application, CleanUpFunc, error) {
-	if err := eventBus.Emit(ctx, event.BuildingBrowser, struct{}{}); err != nil {
-		logrus.Error(err)
-	}
-
-	browser, err := browser.BuildBrowser(ctx, conf)
-	if err != nil {
-		return nil, nil, err
-	}
+) (*app.Application, error) {
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -42,7 +30,7 @@ func NewApplication(
 	rubroRepo := repo.NewJSONRubroRepository(store)
 
 	authService := auth.NewLoginScraper()
-	sessionProvider := auth.NewProvider(browser, authService, eventBus)
+	sessionProvider := auth.NewProvider(authService, eventBus)
 
 	scraperSvc := guide.NewGuidesScraper()
 	worker := guide.NewRodRubroWorker(1)
@@ -70,6 +58,7 @@ func NewApplication(
 	)
 
 	return &app.Application{
+			EventBus:        eventBus,
 			SessionProvider: sessionProvider,
 			Commands: app.Commands{
 				GatherGuides:  gatherHandler,
@@ -79,9 +68,6 @@ func NewApplication(
 			Queries: app.Queries{
 				Stats: statsHandler,
 			},
-		},
-		func() {
-			browser.MustClose()
 		},
 		nil
 }

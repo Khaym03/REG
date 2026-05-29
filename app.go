@@ -12,7 +12,6 @@ import (
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
-	"github.com/Khaym03/REG/internal/workflow/service"
 	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -67,19 +66,13 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
-	log.Info(input)
-	log.Info(browserConf)
-
 	a.mu.Lock()
-
 	if a.cancel != nil {
 		a.cancel()
 	}
 
 	ctx, cancel := context.WithCancel(a.ctx)
-
 	a.cancel = cancel
-
 	a.mu.Unlock()
 
 	done := make(chan struct{}, 1)
@@ -97,19 +90,19 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 			cancel()
 		}()
 
+		defer func() {
+			done <- struct{}{}
+		}()
+
 		browserConf.LoggerOut = a.loggerOut
-		application, cleanup, err := service.NewApplication(
-			ctx,
-			browserConf,
-			a.eventBus,
-		)
+
+		input.BrowserConf = browserConf
+
+		work, err := workflow.NewReceptionWorkflow(ctx, a.eventBus)
 		if err != nil {
 			log.Error(err)
 			return
 		}
-		defer cleanup()
-
-		work := workflow.NewReceptionWorkflow(application)
 
 		err = work.Run(
 			ctx,
@@ -119,13 +112,9 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 		if err != nil {
 			log.Println(err)
 		}
-		done <- struct{}{}
 	}()
 
-	select {
-	case <-ctx.Done():
-	case <-done:
-	}
+	<-done
 }
 
 func (a *App) StopWorkflow() {

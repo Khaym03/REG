@@ -8,19 +8,15 @@ import (
 )
 
 type Provider struct {
-	browser *rod.Browser
-	auth    AuthService
-
+	auth     AuthService
 	eventBus *bus.Bus
 }
 
 func NewProvider(
-	browser *rod.Browser,
 	auth AuthService,
 	eventBus *bus.Bus,
 ) *Provider {
 	return &Provider{
-		browser:  browser,
 		auth:     auth,
 		eventBus: eventBus,
 	}
@@ -29,8 +25,9 @@ func NewProvider(
 func (p *Provider) Start(
 	ctx context.Context,
 	user User,
+	browser *rod.Browser,
 ) (Session, error) {
-	base, err := NewRodSession(p.browser, p.eventBus)
+	base, err := NewRodSession(browser, p.eventBus)
 	if err != nil {
 		return nil, err
 	}

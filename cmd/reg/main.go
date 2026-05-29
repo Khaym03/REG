@@ -14,7 +14,6 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/workflow"
-	"github.com/Khaym03/REG/internal/workflow/service"
 	"github.com/joho/godotenv"
 )
 
@@ -33,24 +32,19 @@ func main() {
 	)
 	defer stop()
 
-	application, cleanup, err := service.NewApplication(
-		ctx,
-		config.BrowserConfFromENV(),
-		event.NewBus(),
-	)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	defer cleanup()
+	eventBus := event.NewBus()
 
-	work := workflow.NewReceptionWorkflow(application)
+	work, err := workflow.NewReceptionWorkflow(ctx, eventBus)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = work.Run(
 		ctx,
 		workflow.WorkFlowInput{
-			User: auth.LoadCredential(),
-			Date: getDateRangeFromFlags(),
+			User:        auth.LoadCredential(),
+			Date:        getDateRangeFromFlags(),
+			BrowserConf: config.BrowserConfFromENV(),
 		},
 	)
 
