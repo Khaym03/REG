@@ -19,7 +19,7 @@ import { useAppForms } from '../../hooks/use-app'
 import StateFlow from './components/state-flow'
 
 export default function App() {
-  const { workflowForm, setIsWorkflowRunning } = useAppForms()
+  const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
 
   return (
@@ -87,7 +87,6 @@ export default function App() {
                       className="flex gap-1 justify-center items-center"
                       onClick={async () => {
                         await StopWorkflow()
-                        setIsWorkflowRunning(false)
                       }}
                     >
                       <div>Cancel</div>{' '}

@@ -26,10 +26,7 @@ const defaultWorkflowInput: WorkflowInput = {
   },
   receive_guides_in_transit: false
 }
-export function useWorkflowFormInstance(
-  browserForm: BrowserConfigForm,
-  setIsWorkflowRunning: React.Dispatch<React.SetStateAction<boolean>>
-) {
+export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
   return useForm({
     defaultValues: defaultWorkflowInput,
 
@@ -46,7 +43,6 @@ export function useWorkflowFormInstance(
 
       work.date = date
 
-      setIsWorkflowRunning(true)
       await RunWorkflow(
         work,
         new config.BrowserConfig({
@@ -61,13 +57,7 @@ export function useWorkflowFormInstance(
 
 type AppFormsContextType = {
   browserForm: BrowserConfigForm
-
   workflowForm: WorkflowForm
-
-  currentState: string
-
-  isWorkflowRunning: boolean
-  setIsWorkflowRunning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const AppFormsContext = createContext<AppFormsContextType | null>(null)
