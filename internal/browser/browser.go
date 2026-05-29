@@ -23,6 +23,9 @@ func BuildBrowser(ctx context.Context, conf config.BrowserConfig) (*rod.Browser,
 		Leakless(false).
 		UserDataDir(filepath.Join(rootDir, "rod_data"))
 
+	// Kill: If it finds a previous instance hanging on the same path, it kills it.
+	l.Kill()
+
 	controlURl, err := l.Launch()
 	if err != nil {
 		return nil, err
