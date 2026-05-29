@@ -1,8 +1,10 @@
 import type { StateCreator } from 'zustand'
 import { Position, type Node, type Edge } from '@xyflow/react'
-import { Topics } from 'wails/go/main/App'
+import { RunWorkflow, StopWorkflow, Topics } from 'wails/go/main/App'
 import { EventsOn } from 'wails/runtime/runtime'
 import type { RootStoreState, WorkflowSlice } from './types'
+import type { config, workflow } from 'wails/go/models'
+import { runDebouncer, stopDebouncer } from '@/lib/utils'
 
 const X_ORIGIN = -400
 const X_GAP = 200
@@ -19,9 +21,37 @@ export const createWorkflowSlice: StateCreator<
   WorkflowSlice
 > = (set, get) => ({
   isWorkflowRunning: false,
+  isDebouncing: false,
   currentState: '',
   stateHistory: [],
   unsubscribers: [],
+
+  runWorkflow: async (
+    work: workflow.WorkFlowInput,
+    conf: config.BrowserConfig
+  ) => {
+    if (get().isWorkflowRunning || get().isDebouncing) return
+
+    await runDebouncer(
+      async () => await RunWorkflow(work, conf),
+      1000,
+      isWaiting => set({ isDebouncing: isWaiting })
+    )
+
+    set({ isDebouncing: false })
+  },
+
+  stopWorkflow: async () => {
+    if (!get().isWorkflowRunning) return
+
+    await stopDebouncer(
+      async () => await StopWorkflow(),
+      1000,
+      isWaiting => set({ isDebouncing: isWaiting })
+    )
+
+    set({ isDebouncing: false })
+  },
 
   initWorkflow: async () => {
     get().cleanupListeners()
@@ -147,7 +177,11 @@ export const createWorkflowSlice: StateCreator<
         }
 
         if (event == topics.workflow_finished) {
-          set({ isWorkflowRunning: false, stateHistory: [] })
+          set({
+            isWorkflowRunning: false,
+            stateHistory: [],
+            isDebouncing: false
+          })
         }
 
         // Notify the flow slice to repaint node styling

@@ -11,16 +11,18 @@ import { Button } from '@/components/ui/button'
 import { SpinnerGapIcon } from '@phosphor-icons/react'
 import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
-import { StopWorkflow } from 'wails/go/main/App'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TerminalLogs } from '@/features/workflow/components/terminal'
 import DisplaySelectedDate from '@/features/workflow/components/display-selected-date'
 import { useAppForms } from '../../hooks/use-app'
 import StateFlow from './components/state-flow'
+import { useWorkflowStore } from './store'
 
 export default function App() {
   const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
+  const stopWorkflow = useWorkflowStore(state => state.stopWorkflow)
+  const isDebouncing = useWorkflowStore(state => state.isDebouncing)
 
   return (
     <>
@@ -84,9 +86,10 @@ export default function App() {
                   {isSubmitting ? (
                     <Button
                       type="button"
+                      disabled={isDebouncing}
                       className="flex gap-1 justify-center items-center"
-                      onClick={async () => {
-                        await StopWorkflow()
+                      onClick={() => {
+                        stopWorkflow()
                       }}
                     >
                       <div>Cancel</div>{' '}
@@ -95,11 +98,13 @@ export default function App() {
                       </div>
                     </Button>
                   ) : (
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isDebouncing}>
+                      Submit
+                    </Button>
                   )}
 
                   <Button
-                    disabled={!canSubmit}
+                    disabled={!canSubmit || isDebouncing}
                     variant={'secondary'}
                     type="reset"
                     onClick={e => {

@@ -5,6 +5,7 @@ import type {
   OnEdgesChange,
   OnConnect
 } from '@xyflow/react'
+import type { config, workflow } from 'wails/go/models'
 
 export interface FlowSlice {
   nodes: Node[]
@@ -22,10 +23,16 @@ export interface FlowSlice {
 
 export interface WorkflowSlice {
   isWorkflowRunning: boolean
+  isDebouncing: boolean
   currentState: string
   stateHistory: string[]
   unsubscribers: (() => void)[]
 
+  runWorkflow: (
+    work: workflow.WorkFlowInput,
+    conf: config.BrowserConfig
+  ) => Promise<void>
+  stopWorkflow: () => Promise<void>
   initWorkflow: () => Promise<void>
   cleanupListeners: () => void
 }

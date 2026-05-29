@@ -1,8 +1,9 @@
 import { createContext, useContext } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { workflow, config, domain } from 'wails/go/models'
-import { GetUser, RunWorkflow } from 'wails/go/main/App'
+import { GetUser } from 'wails/go/main/App'
 import type { WorkflowInput } from '@/types/types'
+import { useWorkflowStore } from '@/features/workflow/store'
 
 export type BrowserConfigForm = ReturnType<typeof useBrowserConfigFormInstance>
 const defaultBrowserConfig = new config.BrowserConfig({
@@ -27,6 +28,7 @@ const defaultWorkflowInput: WorkflowInput = {
   receive_guides_in_transit: false
 }
 export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
+  const runWorkflow = useWorkflowStore(state => state.runWorkflow)
   return useForm({
     defaultValues: defaultWorkflowInput,
 
@@ -43,7 +45,7 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
 
       work.date = date
 
-      await RunWorkflow(
+      await runWorkflow(
         work,
         new config.BrowserConfig({
           headless: browserForm.state.values.headless,
