@@ -11,15 +11,18 @@ import { Button } from '@/components/ui/button'
 import { SpinnerGapIcon } from '@phosphor-icons/react'
 import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
-import { StopWorkflow } from 'wails/go/main/App'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TerminalLogs } from '@/components/terminal'
-import DisplaySelectedDate from '@/components/display-selected-date'
-import { useAppForms } from './use-app'
+import { TerminalLogs } from '@/features/workflow/components/terminal'
+import DisplaySelectedDate from '@/features/workflow/components/display-selected-date'
+import { useAppForms } from '../../hooks/use-app'
+import StateFlow from './components/state-flow'
+import { useWorkflowStore } from './store'
 
 export default function App() {
-  const { workflowForm, currentState } = useAppForms()
+  const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
+  const stopWorkflow = useWorkflowStore(state => state.stopWorkflow)
+  const isDebouncing = useWorkflowStore(state => state.isDebouncing)
 
   return (
     <>
@@ -83,16 +86,25 @@ export default function App() {
                   {isSubmitting ? (
                     <Button
                       type="button"
-                      onClick={async () => await StopWorkflow()}
+                      disabled={isDebouncing}
+                      className="flex gap-1 justify-center items-center"
+                      onClick={() => {
+                        stopWorkflow()
+                      }}
                     >
-                      Cancel <SpinnerGapIcon className=" animate-spin" />
+                      <div>Cancel</div>{' '}
+                      <div className="relative w-8 flex justify-center items-center">
+                        <SpinnerGapIcon className=" absolute top-1/2 left-1/2 animate-spin" />
+                      </div>
                     </Button>
                   ) : (
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isDebouncing}>
+                      Submit
+                    </Button>
                   )}
 
                   <Button
-                    disabled={!canSubmit}
+                    disabled={!canSubmit || isDebouncing}
                     variant={'secondary'}
                     type="reset"
                     onClick={e => {
@@ -129,7 +141,9 @@ export default function App() {
           >
             <TerminalLogs />
           </TabsContent>
-          <TabsContent value="workflow">{currentState}</TabsContent>
+          <TabsContent value="workflow">
+            <StateFlow />
+          </TabsContent>
         </Tabs>
       </Card>
     </>

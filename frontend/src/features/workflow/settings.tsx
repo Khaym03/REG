@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Field,
   FieldContent,
   FieldLabel,
   FieldDescription
 } from '@/components/ui/field'
-import { Switch } from './ui/switch'
-import { useAppForms } from './use-app'
+import { Switch } from '@/components/ui/switch'
+import { useAppForms } from '@/hooks/use-app'
 
 export default function SettingsSection() {
   const { browserForm } = useAppForms()

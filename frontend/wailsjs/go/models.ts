@@ -141,6 +141,7 @@ export namespace workflow {
 	    user: auth.User;
 	    date: domain.DateRange;
 	    receive_guides_in_transit?: boolean;
+	    BrowserConf: config.BrowserConfig;
 	
 	    static createFrom(source: any = {}) {
 	        return new WorkFlowInput(source);
@@ -151,6 +152,7 @@ export namespace workflow {
 	        this.user = this.convertValues(source["user"], auth.User);
 	        this.date = this.convertValues(source["date"], domain.DateRange);
 	        this.receive_guides_in_transit = source["receive_guides_in_transit"];
+	        this.BrowserConf = this.convertValues(source["BrowserConf"], config.BrowserConfig);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

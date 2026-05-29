@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import type { CSSProperties } from 'react'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { AppSidebar } from '@/components/app-sidebar'
+import { AppSidebar } from '@/components/layout/app-sidebar'
 import { GetUser } from 'wails/go/main/App'
 import { GearIcon, RowsIcon, TreeStructureIcon } from '@phosphor-icons/react'
 import type { NavData } from '@/types/types'

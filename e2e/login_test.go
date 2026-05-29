@@ -19,7 +19,6 @@ func TestLoginSuite(t *testing.T) {
 
 func (suite *LoginTestSuite) TestLoginSuccess() {
 	provider := auth.NewProvider(
-		suite.NewBrowser(),
 		auth.NewLoginScraper(),
 		event.NewBus(),
 	)
@@ -33,7 +32,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 		Password: password,
 	}
 
-	s, err := provider.Start(suite.T().Context(), user)
+	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
 	require.NoError(suite.T(), err)
 	defer func() {
 		require.NoError(suite.T(), s.Close(suite.T().Context()))
@@ -45,7 +44,7 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 	provider := auth.NewProvider(
-		suite.NewBrowser(),
+
 		auth.NewLoginScraper(),
 		event.NewBus(),
 	)
@@ -54,7 +53,7 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 		Password: "wrong",
 	}
 
-	s, err := provider.Start(suite.T().Context(), user)
+	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
 	defer func() {
 		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
