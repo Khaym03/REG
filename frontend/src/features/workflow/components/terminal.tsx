@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { EventsOn } from 'wails/runtime'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { TerminalWindowIcon } from '@phosphor-icons/react'
+import { useWorkflowStore } from '../store'
 
-interface LogEntry {
+export interface LogEntry {
   id: string
   time: string
   level: string
@@ -19,10 +19,10 @@ const COLORS: Record<string, string> = {
   trace: 'text-zinc-500'
 }
 
-export function TerminalLogs({ eventName = 'LOG', maxEntries = 500 }) {
-  const [entries, setEntries] = useState<LogEntry[]>([])
-  const viewportRef = useRef<HTMLDivElement>(null)
+export function TerminalLogs() {
+  const entries = useWorkflowStore(state => state.entries)
 
+  const viewportRef = useRef<HTMLDivElement>(null)
   const rowVirtualizer = useVirtualizer({
     count: entries.length,
     getScrollElement: () => viewportRef.current,
@@ -42,42 +42,6 @@ export function TerminalLogs({ eventName = 'LOG', maxEntries = 500 }) {
     }
   }, [entries])
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined
-
-    const setupListener = async () => {
-      try {
-        unsubscribe = EventsOn(eventName, (line: string) => {
-          let newEntry: LogEntry
-
-          try {
-            const data = JSON.parse(line)
-            newEntry = {
-              id: crypto.randomUUID(),
-              time: new Date().toLocaleTimeString(),
-              level: data.level?.toLowerCase() || 'info',
-              message: data.msg || data.message || line
-            }
-          } catch {
-            newEntry = {
-              id: crypto.randomUUID(),
-              time: new Date().toLocaleTimeString(),
-              level: 'info',
-              message: line
-            }
-          }
-
-          setEntries(prev => [...prev, newEntry].slice(-maxEntries))
-        })
-      } catch (err) {
-        console.error('Failed to attach log listener', err)
-      }
-    }
-
-    setupListener()
-    return () => unsubscribe?.()
-  }, [eventName, maxEntries])
-
   return (
     <>
       <div
@@ -85,7 +49,7 @@ export function TerminalLogs({ eventName = 'LOG', maxEntries = 500 }) {
         data-slot="scroll-area"
         style={{
           height: `266px`,
-          width: `799px`,
+          width: `798px`,
           overflow: 'auto'
         }}
         className=""

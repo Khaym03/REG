@@ -37,4 +37,17 @@ export interface WorkflowSlice {
   cleanupListeners: () => void
 }
 
-export type RootStoreState = FlowSlice & WorkflowSlice
+export interface LogEntry {
+  id: string
+  time: string
+  level: string
+  message: string
+}
+
+export interface LogSlice {
+  entries: LogEntry[]
+  addLogLine: (line: string, maxEntries?: number) => void
+  clearLogs: () => void
+}
+
+export type RootStoreState = FlowSlice & WorkflowSlice & LogSlice

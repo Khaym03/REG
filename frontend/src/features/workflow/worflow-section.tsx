@@ -8,7 +8,7 @@ import {
   FieldDescription
 } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
-import { SpinnerGapIcon } from '@phosphor-icons/react'
+import { Spinner } from '@/components/ui/spinner'
 import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -17,12 +17,33 @@ import DisplaySelectedDate from '@/features/workflow/components/display-selected
 import { useAppForms } from '../../hooks/use-app'
 import StateFlow from './components/state-flow'
 import { useWorkflowStore } from './store'
+import { EventsOn } from 'wails/runtime/runtime'
+import { useEffect } from 'react'
 
 export default function App() {
   const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
   const stopWorkflow = useWorkflowStore(state => state.stopWorkflow)
   const isDebouncing = useWorkflowStore(state => state.isDebouncing)
+
+  const addLogLine = useWorkflowStore(state => state.addLogLine)
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined
+
+    const setupListener = async () => {
+      try {
+        unsubscribe = EventsOn('LOG', (line: string) => {
+          addLogLine(line, 500)
+        })
+      } catch (err) {
+        console.error('Failed to attach log listener', err)
+      }
+    }
+
+    setupListener()
+    return () => unsubscribe?.()
+  }, [addLogLine])
 
   return (
     <>
@@ -87,15 +108,12 @@ export default function App() {
                     <Button
                       type="button"
                       disabled={isDebouncing}
-                      className="flex gap-1 justify-center items-center"
                       onClick={() => {
                         stopWorkflow()
                       }}
                     >
-                      <div>Cancel</div>{' '}
-                      <div className="relative w-8 flex justify-center items-center">
-                        <SpinnerGapIcon className=" absolute top-1/2 left-1/2 animate-spin" />
-                      </div>
+                      <Spinner />
+                      Cancel
                     </Button>
                   ) : (
                     <Button type="submit" disabled={isDebouncing}>
@@ -122,7 +140,7 @@ export default function App() {
         </form>
       </Card>
 
-      <Card className="min-h-0 flex flex-col p-0 ring-0">
+      <Card className="min-h-0 flex flex-col p-0 ring-1">
         <Tabs
           defaultValue="terminal"
           className="w-full gap-0"
@@ -137,7 +155,7 @@ export default function App() {
 
           <TabsContent
             value="terminal"
-            className="flex-1 min-h-0 overflow-y-auto border"
+            className="flex-1 min-h-0 overflow-y-auto border overflow-x-hidden"
           >
             <TerminalLogs />
           </TabsContent>
