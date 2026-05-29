@@ -70,7 +70,41 @@ func (s *RodSession) NewIsolated(ctx context.Context) (Session, error) {
 		return nil, SessionClosed
 	}
 
+	currentCookies, err := s.browser.GetCookies()
+	if err != nil {
+		return nil, err
+	}
+
 	incognito, err := s.browser.Incognito()
+	if err != nil {
+		return nil, err
+	}
+
+	var params []*proto.NetworkCookieParam
+	for _, cookie := range currentCookies {
+		// Copiamos el SourcePort localmente para poder sacar su puntero de forma segura
+		sourcePortCopy := cookie.SourcePort
+
+		param := &proto.NetworkCookieParam{
+			Name:         cookie.Name,
+			Value:        cookie.Value,
+			Domain:       cookie.Domain,
+			Path:         cookie.Path,
+			Secure:       cookie.Secure,
+			HTTPOnly:     cookie.HTTPOnly,
+			SameSite:     cookie.SameSite,
+			Expires:      cookie.Expires,
+			Priority:     cookie.Priority,
+			SameParty:    cookie.SameParty,
+			SourceScheme: cookie.SourceScheme,
+			SourcePort:   &sourcePortCopy, // Puntero a la copia del int
+			PartitionKey: cookie.PartitionKey,
+			// URL se omite intencionalmente porque ya pasamos Domain y Path explícitos
+		}
+
+		params = append(params, param)
+	}
+	err = incognito.SetCookies(params)
 	if err != nil {
 		return nil, err
 	}
