@@ -8,42 +8,18 @@ import {
   FieldDescription
 } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
 import { useStore } from '@tanstack/react-form'
 import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TerminalLogs } from '@/features/workflow/components/terminal'
 import DisplaySelectedDate from '@/features/workflow/components/display-selected-date'
 import { useAppForms } from '../../hooks/use-app'
 import StateFlow from './components/state-flow'
 import { useWorkflowStore } from './store'
-import { EventsOn } from 'wails/runtime/runtime'
-import { useEffect } from 'react'
 
 export default function App() {
   const { workflowForm } = useAppForms()
   const dates = useStore(workflowForm.store, state => state.values.dateRange)
   const stopWorkflow = useWorkflowStore(state => state.stopWorkflow)
   const isDebouncing = useWorkflowStore(state => state.isDebouncing)
-
-  const addLogLine = useWorkflowStore(state => state.addLogLine)
-
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined
-
-    const setupListener = async () => {
-      try {
-        unsubscribe = EventsOn('LOG', (line: string) => {
-          addLogLine(line, 500)
-        })
-      } catch (err) {
-        console.error('Failed to attach log listener', err)
-      }
-    }
-
-    setupListener()
-    return () => unsubscribe?.()
-  }, [addLogLine])
 
   return (
     <>
@@ -111,9 +87,11 @@ export default function App() {
                       onClick={() => {
                         stopWorkflow()
                       }}
+                      className="transition-all"
                     >
-                      <Spinner />
-                      Cancel
+                      <div className="shiny inline-block bg-[linear-gradient(120deg,rgba(255,255,255,0)_40%,rgba(255,255,255,0.8)_50%,rgba(255,255,255,0)_60%)] dark:bg-[linear-gradient(120deg,rgba(0,0,0,0)_40%,rgba(0,0,0,0.8)_50%,rgba(0,0,0,0)_60%)] bg-size-[200%_100%] bg-clip-text text-white/70 dark:text-foreground/60">
+                        Cancel
+                      </div>
                     </Button>
                   ) : (
                     <Button type="submit" disabled={isDebouncing}>
@@ -140,29 +118,8 @@ export default function App() {
         </form>
       </Card>
 
-      <Card className="min-h-0 flex flex-col p-0 ring-1">
-        <Tabs
-          defaultValue="terminal"
-          className="w-full gap-0"
-          style={{
-            height: `300px`
-          }}
-        >
-          <TabsList className="">
-            <TabsTrigger value="terminal">Terminal</TabsTrigger>
-            <TabsTrigger value="workflow">Workflow</TabsTrigger>
-          </TabsList>
-
-          <TabsContent
-            value="terminal"
-            className="flex-1 min-h-0 overflow-y-auto border overflow-x-hidden"
-          >
-            <TerminalLogs />
-          </TabsContent>
-          <TabsContent value="workflow">
-            <StateFlow />
-          </TabsContent>
-        </Tabs>
+      <Card className="min-h-0 flex flex-col p-0 ring-1 h-[300px]">
+        <StateFlow />
       </Card>
     </>
   )

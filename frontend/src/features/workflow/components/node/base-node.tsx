@@ -16,7 +16,7 @@ export function BaseNode({ className, ...props }: ComponentProps<'div'>) {
         // node when it is selected.
         'in-[.selected]:border-muted-foreground',
         'in-[.selected]:shadow-lg',
-        ' w-[151px]',
+        ' w-[151px] text-sm',
         className
       )}
       tabIndex={0}
