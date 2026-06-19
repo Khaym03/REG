@@ -74,7 +74,7 @@ func ProcessNextExpiredGuide(
 	}
 
 	for _, row := range rows {
-		if !opt.ReceiveGuidesInTransit {
+		if !row.IsExpired() && !opt.ReceiveGuidesInTransit {
 			continue
 		}
 

@@ -21,18 +21,17 @@ func TestProcessNextExpiredGuide(t *testing.T) {
 		expectedErr   string
 	}{
 		{
-			name: "Successfully processes the first valid row",
+			name: "Successfully processes an expired row even if ReceiveGuidesInTransit is false",
 			opt: reception.ReceptionOptions{
 				Date:                   mockDate,
-				ReceiveGuidesInTransit: true,
+				ReceiveGuidesInTransit: false, // Flag is false, but row IS expired
 			},
 			setupMocks: func(mp *reception.MockPage, mr *reception.MockTableRow) {
 				mp.EXPECT().Open().Return(nil)
 				mp.EXPECT().ApplyFilters(mockDate).Return(nil)
-
 				mp.EXPECT().Rows().Return([]reception.TableRow{mr}, nil)
 
-				// The row executes the trigger, and the page confirms.
+				mr.EXPECT().IsExpired().Return(true) // Always process expired rows
 				mr.EXPECT().TriggerReception().Return(nil)
 				mp.EXPECT().ConfirmReception().Return(nil)
 			},
@@ -41,7 +40,26 @@ func TestProcessNextExpiredGuide(t *testing.T) {
 			expectedErr:   "",
 		},
 		{
-			name: "Skips row when ReceiveGuidesInTransit is false",
+			name: "Successfully processes an in-transit row when ReceiveGuidesInTransit is true",
+			opt: reception.ReceptionOptions{
+				Date:                   mockDate,
+				ReceiveGuidesInTransit: true, // Flag is true, row is NOT expired
+			},
+			setupMocks: func(mp *reception.MockPage, mr *reception.MockTableRow) {
+				mp.EXPECT().Open().Return(nil)
+				mp.EXPECT().ApplyFilters(mockDate).Return(nil)
+				mp.EXPECT().Rows().Return([]reception.TableRow{mr}, nil)
+
+				mr.EXPECT().IsExpired().Return(false)
+				mr.EXPECT().TriggerReception().Return(nil)
+				mp.EXPECT().ConfirmReception().Return(nil)
+			},
+			expectedBool:  true,
+			expectedCount: 1,
+			expectedErr:   "",
+		},
+		{
+			name: "Skips row when NOT expired and ReceiveGuidesInTransit is false",
 			opt: reception.ReceptionOptions{
 				Date:                   mockDate,
 				ReceiveGuidesInTransit: false,
@@ -50,6 +68,8 @@ func TestProcessNextExpiredGuide(t *testing.T) {
 				mp.EXPECT().Open().Return(nil)
 				mp.EXPECT().ApplyFilters(mockDate).Return(nil)
 				mp.EXPECT().Rows().Return([]reception.TableRow{mr}, nil)
+
+				mr.EXPECT().IsExpired().Return(false) // Not expired + flag false = skip
 			},
 			expectedBool:  false,
 			expectedCount: 0,
@@ -76,6 +96,7 @@ func TestProcessNextExpiredGuide(t *testing.T) {
 				mp.EXPECT().ApplyFilters(mockDate).Return(nil)
 				mp.EXPECT().Rows().Return([]reception.TableRow{mr}, nil)
 
+				mr.EXPECT().IsExpired().Return(false)
 				mr.EXPECT().TriggerReception().Return(errors.New("click failed"))
 			},
 			expectedBool:  false,
