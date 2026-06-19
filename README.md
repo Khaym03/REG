@@ -8,6 +8,10 @@ This repository automates workflow actions against the sica.sunagro.gob.ve web a
 
 ![System overview diagram](doc/reg.png)
 
+## App preview
+
+![REG application preview](REG.png)
+
 ### Required environment variables
 
 - `.env` (recommended) has:
