@@ -1,6 +1,6 @@
 all: true
-dir: '{{.InterfaceDir}}'
-filename: 'mock_{{.InterfaceName}}.go'
+dir: "{{.InterfaceDir}}"
+filename: "mock_{{.InterfaceName}}.go"
 force-file-write: true
 formatter: goimports
 formatter-options:
@@ -9,26 +9,26 @@ formatter-options:
     comments: true
     format-only: true
     fragment: false
-    local-prefix: ''
+    local-prefix: ""
     tab-indent: true
     tab-width: 8
 generate: true
 include-auto-generated: false
 log-level: info
-structname: '{{.Mock}}{{.InterfaceName}}'
-pkgname: '{{.SrcPackageName}}'
+structname: "{{.Mock}}{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}"
 recursive: false
 require-template-schema-exists: true
 template: testify
-template-schema: '{{.Template}}.schema.json'
+template-schema: "{{.Template}}.schema.json"
 packages:
   github.com/Khaym03/REG/internal/workflow/command/reception:
     config:
       all: false
-      dir: '{{.InterfaceDir}}'
-      filename: 'mocks.go'
-      pkgname: 'reception'
-      structname: 'Mock{{.InterfaceName}}'
+      dir: "{{.InterfaceDir}}"
+      filename: "mocks.go"
+      pkgname: "reception"
+      structname: "Mock{{.InterfaceName}}"
     interfaces:
       Page:
       TableRow:

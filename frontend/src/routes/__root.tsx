@@ -2,7 +2,7 @@ import { createRootRoute, Outlet } from '@tanstack/react-router'
 import type { CSSProperties } from 'react'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
-import { GetUser } from 'wails/go/main/App'
+import { App } from 'bindings/github.com/Khaym03/REG'
 import { GearIcon, RowsIcon, TreeStructureIcon } from '@phosphor-icons/react'
 import type { NavData } from '@/types/types'
 
@@ -34,7 +34,7 @@ export const Route = createRootRoute({
 })
 
 async function getNavData(): Promise<NavData> {
-  const user = await GetUser()
+  const user = await App.GetUser()
   return {
     user: {
       name: user.username,

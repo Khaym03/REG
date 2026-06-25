@@ -14,15 +14,17 @@ import (
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
 	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type WailsLogWriter struct {
 	ctx context.Context
+	app *application.App
 }
 
 func (w *WailsLogWriter) Write(p []byte) (n int, err error) {
-	runtime.EventsEmit(w.ctx, "LOG", string(p))
+	w.app.Event.Emit("LOG", string(p))
 
 	return len(p), nil
 }
@@ -34,11 +36,13 @@ type App struct {
 	mu        sync.Mutex
 	loggerOut io.Writer
 	eventBus  *bus.Bus
+	app       *application.App
 }
 
-// NewApp creates a new App application struct
-func NewApp() *App {
+// NewAppService creates a new App application struct
+func NewAppService(app *application.App) *App {
 	return &App{
+		app:      app,
 		mu:       sync.Mutex{},
 		eventBus: event.NewBus(),
 	}
@@ -46,11 +50,11 @@ func NewApp() *App {
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	a.ctx = ctx
 
 	writers := make([]io.Writer, 0, 2)
-	writers = []io.Writer{&WailsLogWriter{ctx: a.ctx}}
+	writers = []io.Writer{&WailsLogWriter{ctx: a.ctx, app: a.app}}
 
 	if config.IsDev() {
 		writers = append(writers, os.Stdout)
@@ -63,6 +67,8 @@ func (a *App) startup(ctx context.Context) {
 	log.SetOutput(a.loggerOut)
 
 	a.registerEventHandlers()
+
+	return nil
 }
 
 func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
@@ -136,7 +142,7 @@ func (a *App) registerEventHandlers() {
 				return
 			}
 
-			runtime.EventsEmit(a.ctx, event.Stats, d)
+			a.app.Event.Emit(event.Stats, d)
 		},
 		Matcher: event.Matcher(event.Stats),
 	}
@@ -159,7 +165,7 @@ func (a *App) registerEventHandlers() {
 			Handle: func(ctx context.Context, ev bus.Event) {
 				log.Printf("HANDLER REGISTERED FOR: %s", e)
 				log.Printf("EVENT RECEIVED: %+v", ev)
-				runtime.EventsEmit(a.ctx, e, "")
+				a.app.Event.Emit(e, "")
 			},
 			Matcher: event.Matcher(e),
 		}

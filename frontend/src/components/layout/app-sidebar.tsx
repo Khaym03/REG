@@ -18,16 +18,11 @@ import {
 } from '@phosphor-icons/react'
 import { ModeToggle } from './mode-toggle'
 import { Button } from '@/components/ui/button'
-import {
-  Quit,
-  WindowMinimise,
-  EventsOn,
-  EventsOff
-} from 'wails/runtime/runtime'
+import { Application, Window, Events } from '@wailsio/runtime'
 import { useEffect, useState, type ComponentProps } from 'react'
 import type { NavData } from '@/types/types'
-import { Topics } from 'wails/go/main/App'
-import { stats } from 'wails/go/models'
+import { App } from 'bindings/github.com/Khaym03/REG'
+import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
 import { Label } from '@/components/ui/label'
 
 interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
@@ -41,14 +36,14 @@ export function AppSidebar({ navData, ...props }: AppSidebarProps) {
         <Button
           variant={'ghost'}
           className="border-0 hover:bg-accent"
-          onClick={() => WindowMinimise()}
+          onClick={() => Window.Minimise()}
         >
           <MinusIcon />
         </Button>
         <Button
           variant={'ghost'}
           className="border-0 hover:bg-destructive"
-          onClick={() => Quit()}
+          onClick={() => Application.Quit()}
         >
           <XIcon />
         </Button>
@@ -92,14 +87,7 @@ const statItems = [
 ] as const
 
 function Stats() {
-  const [currentStats, setCurrentStats] = useState<stats.Stats>(
-    new stats.Stats({
-      outstanding_debt: 0,
-      intransit_guides: 0,
-      expired_guides: 0,
-      pending_procedures: 0
-    })
-  )
+  const [currentStats, setCurrentStats] = useState<stats>(new stats())
 
   useEffect(() => {
     // Variable para controlar si el componente se desmontó mientras esperábamos el async
@@ -107,13 +95,15 @@ function Stats() {
     let activeTopic = ''
 
     const setupStatsListener = async () => {
-      const topics = await Topics()
+      const topics = await App.Topics()
 
       if (topics.stats_result && isMounted) {
         activeTopic = topics.stats_result
 
-        EventsOn(activeTopic, datas => {
-          setCurrentStats(new stats.Stats(datas))
+        Events.On(activeTopic, event => {
+          const datas = event.data
+          console.log(`data from topic ${activeTopic}`, datas)
+          setCurrentStats(new stats(datas))
         })
       }
     }
@@ -123,7 +113,7 @@ function Stats() {
     return () => {
       isMounted = false
       if (activeTopic) {
-        EventsOff(activeTopic)
+        Events.Off(activeTopic)
       }
     }
   }, [])

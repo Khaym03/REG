@@ -1,7 +1,10 @@
 import { createContext, useContext } from 'react'
 import { useForm } from '@tanstack/react-form'
-import { workflow, config, domain } from 'wails/go/models'
-import { GetUser } from 'wails/go/main/App'
+// import { workflow, config, domain } from "bindings/github.com/Khaym03/REG";
+import * as workflow from 'bindings/github.com/Khaym03/REG/internal/workflow'
+import * as domain from 'bindings/github.com/Khaym03/REG/internal/domain'
+import * as config from 'bindings/github.com/Khaym03/REG/internal/config'
+import { App } from 'bindings/github.com/Khaym03/REG'
 import type { WorkflowInput } from '@/types/types'
 import { useWorkflowStore } from '@/features/workflow/store'
 
@@ -39,7 +42,7 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
       date.to = value.dateRange.to
 
       const work = new workflow.WorkFlowInput({
-        user: await GetUser(),
+        user: await App.GetUser(),
         receive_guides_in_transit: value.receive_guides_in_transit
       })
 

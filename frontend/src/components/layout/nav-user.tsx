@@ -1,23 +1,23 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import type { User } from "@/types/types";
-import { CaretUpDownIcon, SignOutIcon, UserIcon } from "@phosphor-icons/react";
+  useSidebar
+} from '@/components/ui/sidebar'
+import type { User } from '@/types/types'
+import { CaretUpDownIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 
 export function NavUser({ user }: { user: User }) {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useSidebar()
 
   return (
     <SidebarMenu>
@@ -34,7 +34,7 @@ export function NavUser({ user }: { user: User }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
@@ -52,7 +52,7 @@ export function NavUser({ user }: { user: User }) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }
 
 function DisplayUser({ user }: { user: User }) {
@@ -74,12 +74,12 @@ function DisplayUser({ user }: { user: User }) {
         />
       </div>
     </>
-  );
+  )
 }
 
 function censore(name: string): string {
-  const word = name.split("");
-  if (word.length <= 3) return name;
+  const word = name.split('')
+  if (word.length <= 3) return name
 
-  return word.slice(0, 3).join("") + "*".repeat(word.length - 3);
+  return word.slice(0, 3).join('') + '*'.repeat(word.length - 3)
 }
