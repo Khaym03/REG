@@ -5,9 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 func init() {
@@ -25,27 +23,34 @@ func init() {
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
+	app := application.New(application.Options{
+		Name: "REG",
+		Assets: application.AssetOptions{
+			Handler: application.AssetFileServerFS(assets),
+		},
+	})
 
-	// Create application with options
-	err := wails.Run(&options.App{
-		Title:         "reg",
+	app.RegisterService(
+		application.NewService(
+			NewAppService(app),
+		),
+	)
+
+	app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title:         "REG",
 		Width:         1024,
 		Height:        600,
 		Frameless:     true,
 		DisableResize: true,
-		AssetServer: &assetserver.Options{
-			Assets: assets,
-		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
-		Bind: []interface{}{
-			app,
+		BackgroundColour: application.RGBA{
+			Red:   27,
+			Green: 38,
+			Blue:  54,
+			Alpha: 1,
 		},
 	})
 
-	if err != nil {
+	if err := app.Run(); err != nil {
 		println("Error:", err.Error())
 	}
 }
