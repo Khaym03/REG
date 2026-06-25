@@ -40,3 +40,4 @@ If not set, Rod suite is skipped.
 # run integration tests (rod-based) explicitly:
 go test ./... -v
 
+```
