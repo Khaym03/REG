@@ -1,9 +1,10 @@
 import type { StateCreator } from 'zustand'
 import { Position, type Node, type Edge } from '@xyflow/react'
-import { RunWorkflow, StopWorkflow, Topics } from 'wails/go/main/App'
-import { EventsOn } from 'wails/runtime/runtime'
+import { App } from 'bindings/github.com/Khaym03/REG'
+import { Events } from '@wailsio/runtime'
 import type { RootStoreState, WorkflowSlice } from './types'
-import type { config, workflow } from 'wails/go/models'
+import type { BrowserConfig } from 'bindings/github.com/Khaym03/REG/internal/config'
+import type { WorkFlowInput } from 'bindings/github.com/Khaym03/REG/internal/workflow'
 import { runDebouncer, stopDebouncer } from '@/lib/utils'
 
 const X_ORIGIN = -400
@@ -26,14 +27,11 @@ export const createWorkflowSlice: StateCreator<
   stateHistory: [],
   unsubscribers: [],
 
-  runWorkflow: async (
-    work: workflow.WorkFlowInput,
-    conf: config.BrowserConfig
-  ) => {
+  runWorkflow: async (work: WorkFlowInput, conf: BrowserConfig) => {
     if (get().isWorkflowRunning || get().isDebouncing) return
 
     await runDebouncer(
-      async () => await RunWorkflow(work, conf),
+      async () => await App.RunWorkflow(work, conf),
       1000,
       isWaiting => set({ isDebouncing: isWaiting })
     )
@@ -45,7 +43,7 @@ export const createWorkflowSlice: StateCreator<
     if (!get().isWorkflowRunning) return
 
     await stopDebouncer(
-      async () => await StopWorkflow(),
+      async () => await App.StopWorkflow(),
       1000,
       isWaiting => set({ isDebouncing: isWaiting })
     )
@@ -55,7 +53,7 @@ export const createWorkflowSlice: StateCreator<
 
   initWorkflow: async () => {
     get().cleanupListeners()
-    const topics = await Topics()
+    const topics = await App.Topics()
 
     const initialNodes: Node[] = [
       {
@@ -166,7 +164,7 @@ export const createWorkflowSlice: StateCreator<
     const localUnsubscribers: (() => void)[] = []
 
     activeTopics.forEach(event => {
-      const unsubscribe = EventsOn(event, () => {
+      const unsubscribe = Events.On(event, () => {
         console.log('[Backend] fire event: ', event)
         const nextHistory = [...get().stateHistory, event]
 

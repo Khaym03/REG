@@ -5,7 +5,8 @@ import type {
   OnEdgesChange,
   OnConnect
 } from '@xyflow/react'
-import type { config, workflow } from 'wails/go/models'
+import * as config from 'bindings/github.com/Khaym03/REG/internal/config'
+import * as workflow from 'bindings/github.com/Khaym03/REG/internal/workflow'
 
 export interface FlowSlice {
   nodes: Node[]

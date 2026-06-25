@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useWorkflowStore } from '../store'
-import { EventsOn } from 'wails/runtime/runtime'
+import { Events } from '@wailsio/runtime'
 
 export default function useLogs() {
   const addLogLine = useWorkflowStore(state => state.addLogLine)
@@ -10,7 +10,9 @@ export default function useLogs() {
 
     const setupListener = async () => {
       try {
-        unsubscribe = EventsOn('LOG', (line: string) => {
+        unsubscribe = Events.On('LOG', event => {
+          const line = event.data as string
+
           addLogLine(line, 500)
         })
       } catch (err) {
