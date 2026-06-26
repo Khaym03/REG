@@ -55,9 +55,11 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 
 	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
 	defer func() {
-		require.NoError(suite.T(), s.Close(suite.T().Context()))
+		if s != nil {
+			require.NoError(suite.T(), s.Close(suite.T().Context()))
+		}
 	}()
 
-	require.Error(suite.T(), err)
+	require.ErrorIs(suite.T(), err, auth.ErrInvalidCrendentials)
 	require.Nil(suite.T(), s)
 }

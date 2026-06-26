@@ -16,6 +16,10 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
+var (
+	ErrInvalidCrendentials = errors.New("invalid credentials")
+)
+
 type LoginPage struct {
 	page *rod.Page
 }
@@ -114,7 +118,10 @@ func (lp *LoginPage) checkLoginError() error {
 		return fmt.Errorf("login failed with an empty alert message")
 	}
 
-	return fmt.Errorf("login failed: %s", errorMessage)
+	return errors.Join(
+		ErrInvalidCrendentials,
+		fmt.Errorf("login failed: %s", errorMessage),
+	)
 }
 
 func (lp *LoginPage) handleVerificationStep() error {

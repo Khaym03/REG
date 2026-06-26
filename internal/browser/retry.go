@@ -2,6 +2,7 @@ package browser
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -22,6 +23,10 @@ func WithRetry(
 				err = next(p)
 				if err == nil {
 					return nil
+				}
+
+				if !errors.Is(err, &rod.NavigationError{}) {
+					return err
 				}
 
 				if i == attempts-1 {
