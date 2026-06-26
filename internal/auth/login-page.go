@@ -18,6 +18,7 @@ import (
 
 var (
 	ErrInvalidCrendentials = errors.New("invalid credentials")
+	ErrSessionIsOpen       = errors.New("error session is already open")
 )
 
 type LoginPage struct {
@@ -60,7 +61,34 @@ func (lp *LoginPage) Submit() (err error) {
 		return
 	}
 
+	if err = lp.checkIfSessionIsAlreadyOpen(); err != nil {
+		return
+	}
+
 	return lp.handleVerificationStep()
+}
+
+func (lp *LoginPage) checkIfSessionIsAlreadyOpen() error {
+	els, err := lp.page.Timeout(c.DefaultTimeout).Elements(modalSelector)
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+
+	if !els.Empty() {
+		err = browser.Click(lp.page, modalBtnSelector)
+		if err != nil {
+			return err
+		}
+
+		if err = lp.page.WaitIdle(c.TimeoutShort); err != nil {
+			return fmt.Errorf("error waiting for page idleness after dismissal: %w", err)
+		}
+
+		return ErrSessionIsOpen
+	}
+
+	return nil
 }
 
 // dismissOptionalModal attempts to clear a popup if it exists.
@@ -175,6 +203,9 @@ const (
 
 	codeTextSelector                = `/html/body/div[1]/div/div/div/div[1]/div[1]/div/p[1]`
 	makeInteracteableButtonSelector = `//*[@id="modal_sesion_notificacion_login"]/div/div/div/button`
+
+	modalSelector    = `#modal_sesion_activa`
+	modalBtnSelector = `#modal_sesion_activa button`
 )
 
 // Regex: Matches exactly 6 digits isolated by word boundaries

@@ -55,11 +55,14 @@ func (suite *RodSuite) LoadCredential() (string, string) {
 func (suite *RodSuite) NewBrowser() *rod.Browser {
 	envPath, _ := filepath.Abs("../.env")
 	rootDir := filepath.Dir(envPath)
+
+	datadir := "rod_data"
+
 	l := launcher.New().
 		Headless(os.Getenv("REG_HEADLESS") == "1").
 		Devtools(false).
 		Leakless(false).
-		UserDataDir(filepath.Join(rootDir, "rod_data"))
+		UserDataDir(filepath.Join(rootDir, datadir))
 
 	return rod.New().
 		Context(suite.T().Context()).

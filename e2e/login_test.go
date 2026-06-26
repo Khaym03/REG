@@ -13,6 +13,8 @@ import (
 
 type LoginTestSuite struct {
 	RodSuite
+
+	provider *auth.Provider
 }
 
 func TestLoginSuite(t *testing.T) {
@@ -20,24 +22,10 @@ func TestLoginSuite(t *testing.T) {
 }
 
 func (suite *LoginTestSuite) TestLoginSuccess() {
-	provider := auth.NewProvider(
-		auth.NewLoginScraper(),
-		event.NewBus(),
-	)
-	username, password := suite.LoadCredential()
-	if username == "" || password == "" {
-		suite.T().Skip("Skipping test: REG_TEST_USERNAME and REG_TEST_PASSWORD not set")
-	}
+	user := suite.validUser()
 
-	user := auth.User{
-		Username: username,
-		Password: password,
-	}
-
-	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
-	defer func() {
-		require.NoError(suite.T(), s.Close(suite.T().Context()))
-	}()
+	s, err := suite.provider.Start(suite.T().Context(), user, suite.NewBrowser())
+	defer suite.closeSession(s)
 
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), s)
@@ -50,26 +38,74 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 	require.NoError(suite.T(), err)
 }
 
-func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
-	provider := auth.NewProvider(
+func (suite *LoginTestSuite) TestSessionAlreadyOpen() {
+	user := suite.validUser()
 
-		auth.NewLoginScraper(),
-		event.NewBus(),
+	rootBrowser := suite.NewBrowser()
+	helperBrowser := rootBrowser.MustIncognito()
+
+	// First login
+	first, err := suite.provider.Start(
+		suite.T().Context(),
+		user,
+		rootBrowser,
 	)
+	require.NoError(suite.T(), err)
+	require.NotNil(suite.T(), first)
+
+	defer func() {
+		require.NoError(suite.T(), first.Close(suite.T().Context()))
+	}()
+
+	// Second login while first session is still alive
+	second, err := suite.provider.Start(
+		suite.T().Context(),
+		user,
+		helperBrowser,
+	)
+
+	require.ErrorIs(suite.T(), err, auth.ErrSessionIsOpen)
+	require.Nil(suite.T(), second)
+
+}
+
+func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 	user := auth.User{
 		Username: "fake@example.com",
 		Password: "wrong",
 	}
 
-	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
-	defer func() {
-		if s != nil {
-			require.NoError(suite.T(), s.Close(suite.T().Context()))
-		}
-	}()
+	s, err := suite.provider.Start(suite.T().Context(), user, suite.NewBrowser())
+	defer suite.closeSession(s)
 
 	require.ErrorIs(suite.T(), err, auth.ErrInvalidCrendentials)
 	require.Nil(suite.T(), s)
+}
+
+func (suite *LoginTestSuite) SetupTest() {
+	suite.provider = auth.NewProvider(
+		auth.NewLoginScraper(),
+		event.NewBus(),
+	)
+}
+
+func (suite *LoginTestSuite) validUser() auth.User {
+	username, password := suite.LoadCredential()
+
+	if username == "" || password == "" {
+		suite.T().Skip("credentials missing")
+	}
+
+	return auth.User{
+		Username: username,
+		Password: password,
+	}
+}
+
+func (suite *LoginTestSuite) closeSession(s auth.Session) {
+	if s != nil {
+		require.NoError(suite.T(), s.Close(suite.T().Context()))
+	}
 }
 
 const profileSelector = `#profileDropdown`
