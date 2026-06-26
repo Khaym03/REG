@@ -11,7 +11,7 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
-const defaultTimeout = 10 * time.Second
+const defaultTimeout = 20 * time.Second
 
 func Navigate(page *rod.Page, url string) (err error) {
 	log.Info("navigating to: ", url)

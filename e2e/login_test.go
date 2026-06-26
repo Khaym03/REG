@@ -2,9 +2,11 @@ package e2e
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/go-rod/rod"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -33,13 +35,19 @@ func (suite *LoginTestSuite) TestLoginSuccess() {
 	}
 
 	s, err := provider.Start(suite.T().Context(), user, suite.NewBrowser())
-	require.NoError(suite.T(), err)
 	defer func() {
 		require.NoError(suite.T(), s.Close(suite.T().Context()))
 	}()
 
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), s)
+
+	err = s.Do(suite.T().Context(), func(p *rod.Page) error {
+		_, err := p.Timeout(10 * time.Second).Element(profileSelector)
+		return err
+	})
+
+	require.NoError(suite.T(), err)
 }
 
 func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
@@ -63,3 +71,5 @@ func (suite *LoginTestSuite) TestLoginFailureFakeUser() {
 	require.ErrorIs(suite.T(), err, auth.ErrInvalidCrendentials)
 	require.Nil(suite.T(), s)
 }
+
+const profileSelector = `#profileDropdown`
