@@ -22,8 +22,8 @@ export default function App() {
   const isDebouncing = useWorkflowStore(state => state.isDebouncing)
 
   return (
-    <>
-      <Card className="p-0 flex-none ring-0">
+    <section className='w-3xl'>
+      <Card className="p-0 flex-none ring-0 ">
         <form
           onSubmit={e => {
             e.preventDefault()
@@ -118,9 +118,9 @@ export default function App() {
         </form>
       </Card>
 
-      <Card className="min-h-0 flex flex-col p-0 ring-1 h-[300px]">
+      <Card className="min-h-0 flex flex-col p-0 ring-1 h-[300px] w-full">
         <StateFlow />
       </Card>
-    </>
+    </section>
   )
 }
