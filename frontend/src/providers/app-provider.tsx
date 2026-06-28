@@ -5,10 +5,12 @@ import {
   useWorkflowFormInstance
 } from '../hooks/use-app'
 import { useWorkflowStore } from '@/features/workflow/store/index'
+import { useUserFormInstance } from '@/hooks/user-form'
 
 export function AppFormsProvider({ children }: PropsWithChildren) {
   const browserForm = useBrowserConfigFormInstance()
   const workflowForm = useWorkflowFormInstance(browserForm)
+  const userForm = useUserFormInstance()
 
   const initWorkflow = useWorkflowStore(state => state.initWorkflow)
   const cleanupListeners = useWorkflowStore(state => state.cleanupListeners)
@@ -21,23 +23,13 @@ export function AppFormsProvider({ children }: PropsWithChildren) {
     return () => cleanupListeners()
   }, [initWorkflow, cleanupListeners])
 
-  // const currentState = useWorkflowStore(state => state.currentState)
-  // const initListeners = useWorkflowStore(state => state.initListeners)
-  // const cleanupListeners = useWorkflowStore(state => state.cleanupListeners)
-
-  // useEffect(() => {
-  //   // Initialize the Wails event listeners when the app boots up
-  //   initListeners()
-
-  //   // Teardown cleanly when the app closes/hot-reloads
-  //   return () => cleanupListeners()
-  // }, [initListeners, cleanupListeners])
 
   return (
     <AppFormsContext.Provider
       value={{
         browserForm,
-        workflowForm
+        workflowForm,
+        userForm
       }}
     >
       {children}
