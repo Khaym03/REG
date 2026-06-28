@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"os"
 
 	"github.com/Khaym03/REG/internal/browser"
@@ -31,6 +32,18 @@ type AuthService interface {
 type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+func (u User) Validate() error {
+	if u.Username == "" {
+		return errors.New("username is required")
+	}
+
+	if u.Password == "" {
+		return errors.New("password is required")
+	}
+
+	return nil
 }
 
 type (

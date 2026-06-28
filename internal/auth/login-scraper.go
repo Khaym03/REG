@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Khaym03/REG/internal/browser"
+	c "github.com/Khaym03/REG/internal/constants"
 	"github.com/go-rod/rod"
 )
 
@@ -58,7 +59,7 @@ func (l *LoginScraper) Logout(
 		return logoutPage.Logout()
 	}
 
-	logout = browser.WithRetry(ctx, 3, time.Second*10)(logout)
+	logout = browser.WithRetry(ctx, 3, c.DefaultTimeout)(logout)
 
 	return s.Do(ctx, logout)
 }
