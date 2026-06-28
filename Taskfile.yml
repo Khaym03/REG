@@ -59,3 +59,12 @@ tasks:
     summary: Builds and runs the Docker image
     cmds:
       - task: common:run:docker
+
+  format:frontend:
+    summary: Format the frontend
+    cmds:
+      - pnpm exec prettier --write "frontend" --ignore-path frontend/.prettierignore
+
+  tree:
+    summary: Repo tree
+    cmd: treee --ignore "node_modules/, bindings/, build/, rod_data/, dist/" -l 10  .

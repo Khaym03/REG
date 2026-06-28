@@ -14,6 +14,7 @@ import DisplaySelectedDate from '@/features/workflow/components/display-selected
 import { useAppForms } from '../../hooks/use-app'
 import StateFlow from './components/state-flow'
 import { useWorkflowStore } from './store'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 export default function App() {
   const { workflowForm } = useAppForms()
@@ -22,7 +23,7 @@ export default function App() {
   const isDebouncing = useWorkflowStore(state => state.isDebouncing)
 
   return (
-    <section className='w-3xl'>
+    <section className="w-3xl">
       <Card className="p-0 flex-none ring-0 ">
         <form
           onSubmit={e => {
@@ -81,22 +82,18 @@ export default function App() {
               children={([canSubmit, isSubmitting]) => (
                 <div className="flex flex-col justify-end gap-1">
                   {isSubmitting ? (
-                    <Button
+                    <LoadingButton
                       type="button"
-                      disabled={isDebouncing}
-                      onClick={() => {
-                        stopWorkflow()
-                      }}
-                      className="transition-all"
+                      isLoading={isSubmitting}
+                      loadingText="Cancelando..."
+                      onClick={() => stopWorkflow()}
                     >
-                      <div className="shiny inline-block bg-[linear-gradient(120deg,rgba(255,255,255,0)_40%,rgba(255,255,255,0.8)_50%,rgba(255,255,255,0)_60%)] dark:bg-[linear-gradient(120deg,rgba(0,0,0,0)_40%,rgba(0,0,0,0.8)_50%,rgba(0,0,0,0)_60%)] bg-size-[200%_100%] bg-clip-text text-white/70 dark:text-foreground/60">
-                        Cancel
-                      </div>
-                    </Button>
+                      Cancel
+                    </LoadingButton>
                   ) : (
-                    <Button type="submit" disabled={isDebouncing}>
+                    <LoadingButton type="submit" isLoading={isSubmitting}>
                       Submit
-                    </Button>
+                    </LoadingButton>
                   )}
 
                   <Button
