@@ -3,18 +3,19 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/providers/theme-provider.tsx'
-import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen.ts'
+import { RouterProvider } from '@tanstack/react-router'
 import { AppFormsProvider } from './providers/app-provider.tsx'
-
-const router = createRouter({ routeTree })
+import { useAuthStore } from './auth/auth-store.ts'
+import { router } from './routes/router.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <TooltipProvider>
         <AppFormsProvider>
-          <RouterProvider router={router} />
+          <RouterProvider router={router} context={{
+            auth: useAuthStore
+          }} />
         </AppFormsProvider>
       </TooltipProvider>
     </ThemeProvider>

@@ -2,6 +2,8 @@ package constants
 
 import "time"
 
+const AppName = "REG"
+
 const (
 	BaseURL      = `https://sica.sunagro.gob.ve`
 	ReceptionURL = BaseURL + `/despachos/recepcion`

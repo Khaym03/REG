@@ -27,7 +27,7 @@ func (p *Provider) Start(
 	user User,
 	browser *rod.Browser,
 ) (Session, error) {
-	base, err := NewRodSession(browser, p.eventBus)
+	base, err := NewRodSession(browser, p.eventBus, true)
 	if err != nil {
 		return nil, err
 	}

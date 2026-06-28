@@ -19,6 +19,11 @@ type BrowserConfig struct {
 	Trace     bool `json:"trace,omitempty"`
 }
 
+func (bc BrowserConfig) Equal(cfg BrowserConfig) bool {
+	return bc.Headless == cfg.Headless &&
+		bc.Trace == cfg.Trace
+}
+
 func BrowserConfFromENV() BrowserConfig {
 	return BrowserConfig{
 		Headless: os.Getenv("REG_HEADLESS") == "1",

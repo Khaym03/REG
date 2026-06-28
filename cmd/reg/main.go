@@ -34,7 +34,19 @@ func main() {
 
 	eventBus := event.NewBus()
 
-	work, err := workflow.NewReceptionWorkflow(ctx, eventBus)
+	sm := auth.NewSessionManager(eventBus)
+
+	if err := sm.Init(ctx); err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		if err := sm.Close(); err != nil {
+			log.Error(err)
+		}
+	}()
+
+	work, err := workflow.NewReceptionWorkflow(ctx, eventBus, sm)
 	if err != nil {
 		log.Fatal(err)
 	}

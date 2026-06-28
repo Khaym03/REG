@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/auth/auth-store'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -13,12 +14,19 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar'
+import { router } from '@/routes/router'
 import type { User } from '@/types/types'
 import { CaretUpDownIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
+  const logout = useAuthStore(s => s.logout)
+  const { navigate } = router
 
+  const handleLogout = async () => {
+    await logout()
+    navigate({ to: "/login" })
+  }
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -44,7 +52,7 @@ export function NavUser({ user }: { user: User }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <SignOutIcon />
               Log out
             </DropdownMenuItem>

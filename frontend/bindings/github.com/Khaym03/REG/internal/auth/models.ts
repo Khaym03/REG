@@ -5,6 +5,41 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class RegisterUsers {
+    "username": string;
+    "last_use": boolean;
+    "logged": boolean;
+
+    /** Creates a new RegisterUsers instance. */
+    constructor($$source: Partial<RegisterUsers> = {}) {
+        if (!("username" in $$source)) {
+            this["username"] = "";
+        }
+        if (!("last_use" in $$source)) {
+            this["last_use"] = false;
+        }
+        if (!("logged" in $$source)) {
+            this["logged"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RegisterUsers instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RegisterUsers {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new RegisterUsers($$parsedSource as Partial<RegisterUsers>);
+    }
+}
+
+/**
+ * Session provides controlled access to browser pages.
+ * Pages are short-lived and managed by the Session.
+ */
+export type Session = any;
+
 export class User {
     "username": string;
     "password": string;

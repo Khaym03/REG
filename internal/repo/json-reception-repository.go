@@ -9,10 +9,10 @@ import (
 var _ ReceptionRepository = (*JSONReceptionRepository)(nil)
 
 type JSONReceptionRepository struct {
-	store *JSONStore
+	store *JSONStore[RepositoryData]
 }
 
-func NewJSONReceptionRepository(store *JSONStore) *JSONReceptionRepository {
+func NewJSONReceptionRepository(store *JSONStore[RepositoryData]) *JSONReceptionRepository {
 	return &JSONReceptionRepository{store: store}
 }
 
@@ -22,7 +22,7 @@ func (r *JSONReceptionRepository) SaveProgress(
 	result ReceptionResult,
 ) error {
 
-	return r.store.Update(func(data *repositoryData) error {
+	return r.store.Update(func(data *RepositoryData) error {
 		prev := data.ReceptionState[date.MonthKey()]
 
 		prev.Processed += result.Processed
@@ -43,7 +43,7 @@ func (r *JSONReceptionRepository) GetProgress(
 	date domain.DateRange,
 ) (progress domain.ReceptionResult, err error) {
 
-	err = r.store.View(func(data repositoryData) error {
+	err = r.store.View(func(data RepositoryData) error {
 		progress = data.ReceptionState[date.MonthKey()]
 
 		return nil
@@ -57,7 +57,7 @@ func (r *JSONReceptionRepository) MarkCompleted(
 	date domain.DateRange,
 ) error {
 
-	return r.store.Update(func(data *repositoryData) error {
+	return r.store.Update(func(data *RepositoryData) error {
 		result := data.ReceptionState[date.MonthKey()]
 		result.Completed = true
 
@@ -71,7 +71,7 @@ func (r *JSONReceptionRepository) IsCompleted(
 	date domain.DateRange,
 ) (completed bool, err error) {
 
-	err = r.store.View(func(data repositoryData) error {
+	err = r.store.View(func(data RepositoryData) error {
 		result, exists := data.ReceptionState[date.MonthKey()]
 		if !exists {
 			completed = false

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/repo"
 	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
@@ -20,11 +21,22 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	eventBus *bus.Bus,
+	sm auth.SessionManager,
 ) (*app.Application, error) {
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
-	store := repo.NewJSONStore("state.json")
+	var persistance repo.Persistence[repo.RepositoryData] = repo.NewJSONPersistence(
+		"state.json",
+		func() repo.RepositoryData {
+			return repo.RepositoryData{
+				Months:         make(map[string][]domain.Guide),
+				Rubros:         make(map[string]domain.Rubro),
+				ReceptionState: make(map[string]domain.ReceptionResult),
+			}
+		})
+
+	store := repo.NewJSONStore(persistance)
 	guideRepo := repo.NewJSONGuideRepository(store)
 	receptionRepo := repo.NewJSONReceptionRepository(store)
 	rubroRepo := repo.NewJSONRubroRepository(store)
@@ -60,6 +72,7 @@ func NewApplication(
 	return &app.Application{
 			EventBus:        eventBus,
 			SessionProvider: sessionProvider,
+			SessionManger:   sm,
 			Commands: app.Commands{
 				GatherGuides:  gatherHandler,
 				SyncInventory: inventoryHandler,

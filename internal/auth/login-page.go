@@ -113,7 +113,7 @@ func (lp *LoginPage) dismissOptionalModal() error {
 	}
 
 	// Wait for the element to disappear
-	if err := modalBtn.Timeout(time.Second * 3).WaitInvisible(); err != nil {
+	if err := modalBtn.Timeout(c.DefaultTimeout).WaitInvisible(); err != nil {
 		return fmt.Errorf("modal button did not disappear: %w", err)
 	}
 

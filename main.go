@@ -3,6 +3,8 @@ package main
 import (
 	"embed"
 
+	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -13,6 +15,8 @@ func init() {
 		ForceColors:      false,
 		DisableTimestamp: true,
 	})
+
+	log.SetReportCaller(true)
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
@@ -23,25 +27,34 @@ func init() {
 var assets embed.FS
 
 func main() {
+	evBus := event.NewBus()
+	manager := auth.NewSessionManager(evBus)
+
 	app := application.New(application.Options{
 		Name: "REG",
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
+		Services: []application.Service{
+			application.NewService(manager),
+			application.NewService(
+				NewAccountsAPI(manager),
+			),
+		},
 	})
 
 	app.RegisterService(
 		application.NewService(
-			NewAppService(app),
+			NewAppService(app, manager),
 		),
 	)
 
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:         "REG",
-		Width:         1024,
-		Height:        600,
-		Frameless:     true,
-		DisableResize: true,
+		Title:     "REG",
+		Width:     1024,
+		Height:    600,
+		Frameless: true,
+		// DisableResize: true,
 		BackgroundColour: application.RGBA{
 			Red:   27,
 			Green: 38,

@@ -49,11 +49,6 @@ func (s *AuthenticatedSession) NewIsolated(ctx context.Context) (Session, error)
 }
 
 func (s *AuthenticatedSession) Close(ctx context.Context) error {
-	s.eventBus.Emit(ctx, event.Logout, struct{}{})
-	// logout first, then close
-	if err := s.auth.Logout(ctx, s.base); err != nil {
-		log.Error(err)
-	}
 
 	return s.base.Close(ctx)
 }

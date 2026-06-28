@@ -23,18 +23,36 @@ type RodSession struct {
 	mu      sync.Mutex
 	closed  bool
 
+	// a work around while think in a redesign for the ownership of browser
+	closeBrowser bool
+
 	eventBus *bus.Bus
 }
 
 // This implementation only allow 1 page
-func NewRodSession(browser *rod.Browser, eventBus *bus.Bus) (*RodSession, error) {
-	page, err := browser.Page(proto.TargetCreateTarget{URL: ""})
+func NewRodSession(
+	browser *rod.Browser,
+	eventBus *bus.Bus,
+	closeBroser bool,
+) (*RodSession, error) {
+	pages, err := browser.Pages()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := page.WaitLoad(); err != nil {
-		return nil, err
+	var page *rod.Page
+
+	if !pages.Empty() {
+		page = pages.First()
+	} else {
+		page, err = browser.Page(proto.TargetCreateTarget{URL: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		if err := page.WaitLoad(); err != nil {
+			return nil, err
+		}
 	}
 
 	return &RodSession{
@@ -109,7 +127,7 @@ func (s *RodSession) NewIsolated(ctx context.Context) (Session, error) {
 		return nil, err
 	}
 
-	return NewRodSession(incognito, s.eventBus)
+	return NewRodSession(incognito, s.eventBus, true)
 }
 
 func (s *RodSession) Close(ctx context.Context) error {
@@ -124,7 +142,19 @@ func (s *RodSession) Close(ctx context.Context) error {
 	if err := s.eventBus.Emit(ctx, event.DestroyingBrowser, struct{}{}); err != nil {
 		logrus.Error(err)
 	}
-	return s.browser.Close()
+
+	if ctx.Err() != nil {
+		err := context.Cause(ctx)
+		if !errors.Is(err, context.Canceled) {
+			return nil
+		}
+	}
+
+	if s.closeBrowser {
+		_ = s.page.Close()
+		return s.browser.Close()
+	}
+	return nil
 }
 
 func (s *RodSession) isClosed() bool {
