@@ -16,9 +16,5 @@ build/ios/xcode/overlay.json
 build/ios/xcode/gen/
 build/android/overlay.json
 build/android/gen/
-<<<<<<< HEAD
-
-=======
 internal/auth/test_store_user.json
->>>>>>> 6398ecd5c94ed043b00510ce71e6bcbfa72ee97e
 users.json
