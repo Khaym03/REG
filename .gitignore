@@ -16,3 +16,5 @@ build/ios/xcode/overlay.json
 build/ios/xcode/gen/
 build/android/overlay.json
 build/android/gen/
+internal/auth/test_store_user.json
+users.json

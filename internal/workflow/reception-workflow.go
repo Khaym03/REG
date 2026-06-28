@@ -7,7 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/auth"
-	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/workflow/app"
@@ -28,17 +27,20 @@ type WorkFlowInput struct {
 }
 
 type ReceptionWorkflow struct {
-	app *app.Application
+	app           *app.Application
+	sessinManager auth.SessionManager
 }
 
 func NewReceptionWorkflow(
 	ctx context.Context,
 	eventBus *bus.Bus,
+	sm auth.SessionManager,
 
 ) (*ReceptionWorkflow, error) {
 	application, err := service.NewApplication(
 		ctx,
 		eventBus,
+		sm,
 	)
 	if err != nil {
 		log.Error(err)
@@ -46,7 +48,8 @@ func NewReceptionWorkflow(
 	}
 
 	return &ReceptionWorkflow{
-			app: application,
+			app:           application,
+			sessinManager: sm,
 		},
 		nil
 }
@@ -78,23 +81,26 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 		log.Error(err)
 	}
 
-	browser, err := browser.BuildBrowser(ctx, input.BrowserConf)
+	err := w.sessinManager.Reconfigure(ctx, input.BrowserConf)
 	if err != nil {
 		return err
 	}
 
-	session, err := w.app.SessionProvider.Start(ctx, input.User, browser)
+	err = w.sessinManager.Login(ctx, input.User)
 	if err != nil {
 		return err
 	}
-
 	defer func() {
-		if cerr := session.Close(ctx); cerr != nil {
-			log.Error("cleanup error:", cerr)
+		err = w.sessinManager.Logout(ctx)
+		if err != nil {
+			log.Error(err)
 		}
-
-		log.Info("Done")
 	}()
+
+	session, err := w.sessinManager.Session(ctx)
+	if err != nil {
+		return err
+	}
 
 	stats, err := w.app.Queries.Stats.Handle(ctx, session, stats.StatsQuery{})
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"io"
 	"os"
 
@@ -18,6 +19,10 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+var (
+	ErrWorkflowCanceled = errors.New("workflow canceled")
+)
+
 type WailsLogWriter struct {
 	ctx context.Context
 	app *application.App
@@ -32,19 +37,22 @@ func (w *WailsLogWriter) Write(p []byte) (n int, err error) {
 // App struct
 type App struct {
 	ctx       context.Context
-	cancel    context.CancelFunc
+	cancel    context.CancelCauseFunc
 	mu        sync.Mutex
 	loggerOut io.Writer
 	eventBus  *bus.Bus
 	app       *application.App
+
+	sessionManager auth.SessionManager
 }
 
 // NewAppService creates a new App application struct
-func NewAppService(app *application.App) *App {
+func NewAppService(app *application.App, sm auth.SessionManager) *App {
 	return &App{
-		app:      app,
-		mu:       sync.Mutex{},
-		eventBus: event.NewBus(),
+		app:            app,
+		mu:             sync.Mutex{},
+		eventBus:       event.NewBus(),
+		sessionManager: sm,
 	}
 }
 
@@ -74,11 +82,12 @@ func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) 
 func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
 	a.mu.Lock()
 	if a.cancel != nil {
-		a.cancel()
+		a.cancel(ErrWorkflowCanceled)
 	}
 
-	ctx, cancel := context.WithCancel(a.ctx)
+	ctx, cancel := context.WithCancelCause(a.ctx)
 	a.cancel = cancel
+
 	a.mu.Unlock()
 
 	done := make(chan struct{}, 1)
@@ -93,7 +102,7 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 
 			a.mu.Unlock()
 
-			cancel()
+			cancel(ErrWorkflowCanceled)
 		}()
 
 		defer func() {
@@ -104,7 +113,11 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 
 		input.BrowserConf = browserConf
 
-		work, err := workflow.NewReceptionWorkflow(ctx, a.eventBus)
+		work, err := workflow.NewReceptionWorkflow(
+			ctx,
+			a.eventBus,
+			a.sessionManager,
+		)
 		if err != nil {
 			log.Error(err)
 			return
@@ -129,7 +142,7 @@ func (a *App) StopWorkflow() {
 
 	if a.cancel != nil {
 		log.Info("Workflow canceled")
-		a.cancel()
+		a.cancel(ErrWorkflowCanceled)
 		a.cancel = nil
 	}
 }

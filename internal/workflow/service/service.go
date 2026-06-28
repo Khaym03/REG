@@ -21,6 +21,7 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	eventBus *bus.Bus,
+	sm auth.SessionManager,
 ) (*app.Application, error) {
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
@@ -71,6 +72,7 @@ func NewApplication(
 	return &app.Application{
 			EventBus:        eventBus,
 			SessionProvider: sessionProvider,
+			SessionManger:   sm,
 			Commands: app.Commands{
 				GatherGuides:  gatherHandler,
 				SyncInventory: inventoryHandler,

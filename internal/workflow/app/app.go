@@ -11,9 +11,11 @@ import (
 
 type Application struct {
 	SessionProvider *auth.Provider
-	EventBus        *bus.Bus
-	Commands        Commands
-	Queries         Queries
+	SessionManger   auth.SessionManager
+
+	EventBus *bus.Bus
+	Commands Commands
+	Queries  Queries
 }
 
 type Commands struct {
