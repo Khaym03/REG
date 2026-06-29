@@ -3,26 +3,56 @@ import { useEffect, useState } from 'react'
 import type { RegisterUsers } from 'bindings/github.com/Khaym03/REG/internal/auth'
 
 import { useAuthStore } from '@/auth/auth-store'
-import { useAppForms } from '@/hooks/use-app'
 import { cn } from '@/lib/utils'
 
-import { Card, CardContent } from '@/components/ui/card'
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { FieldGroup } from '@/components/ui/field'
 import { GetUserPassword } from 'bindings/github.com/Khaym03/REG/accountsapi'
 import RecentAccounts from './recent-accounts'
 import { LoadingButton } from './ui/loading-button'
+
+import { router } from '@/routes/router'
+import { useAppForm } from '@/hooks/form'
+import { User } from 'bindings/github.com/Khaym03/REG/internal/auth'
+import * as z from 'zod'
+
+const LoginFormSchema = z.object({
+  username: z.string().min(5),
+  password: z.string().min(8)
+})
+
+const defaultUser = new User({ username: '', password: '' })
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const { userForm } = useAppForms()
+  const { navigate } = router
+  const login = useAuthStore(s => s.login)
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
+
+  const form = useAppForm({
+    defaultValues: defaultUser,
+    onSubmit: async ({ value }) => {
+      await login(value.username, value.password)
+
+      if (isAuthenticated()) {
+        navigate({ to: '/' })
+      }
+    },
+    validators: {
+      onChange: LoginFormSchema,
+      onBlur: LoginFormSchema
+    }
+  })
+
+  const { AppField, setFieldValue, handleSubmit, Subscribe } = form
 
   const getRegisterUsers = useAuthStore(state => state.getRegisterUsers)
 
@@ -33,10 +63,12 @@ export function LoginForm({
   }, [getRegisterUsers])
 
   const handleSelect = async (username: string) => {
+    form.reset()
+
     try {
       const user = await GetUserPassword(username)
-      userForm.setFieldValue('username', user.username)
-      userForm.setFieldValue('password', user.password)
+      setFieldValue('username', user.username)
+      setFieldValue('password', user.password)
     } catch (e) {
       console.log(e)
     }
@@ -51,81 +83,38 @@ export function LoginForm({
             onSubmit={e => {
               e.preventDefault()
               e.stopPropagation()
-              userForm.handleSubmit()
+              handleSubmit()
             }}
           >
             <FieldGroup>
-              {/* Header */}
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold tracking-tight">
+              <CardHeader
+                className="flex flex-col items-center gap-2 text-center"
+              >
+                <CardTitle className="text-2xl font-bold tracking-tight">
                   Welcome back
-                </h1>
-                <p className="text-sm text-muted-foreground text-balance">
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground text-balance">
                   Login to your account
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
 
-              {/* Username */}
-              <userForm.Field name="username">
-                {field => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
+              <AppField name="username">
+                {({ TextField }) => (
+                  <TextField label="user" placeholder="j12345" />
+                )}
+              </AppField>
 
-                  return (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+              <AppField name="password">
+                {({ TextField }) => (
+                  <TextField
+                    label="Password"
+                    placeholder="12345"
+                    type="password"
+                  />
+                )}
+              </AppField>
 
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type="text"
-                        placeholder="m@example.com"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={e => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        required
-                      />
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              </userForm.Field>
-
-              {/* Password */}
-              <userForm.Field name="password">
-                {field => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-
-                  return (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type="password"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={e => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        required
-                      />
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              </userForm.Field>
-
-              {/* Submit */}
-              <userForm.Subscribe
+              <Subscribe
                 selector={state => [state.canSubmit, state.isSubmitting]}
               >
                 {([, isSubmitting]) => (
@@ -139,7 +128,7 @@ export function LoginForm({
                     Submit
                   </LoadingButton>
                 )}
-              </userForm.Subscribe>
+              </Subscribe>
             </FieldGroup>
           </form>
 

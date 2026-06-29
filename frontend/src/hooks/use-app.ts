@@ -7,7 +7,6 @@ import * as config from 'bindings/github.com/Khaym03/REG/internal/config'
 import { App } from 'bindings/github.com/Khaym03/REG'
 import type { WorkflowInput } from '@/types/types'
 import { useWorkflowStore } from '@/features/workflow/store'
-import type { UserForm } from './user-form'
 
 export type BrowserConfigForm = ReturnType<typeof useBrowserConfigFormInstance>
 const defaultBrowserConfig = new config.BrowserConfig({
@@ -64,7 +63,6 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
 type AppFormsContextType = {
   browserForm: BrowserConfigForm
   workflowForm: WorkflowForm
-  userForm: UserForm
 }
 
 export const AppFormsContext = createContext<AppFormsContextType | null>(null)
