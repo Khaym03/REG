@@ -1,9 +1,5 @@
 import type { User } from 'bindings/github.com/Khaym03/REG/internal/auth'
-
-export interface DateRange {
-  from: Date
-  to: Date
-}
+import type { DateRange } from 'bindings/github.com/Khaym03/REG/internal/domain'
 
 export interface WorkflowInput {
   dateRange: DateRange
