@@ -4,8 +4,10 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 export const Route = createFileRoute('/login')({
   beforeLoad: ({ context }) => {
     // Redirect if already authenticated
-    if (context.auth.getState().isAuthenticated()) {
-      throw redirect({ to: "/" })
+    const { user } = context.auth.getState()
+
+    if (user?.logged) {
+      throw redirect({ to: '/' })
     }
   },
   component: LoginForm

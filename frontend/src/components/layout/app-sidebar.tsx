@@ -24,10 +24,13 @@ import { App } from 'bindings/github.com/Khaym03/REG'
 import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
 import { Label } from '@/components/ui/label'
 import useNavData from '@/hooks/use-nav-data'
+import { useAuthStore } from '@/auth/auth-store'
 
 type AppSidebarProps = ComponentProps<typeof Sidebar>
 export function AppSidebar({ ...props }: AppSidebarProps) {
   const { navData } = useNavData()
+  const isAuthenticated = useAuthStore(s => s.user?.logged)
+
   return (
     <Sidebar side="right" collapsible="icon" {...props}>
       <div className="grid grid-cols-3">
@@ -54,7 +57,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
         {navData && navData.navItems && <NavREG items={navData.navItems} />}
       </SidebarContent>
       <SidebarFooter>
-        <Stats />
+        {isAuthenticated && <Stats />}
         {navData && navData.user && <NavUser user={navData.user} />}
       </SidebarFooter>
       <SidebarRail />

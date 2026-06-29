@@ -14,8 +14,6 @@ export type AuthState = {
   login: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
   initialize: () => Promise<void>
-
-  isAuthenticated: () => boolean
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -37,6 +35,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   async initialize() {
     const user = await AccountsAPI.CurrentUser()
+
     set({ user })
   },
 
@@ -67,9 +66,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     set({ user: null })
-  },
-
-  isAuthenticated() {
-    return get().user !== null
   }
 }))

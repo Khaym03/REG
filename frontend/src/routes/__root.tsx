@@ -1,8 +1,4 @@
-import {
-  createRootRouteWithContext,
-  Outlet,
-  redirect
-} from '@tanstack/react-router'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import type { CSSProperties } from 'react'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
@@ -17,22 +13,6 @@ export interface RouterContext {
 
 // createRootRoute defines the top-level layout
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async ({ context }) => {
-    const auth = context.auth.getState()
-
-    await auth.initialize()
-
-    if (!auth.isAuthenticated()) {
-      redirect({
-        to: '/login',
-        search: {
-          redirect: '/'
-        }
-      })
-    } else {
-      redirect({ to: '/' })
-    }
-  },
   component: function RootLayout() {
     return (
       <AppFormsProvider>

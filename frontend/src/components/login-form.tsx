@@ -35,14 +35,13 @@ export function LoginForm({
 }: React.ComponentProps<'div'>) {
   const { navigate } = router
   const login = useAuthStore(s => s.login)
-  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
 
   const form = useAppForm({
     defaultValues: defaultUser,
     onSubmit: async ({ value }) => {
       await login(value.username, value.password)
 
-      if (isAuthenticated()) {
+      if (useAuthStore.getState().user?.logged) {
         navigate({ to: '/' })
       }
     },

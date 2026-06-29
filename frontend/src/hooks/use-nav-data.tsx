@@ -12,13 +12,13 @@ const defaults: NavData = {
 }
 
 export default function useNavData(): { navData: NavData } {
-  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
+  const isAuthenticated = useAuthStore(s => s.user?.logged)
   const user = useAuthStore(s => s.user)
 
   const [navData, setNavData] = useState<NavData>(defaults)
 
   useEffect(() => {
-    if (isAuthenticated() && user) {
+    if (isAuthenticated && user) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setNavData(prev => ({
         ...prev,
