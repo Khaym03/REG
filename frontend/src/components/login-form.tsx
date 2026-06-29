@@ -87,9 +87,7 @@ export function LoginForm({
             }}
           >
             <FieldGroup>
-              <CardHeader
-                className="flex flex-col items-center gap-2 text-center"
-              >
+              <CardHeader className="flex flex-col items-center gap-2 text-center">
                 <CardTitle className="text-2xl font-bold tracking-tight">
                   Welcome back
                 </CardTitle>

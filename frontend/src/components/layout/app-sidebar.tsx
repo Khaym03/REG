@@ -20,15 +20,14 @@ import { ModeToggle } from './mode-toggle'
 import { Button } from '@/components/ui/button'
 import { Application, Window, Events } from '@wailsio/runtime'
 import { useEffect, useState, type ComponentProps } from 'react'
-import type { NavData } from '@/types/types'
 import { App } from 'bindings/github.com/Khaym03/REG'
 import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
 import { Label } from '@/components/ui/label'
+import useNavData from '@/hooks/use-nav-data'
 
-interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
-  navData: NavData
-}
-export function AppSidebar({ navData, ...props }: AppSidebarProps) {
+type AppSidebarProps = ComponentProps<typeof Sidebar>
+export function AppSidebar({ ...props }: AppSidebarProps) {
+  const { navData } = useNavData()
   return (
     <Sidebar side="right" collapsible="icon" {...props}>
       <div className="grid grid-cols-3">
@@ -52,11 +51,11 @@ export function AppSidebar({ navData, ...props }: AppSidebarProps) {
         {navData && <NavLogo data={navData.data} />}
       </SidebarHeader>
       <SidebarContent>
-        {navData && <NavREG items={navData.navItems} />}
+        {navData && navData.navItems && <NavREG items={navData.navItems} />}
       </SidebarContent>
       <SidebarFooter>
         <Stats />
-        {navData && <NavUser user={navData.user} />}
+        {navData && navData.user && <NavUser user={navData.user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

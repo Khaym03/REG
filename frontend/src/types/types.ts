@@ -19,7 +19,7 @@ export interface NavItem {
 }
 
 export interface NavData {
-  user: User
+  user?: User
   data: NavLogoData
-  navItems: NavItem[]
+  navItems?: NavItem[]
 }

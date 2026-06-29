@@ -1,11 +1,13 @@
-import { createRootRouteWithContext, Outlet, redirect } from '@tanstack/react-router'
+import {
+  createRootRouteWithContext,
+  Outlet,
+  redirect
+} from '@tanstack/react-router'
 import type { CSSProperties } from 'react'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
-import { App } from 'bindings/github.com/Khaym03/REG'
-import { GearIcon, RowsIcon, TreeStructureIcon } from '@phosphor-icons/react'
-import type { NavData } from '@/types/types'
-import type { useAuthStore } from '@/auth/auth-store'
+
+import { useAuthStore } from '@/auth/auth-store'
 
 import { AppFormsProvider } from '@/providers/app-provider'
 
@@ -24,17 +26,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       redirect({
         to: '/login',
         search: {
-          redirect: "/",
-        },
+          redirect: '/'
+        }
       })
     } else {
-      redirect({ to: "/" })
+      redirect({ to: '/' })
     }
-
   },
-  loader: getNavData,
   component: function RootLayout() {
-    const navData = Route.useLoaderData()
     return (
       <AppFormsProvider>
         <div className="overflow-hidden">
@@ -49,38 +48,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 <Outlet />
               </div>
             </SidebarInset>
-            <AppSidebar navData={navData} side="right" />
+            <AppSidebar side="right" />
           </SidebarProvider>
         </div>
       </AppFormsProvider>
     )
   }
 })
-
-async function getNavData(): Promise<NavData> {
-  const user = await App.GetUser()
-  return {
-    user: {
-      name: user.username,
-      password: user.password,
-      avatar: ''
-    },
-    data: {
-      name: 'REG',
-      logo: <RowsIcon />,
-      plan: 'free'
-    },
-    navItems: [
-      {
-        name: 'Workflow',
-        url: '/',
-        icon: <TreeStructureIcon />
-      },
-      {
-        name: 'Settings',
-        url: '/settings',
-        icon: <GearIcon />
-      }
-    ]
-  }
-}
