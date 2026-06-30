@@ -9,16 +9,13 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import {
-  XIcon,
-  MinusIcon,
   ReceiptIcon,
   BankIcon,
   ReceiptXIcon,
   ClockUserIcon
 } from '@phosphor-icons/react'
-import { ModeToggle } from './mode-toggle'
-import { Button } from '@/components/ui/button'
-import { Application, Window, Events } from '@wailsio/runtime'
+
+import { Events } from '@wailsio/runtime'
 import { useEffect, useState, type ComponentProps } from 'react'
 import { App } from 'bindings/github.com/Khaym03/REG'
 import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
@@ -33,24 +30,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
 
   return (
     <Sidebar side="right" collapsible="icon" {...props}>
-      <div className="grid grid-cols-3">
-        <ModeToggle />
-        <Button
-          variant={'ghost'}
-          className="border-0 hover:bg-accent"
-          onClick={() => Window.Minimise()}
-        >
-          <MinusIcon />
-        </Button>
-        <Button
-          variant={'ghost'}
-          className="border-0 hover:bg-destructive"
-          onClick={() => Application.Quit()}
-        >
-          <XIcon />
-        </Button>
-      </div>
-      <SidebarHeader>
+      <SidebarHeader className="pt-8">
         {navData && <NavLogo data={navData.data} />}
       </SidebarHeader>
       <SidebarContent>
