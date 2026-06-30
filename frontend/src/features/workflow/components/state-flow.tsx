@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { ReactFlow, Background } from '@xyflow/react'
+import { ReactFlow, Background, Controls } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useTheme } from '../../../hooks/use-theme'
 // import DevTools from './devtools'
@@ -7,6 +7,7 @@ import { LoadingNode } from './node/loading-node'
 import { SuccessNode } from './node/success-node'
 import { InitialNode } from './node/initial-node'
 import { useWorkflowStore } from '@/features/workflow/store/index'
+import FitViewObserver from '../hooks/use-fit-view-on-resize'
 
 const nodeTypes = {
   initialNode: InitialNode,
@@ -37,7 +38,7 @@ export default function StateFlow() {
   }, [isWorkflowRunning, currentState, stateHistory, updateNodeTypes])
 
   return (
-    <>
+    <div className="size-full">
       <ReactFlow
         colorMode={theme}
         nodes={nodes}
@@ -49,15 +50,17 @@ export default function StateFlow() {
         fitView
         minZoom={ZOOM_FACTOR}
         maxZoom={ZOOM_FACTOR}
-        panOnDrag={false}
+        // panOnDrag={false}
         zoomOnScroll={false}
         zoomOnPinch={false}
         zoomOnDoubleClick={false}
         elementsSelectable={false}
       >
         <Background color="" />
+        <Controls />
+        <FitViewObserver />
         {/* <DevTools /> */}
       </ReactFlow>
-    </>
+    </div>
   )
 }

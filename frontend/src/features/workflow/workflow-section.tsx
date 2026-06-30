@@ -23,7 +23,7 @@ export default function App() {
   const isDebouncing = useWorkflowStore(state => state.isDebouncing)
 
   return (
-    <section className="w-3xl">
+    <section className="@container size-full flex flex-col min-h-0 gap-4">
       <Card className="p-0 flex-none ring-0 ">
         <form
           onSubmit={e => {
@@ -31,7 +31,7 @@ export default function App() {
             e.stopPropagation()
             workflowForm.handleSubmit()
           }}
-          className="flex justify-between gap-4"
+          className="flex flex-col @min-3xl:flex-row justify-between gap-4"
         >
           <workflowForm.Field
             name="dateRange"
@@ -80,7 +80,7 @@ export default function App() {
             <workflowForm.Subscribe
               selector={state => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
-                <div className="flex flex-col justify-end gap-1">
+                <div className="grid grid-cols-2 @min-3xl:flex @min-3xl:flex-col justify-end gap-1">
                   {isSubmitting ? (
                     <LoadingButton
                       type="button"
@@ -115,7 +115,7 @@ export default function App() {
         </form>
       </Card>
 
-      <Card className="min-h-0 flex flex-col p-0 ring-1 h-[300px] w-full">
+      <Card className="min-h-0 flex-1 flex flex-col p-0 ring-0  w-full">
         <StateFlow />
       </Card>
     </section>
