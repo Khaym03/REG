@@ -75,7 +75,7 @@ function DisplayUser({ user }: { user: User }) {
         <span className="truncate font-medium">{censore(user.username)}</span>
         <input
           type="password"
-          value={user.password}
+          value={user.password ? user.password : '*'.repeat(8)}
           className="truncate text-xs"
           readOnly
         />
