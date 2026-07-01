@@ -5,6 +5,5 @@ import { createWorkflowSlice } from './workflow-slice'
 
 export const useWorkflowStore = create<RootStoreState>()((...a) => ({
   ...createFlowSlice(...a),
-  ...createWorkflowSlice(...a),
-  ...createLogSlice(...a)
+  ...createWorkflowSlice(...a)
 }))
