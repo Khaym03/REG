@@ -86,10 +86,7 @@ func (s *sessionManager) ServiceShutdown() error {
 
 func (s *sessionManager) Init(ctx context.Context) error {
 	s.initOnce.Do(func() {
-		b, err := browser.BuildBrowser(ctx, config.BrowserConfig{
-			Headless: false,
-			Trace:    true,
-		})
+		b, err := browser.BuildBrowser(ctx, config.BrowserConfFromENV())
 		if err != nil {
 			s.initErr = err
 			close(s.ready)
