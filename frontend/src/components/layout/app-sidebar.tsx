@@ -17,11 +17,11 @@ import {
 
 import { Events } from '@wailsio/runtime'
 import { useEffect, useState, type ComponentProps } from 'react'
-import { App } from 'bindings/github.com/Khaym03/REG'
 import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
 import { Label } from '@/components/ui/label'
 import useNavData from '@/hooks/use-nav-data'
 import { useAuthStore } from '@/auth/auth-store'
+import { Topic } from 'bindings/github.com/Khaym03/REG/internal/event/models'
 
 type AppSidebarProps = ComponentProps<typeof Sidebar>
 export function AppSidebar({ ...props }: AppSidebarProps) {
@@ -77,10 +77,8 @@ function Stats() {
     let activeTopic = ''
 
     const setupStatsListener = async () => {
-      const topics = await App.Topics()
-
-      if (topics.stats_result && isMounted) {
-        activeTopic = topics.stats_result
+      if (Topic.Stats && isMounted) {
+        activeTopic = Topic.Stats
 
         Events.On(activeTopic, event => {
           const datas = event.data
