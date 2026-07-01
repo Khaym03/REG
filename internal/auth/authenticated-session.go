@@ -25,7 +25,7 @@ func NewAuthenticatedSession(
 	user User,
 	eventBus *bus.Bus,
 ) (*AuthenticatedSession, error) {
-	if err := eventBus.Emit(ctx, event.Login, struct{}{}); err != nil {
+	if err := eventBus.Emit(ctx, string(event.Login), struct{}{}); err != nil {
 		log.Error(err)
 	}
 

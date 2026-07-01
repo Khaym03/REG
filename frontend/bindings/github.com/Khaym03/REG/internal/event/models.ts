@@ -5,59 +5,24 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-export class Topics {
-    "stats_result": string;
-    "workflow_started": string;
-    "login": string;
-    "guides_gather": string;
-    "inventory_sync": string;
-    "reception": string;
-    "logout": string;
-    "workflow_finished": string;
-    "building_browser": string;
-    "destroying_browser": string;
+export enum Topic {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
 
-    /** Creates a new Topics instance. */
-    constructor($$source: Partial<Topics> = {}) {
-        if (!("stats_result" in $$source)) {
-            this["stats_result"] = "";
-        }
-        if (!("workflow_started" in $$source)) {
-            this["workflow_started"] = "";
-        }
-        if (!("login" in $$source)) {
-            this["login"] = "";
-        }
-        if (!("guides_gather" in $$source)) {
-            this["guides_gather"] = "";
-        }
-        if (!("inventory_sync" in $$source)) {
-            this["inventory_sync"] = "";
-        }
-        if (!("reception" in $$source)) {
-            this["reception"] = "";
-        }
-        if (!("logout" in $$source)) {
-            this["logout"] = "";
-        }
-        if (!("workflow_finished" in $$source)) {
-            this["workflow_finished"] = "";
-        }
-        if (!("building_browser" in $$source)) {
-            this["building_browser"] = "";
-        }
-        if (!("destroying_browser" in $$source)) {
-            this["destroying_browser"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
+    WorkflowStarted = "workflow.started",
+    Login = "loggin",
 
     /**
-     * Creates a new Topics instance from a string or object.
+     * stats.Stats
      */
-    static createFrom($$source: any = {}): Topics {
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        return new Topics($$parsedSource as Partial<Topics>);
-    }
-}
+    Stats = "stats:result",
+    GuidesGather = "guides.gather",
+    InventorySync = "inventory.sync",
+    Reception = "reception",
+    Logout = "logout",
+    WorkflowFinished = "workflow.finished",
+    BuildingBrowser = "bulding.browser",
+    DestroyingBrowser = "destroying.browser",
+};

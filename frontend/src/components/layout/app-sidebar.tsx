@@ -9,54 +9,36 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import {
-  XIcon,
-  MinusIcon,
   ReceiptIcon,
   BankIcon,
   ReceiptXIcon,
   ClockUserIcon
 } from '@phosphor-icons/react'
-import { ModeToggle } from './mode-toggle'
-import { Button } from '@/components/ui/button'
-import { Application, Window, Events } from '@wailsio/runtime'
+
+import { Events } from '@wailsio/runtime'
 import { useEffect, useState, type ComponentProps } from 'react'
-import type { NavData } from '@/types/types'
-import { App } from 'bindings/github.com/Khaym03/REG'
 import { Stats as stats } from 'bindings/github.com/Khaym03/REG/internal/workflow/queries/stats'
 import { Label } from '@/components/ui/label'
+import useNavData from '@/hooks/use-nav-data'
+import { useAuthStore } from '@/auth/auth-store'
+import { Topic } from 'bindings/github.com/Khaym03/REG/internal/event/models'
 
-interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
-  navData: NavData
-}
-export function AppSidebar({ navData, ...props }: AppSidebarProps) {
+type AppSidebarProps = ComponentProps<typeof Sidebar>
+export function AppSidebar({ ...props }: AppSidebarProps) {
+  const { navData } = useNavData()
+  const isAuthenticated = useAuthStore(s => s.user?.logged)
+
   return (
     <Sidebar side="right" collapsible="icon" {...props}>
-      <div className="grid grid-cols-3">
-        <ModeToggle />
-        <Button
-          variant={'ghost'}
-          className="border-0 hover:bg-accent"
-          onClick={() => Window.Minimise()}
-        >
-          <MinusIcon />
-        </Button>
-        <Button
-          variant={'ghost'}
-          className="border-0 hover:bg-destructive"
-          onClick={() => Application.Quit()}
-        >
-          <XIcon />
-        </Button>
-      </div>
-      <SidebarHeader>
+      <SidebarHeader className="pt-8">
         {navData && <NavLogo data={navData.data} />}
       </SidebarHeader>
       <SidebarContent>
-        {navData && <NavREG items={navData.navItems} />}
+        {navData && navData.navItems && <NavREG items={navData.navItems} />}
       </SidebarContent>
       <SidebarFooter>
-        <Stats />
-        {navData && <NavUser user={navData.user} />}
+        {isAuthenticated && <Stats />}
+        {navData && navData.user && <NavUser user={navData.user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
@@ -95,10 +77,8 @@ function Stats() {
     let activeTopic = ''
 
     const setupStatsListener = async () => {
-      const topics = await App.Topics()
-
-      if (topics.stats_result && isMounted) {
-        activeTopic = topics.stats_result
+      if (Topic.Stats && isMounted) {
+        activeTopic = Topic.Stats
 
         Events.On(activeTopic, event => {
           const datas = event.data

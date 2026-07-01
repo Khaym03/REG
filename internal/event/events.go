@@ -14,54 +14,29 @@ func Matcher(event string) string {
 	return "^" + regexp.QuoteMeta(event) + "$"
 }
 
+type Topic string
+
 const (
-	WorkflowStarted = "workflow.started"
+	WorkflowStarted Topic = "workflow.started"
 
-	Login = "loggin"
+	Login Topic = "loggin"
 
-	Stats = "stats:result" // stats.Stats
+	Stats Topic = "stats:result" // stats.Stats
 
-	GuidesGather = "guides.gather"
+	GuidesGather Topic = "guides.gather"
 
-	InventorySync = "inventory.sync"
+	InventorySync Topic = "inventory.sync"
 
-	Reception = "reception"
+	Reception Topic = "reception"
 
-	Logout = "logout"
+	Logout Topic = "logout"
 
-	WorkflowFinished = "workflow.finished"
+	WorkflowFinished Topic = "workflow.finished"
 
-	BuildingBrowser   = "bulding.browser"
-	DestroyingBrowser = "destroying.browser"
+	BuildingBrowser  Topic = "bulding.browser"
+	DestroyingBrowser Topic = "destroying.browser"
 )
 
-type Topics struct {
-	Stats             string `json:"stats_result"`
-	WorkflowStarted   string `json:"workflow_started"`
-	Login             string `json:"login"`
-	GuidesGather      string `json:"guides_gather"`
-	InventorySync     string `json:"inventory_sync"`
-	Reception         string `json:"reception"`
-	Logout            string `json:"logout"`
-	WorkflowFinished  string `json:"workflow_finished"`
-	BuildingBrowser   string `json:"building_browser"`
-	DestroyingBrowser string `json:"destroying_browser"`
-}
-
-func All() Topics {
-	return Topics{
-		Stats:             Stats,
-		WorkflowStarted:   WorkflowStarted,
-		BuildingBrowser:   BuildingBrowser,
-		Login:             Login,
-		GuidesGather:      GuidesGather,
-		InventorySync:     InventorySync,
-		Reception:         Reception,
-		Logout:            Logout,
-		DestroyingBrowser: DestroyingBrowser,
-		WorkflowFinished:  WorkflowFinished,
-	}
-}
 
 func NewBus() *bus.Bus {
 	// configure id generator (it doesn't have to be monoton)
@@ -81,18 +56,17 @@ func NewBus() *bus.Bus {
 		panic(err)
 	}
 
-	// maybe register topics in here
 	b.RegisterTopics(
-		Stats,
-		WorkflowStarted,
-		BuildingBrowser,
-		Login,
-		GuidesGather,
-		InventorySync,
-		Reception,
-		Logout,
-		DestroyingBrowser,
-		WorkflowFinished,
+		string(Stats),
+		string(WorkflowStarted),
+		string(BuildingBrowser),
+		string(Login),
+		string(GuidesGather),
+		string(InventorySync),
+		string(Reception),
+		string(Logout),
+		string(DestroyingBrowser),
+		string(WorkflowFinished),
 	)
 
 	return b

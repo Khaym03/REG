@@ -57,7 +57,7 @@ func NewReceptionWorkflow(
 func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error {
 	if err := w.app.EventBus.Emit(
 		ctx,
-		event.WorkflowStarted,
+		string(event.WorkflowStarted),
 		struct{}{},
 	); err != nil {
 		log.Error(err)
@@ -66,7 +66,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	defer func() {
 		if err := w.app.EventBus.Emit(
 			ctx,
-			event.WorkflowFinished,
+			string(event.WorkflowFinished),
 			struct{}{},
 		); err != nil {
 			log.Error(err)
@@ -75,7 +75,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 
 	if err := w.app.EventBus.Emit(
 		ctx,
-		event.BuildingBrowser,
+		string(event.BuildingBrowser),
 		struct{}{},
 	); err != nil {
 		log.Error(err)

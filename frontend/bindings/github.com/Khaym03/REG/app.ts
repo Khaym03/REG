@@ -32,8 +32,8 @@ export function GetUser(): $CancellablePromise<auth$0.User> {
     });
 }
 
-export function Ignore($0: stats$0.Stats): $CancellablePromise<void> {
-    return $Call.ByID(3165805115, $0);
+export function Ignore($0: stats$0.Stats, $1: event$0.Topic): $CancellablePromise<void> {
+    return $Call.ByID(3165805115, $0, $1);
 }
 
 export function RunWorkflow(input: workflow$0.WorkFlowInput, browserConf: config$0.BrowserConfig): $CancellablePromise<void> {
@@ -44,12 +44,5 @@ export function StopWorkflow(): $CancellablePromise<void> {
     return $Call.ByID(593648928);
 }
 
-export function Topics(): $CancellablePromise<event$0.Topics> {
-    return $Call.ByID(1041696381).then(($result: any) => {
-        return $$createType1($result);
-    });
-}
-
 // Private type creation functions
 const $$createType0 = auth$0.User.createFrom;
-const $$createType1 = event$0.Topics.createFrom;

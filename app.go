@@ -148,6 +148,7 @@ func (a *App) StopWorkflow() {
 }
 
 func (a *App) registerEventHandlers() {
+	const ev = string(event.Stats)
 	onStatResult := bus.Handler{
 		Handle: func(ctx context.Context, e bus.Event) {
 			d, ok := e.Data.(stats.Stats)
@@ -155,13 +156,13 @@ func (a *App) registerEventHandlers() {
 				return
 			}
 
-			a.app.Event.Emit(event.Stats, d)
+			a.app.Event.Emit(ev, d)
 		},
-		Matcher: event.Matcher(event.Stats),
+		Matcher: event.Matcher(ev),
 	}
-	a.eventBus.RegisterHandler(event.Stats, onStatResult)
+	a.eventBus.RegisterHandler(ev, onStatResult)
 
-	activeEvents := []string{
+	activeEvents := []event.Topic{
 		event.WorkflowStarted,
 		event.Login,
 		event.BuildingBrowser,
@@ -185,16 +186,13 @@ func (a *App) registerEventHandlers() {
 	}
 
 	for _, e := range activeEvents {
-		a.eventBus.RegisterHandler(e, justEmitEvent(e))
+		ev := string(e)
+		a.eventBus.RegisterHandler(ev, justEmitEvent(ev))
 	}
 
 }
 
-func (a *App) Topics() event.Topics {
-	return event.All()
-}
-
-func (a *App) Ignore(_ stats.Stats) {}
+func (a *App) Ignore(_ stats.Stats, _ event.Topic) {}
 
 func (a *App) GetUser() auth.User {
 	return auth.LoadCredential()

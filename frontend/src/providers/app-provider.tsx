@@ -5,12 +5,10 @@ import {
   useWorkflowFormInstance
 } from '../hooks/use-app'
 import { useWorkflowStore } from '@/features/workflow/store/index'
-import { useUserFormInstance } from '@/hooks/user-form'
 
 export function AppFormsProvider({ children }: PropsWithChildren) {
   const browserForm = useBrowserConfigFormInstance()
   const workflowForm = useWorkflowFormInstance(browserForm)
-  const userForm = useUserFormInstance()
 
   const initWorkflow = useWorkflowStore(state => state.initWorkflow)
   const cleanupListeners = useWorkflowStore(state => state.cleanupListeners)
@@ -23,13 +21,11 @@ export function AppFormsProvider({ children }: PropsWithChildren) {
     return () => cleanupListeners()
   }, [initWorkflow, cleanupListeners])
 
-
   return (
     <AppFormsContext.Provider
       value={{
         browserForm,
-        workflowForm,
-        userForm
+        workflowForm
       }}
     >
       {children}

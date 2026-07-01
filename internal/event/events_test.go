@@ -20,9 +20,10 @@ func TestEventHandler(t *testing.T) {
 		},
 	}
 
-	buss.RegisterHandler(event.Stats, statsHandler)
+	ev := string(event.Stats)
+	buss.RegisterHandler(ev, statsHandler)
 
-	buss.Emit(t.Context(), event.Stats, "hello")
+	buss.Emit(t.Context(), ev, "hello")
 
 	assert.Equal(t, expect, actual)
 }

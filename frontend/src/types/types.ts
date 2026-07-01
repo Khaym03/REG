@@ -1,17 +1,9 @@
-export interface DateRange {
-  from: Date
-  to: Date
-}
+import type { User } from 'bindings/github.com/Khaym03/REG/internal/auth'
+import type { DateRange } from 'bindings/github.com/Khaym03/REG/internal/domain'
 
 export interface WorkflowInput {
   dateRange: DateRange
   receive_guides_in_transit: boolean
-}
-
-export interface User {
-  name: string
-  password: string
-  avatar: string
 }
 
 export interface NavLogoData {
@@ -27,7 +19,7 @@ export interface NavItem {
 }
 
 export interface NavData {
-  user: User
+  user?: User
   data: NavLogoData
-  navItems: NavItem[]
+  navItems?: NavItem[]
 }

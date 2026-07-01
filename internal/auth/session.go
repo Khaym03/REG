@@ -139,7 +139,7 @@ func (s *RodSession) Close(ctx context.Context) error {
 	s.closed = true
 	s.mu.Unlock()
 
-	if err := s.eventBus.Emit(ctx, event.DestroyingBrowser, struct{}{}); err != nil {
+	if err := s.eventBus.Emit(ctx, string(event.DestroyingBrowser), struct{}{}); err != nil {
 		logrus.Error(err)
 	}
 

@@ -5,7 +5,7 @@ import {
   FieldLabel,
   FieldDescription
 } from '@/components/ui/field'
-import type { DateRange } from '@/types/types'
+import type { DateRange } from 'bindings/github.com/Khaym03/REG/internal/domain'
 
 export default function DisplaySelectedDate({ dates }: { dates: DateRange }) {
   const startDateStr = format(dates.from, 'MMM yyyy')

@@ -11,7 +11,7 @@ import { useAppForms } from '@/hooks/use-app'
 export default function SettingsSection() {
   const { browserForm } = useAppForms()
   return (
-    <Card>
+    <Card className="w-full mb-auto border-0 ring-0">
       <CardHeader>
         <CardTitle>Browser configuration</CardTitle>
       </CardHeader>
@@ -22,6 +22,7 @@ export default function SettingsSection() {
             e.stopPropagation()
             browserForm.handleSubmit()
           }}
+          className="space-y-2"
         >
           <browserForm.Field
             name="headless"

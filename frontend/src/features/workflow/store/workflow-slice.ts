@@ -1,19 +1,13 @@
 import type { StateCreator } from 'zustand'
-import { Position, type Node, type Edge } from '@xyflow/react'
+import { type Node, type Edge } from '@xyflow/react'
 import { App } from 'bindings/github.com/Khaym03/REG'
 import { Events } from '@wailsio/runtime'
 import type { RootStoreState, WorkflowSlice } from './types'
 import type { BrowserConfig } from 'bindings/github.com/Khaym03/REG/internal/config'
 import type { WorkFlowInput } from 'bindings/github.com/Khaym03/REG/internal/workflow'
 import { runDebouncer, stopDebouncer } from '@/lib/utils'
-
-const X_ORIGIN = -400
-const X_GAP = 200
-const Y_GAP = 75
-const nodeDefaults = {
-  sourcePosition: Position.Right,
-  targetPosition: Position.Left
-}
+import { buildInitialEdges, buildInitialNodes } from '../graph/adapter'
+import { Topic } from 'bindings/github.com/Khaym03/REG/internal/event/models'
 
 export const createWorkflowSlice: StateCreator<
   RootStoreState,
@@ -53,94 +47,9 @@ export const createWorkflowSlice: StateCreator<
 
   initWorkflow: async () => {
     get().cleanupListeners()
-    const topics = await App.Topics()
 
-    const initialNodes: Node[] = [
-      {
-        id: topics.building_browser,
-        position: { x: X_ORIGIN, y: 0 },
-        data: { label: topics.building_browser },
-        sourcePosition: Position.Bottom,
-        type: 'initialNode'
-      },
-      {
-        id: topics.login,
-        position: { x: X_ORIGIN, y: Y_GAP },
-        data: { label: topics.login },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Top,
-        type: 'initialNode'
-      },
-      {
-        id: topics.guides_gather,
-        position: { x: X_GAP + X_ORIGIN, y: Y_GAP },
-        data: { label: topics.guides_gather },
-        type: 'initialNode',
-        ...nodeDefaults
-      },
-      {
-        id: topics.inventory_sync,
-        position: { x: X_GAP * 2 + X_ORIGIN, y: Y_GAP },
-        data: { label: topics.inventory_sync },
-        type: 'initialNode',
-        ...nodeDefaults
-      },
-      {
-        id: topics.reception,
-        position: { x: X_GAP * 3 + X_ORIGIN, y: Y_GAP },
-        data: { label: topics.reception },
-        type: 'initialNode',
-        ...nodeDefaults
-      },
-      {
-        id: topics.logout,
-        position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP },
-        data: { label: topics.logout },
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Left,
-        type: 'initialNode'
-      },
-      {
-        id: topics.destroying_browser,
-        position: { x: X_GAP * 4 + X_ORIGIN, y: Y_GAP * 2 },
-        data: { label: topics.destroying_browser },
-        targetPosition: Position.Top,
-        type: 'initialNode'
-      }
-    ]
-
-    const initialEdges: Edge[] = [
-      {
-        id: `${topics.building_browser}-${topics.login}`,
-        source: topics.building_browser,
-        target: topics.login
-      },
-      {
-        id: `${topics.login}-${topics.guides_gather}`,
-        source: topics.login,
-        target: topics.guides_gather
-      },
-      {
-        id: `${topics.guides_gather}-${topics.inventory_sync}`,
-        source: topics.guides_gather,
-        target: topics.inventory_sync
-      },
-      {
-        id: `${topics.inventory_sync}-${topics.reception}`,
-        source: topics.inventory_sync,
-        target: topics.reception
-      },
-      {
-        id: `${topics.reception}-${topics.logout}`,
-        source: topics.reception,
-        target: topics.logout
-      },
-      {
-        id: `${topics.logout}-${topics.destroying_browser}`,
-        source: topics.logout,
-        target: topics.destroying_browser
-      }
-    ]
+    const initialNodes: Node[] = buildInitialNodes()
+    const initialEdges: Edge[] = buildInitialEdges()
 
     // Initialize cross-slice workflow nodes
     get().setElements(initialNodes, initialEdges)
@@ -149,17 +58,7 @@ export const createWorkflowSlice: StateCreator<
     // Update types instantly using current slice values
     get().updateNodeTypes(get().isWorkflowRunning, '', [])
 
-    const activeTopics = [
-      topics.workflow_started,
-      topics.building_browser,
-      topics.login,
-      topics.guides_gather,
-      topics.inventory_sync,
-      topics.reception,
-      topics.logout,
-      topics.destroying_browser,
-      topics.workflow_finished
-    ]
+    const activeTopics = Object.values(Topic)
 
     const localUnsubscribers: (() => void)[] = []
 
@@ -170,11 +69,11 @@ export const createWorkflowSlice: StateCreator<
 
         set({ currentState: event, stateHistory: nextHistory })
 
-        if (event == topics.workflow_started) {
+        if (event === Topic.WorkflowStarted) {
           set({ isWorkflowRunning: true })
         }
 
-        if (event == topics.workflow_finished) {
+        if (event === Topic.WorkflowFinished) {
           set({
             isWorkflowRunning: false,
             stateHistory: [],

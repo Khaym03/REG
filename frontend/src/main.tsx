@@ -13,9 +13,12 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       <TooltipProvider>
         <AppFormsProvider>
-          <RouterProvider router={router} context={{
-            auth: useAuthStore
-          }} />
+          <RouterProvider
+            router={router}
+            context={{
+              auth: useAuthStore
+            }}
+          />
         </AppFormsProvider>
       </TooltipProvider>
     </ThemeProvider>

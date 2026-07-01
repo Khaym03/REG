@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/auth/auth-store'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,7 @@ import {
   useSidebar
 } from '@/components/ui/sidebar'
 import { router } from '@/routes/router'
-import type { User } from '@/types/types'
+import type { User } from 'bindings/github.com/Khaym03/REG/internal/auth'
 import { CaretUpDownIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 
 export function NavUser({ user }: { user: User }) {
@@ -25,7 +25,7 @@ export function NavUser({ user }: { user: User }) {
 
   const handleLogout = async () => {
     await logout()
-    navigate({ to: "/login" })
+    navigate({ to: '/login' })
   }
   return (
     <SidebarMenu>
@@ -67,16 +67,15 @@ function DisplayUser({ user }: { user: User }) {
   return (
     <>
       <Avatar className="h-8 w-8 rounded-lg">
-        <AvatarImage src={user.avatar} alt={user.name} />
         <AvatarFallback className="rounded-lg">
           <UserIcon />
         </AvatarFallback>
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-medium">{censore(user.name)}</span>
+        <span className="truncate font-medium">{censore(user.username)}</span>
         <input
           type="password"
-          value={user.password}
+          value={user.password ? user.password : '*'.repeat(8)}
           className="truncate text-xs"
           readOnly
         />
