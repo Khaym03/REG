@@ -2,6 +2,7 @@ package browser
 
 import (
 	"context"
+	"fmt"
 )
 
 const defaultBrowserPoolSize = 1
@@ -15,11 +16,15 @@ type browserPool struct {
 
 type BrowserRuntimeFactory func(ctx context.Context) (BrowserRuntime, error)
 
+// DefaultBrowserRuntimeFactory creates a new browser runtime.
+// It uses context.Background() for initialization to ensure the browser instance
+// persists across multiple workflow executions, as the workflow context is canceled
+// upon completion of each run.
 func DefaultBrowserRuntimeFactory(ctx context.Context) (BrowserRuntime, error) {
 	rt := NewBrowserRunTime()
-	err := rt.Init(ctx)
+	err := rt.Init(context.Background())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("runtime.Init: %w", err)
 	}
 
 	return rt, nil
