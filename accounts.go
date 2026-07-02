@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -16,10 +18,10 @@ const (
 type AccountsAPI struct {
 	ctx            context.Context
 	service        *auth.AccountService
-	sessionManager auth.SessionManager
+	sessionManager mediator.SessionMediator
 }
 
-func NewAccountsAPI(sm auth.SessionManager) *AccountsAPI {
+func NewAccountsAPI(sm mediator.SessionMediator, eventBus *bus.Bus) *AccountsAPI {
 	var p repo.Persistence[[]auth.RegisterUsers] = repo.NewJSONPersistence(
 		usersFilepath,
 		func() []auth.RegisterUsers {
@@ -29,7 +31,7 @@ func NewAccountsAPI(sm auth.SessionManager) *AccountsAPI {
 
 	return &AccountsAPI{
 		service: auth.NewAccountService(
-			auth.NewLoginScraper(),
+			auth.NewLoginScraper(eventBus),
 			p,
 		),
 		sessionManager: sm,
@@ -51,7 +53,7 @@ func (api *AccountsAPI) AuthUser(user auth.User) error {
 		return nil
 	}
 
-	s, err := api.sessionManager.Session(api.ctx)
+	s, err := api.sessionManager.Create(api.ctx)
 	if err != nil {
 		return err
 	}
@@ -62,7 +64,7 @@ func (api *AccountsAPI) AuthUser(user auth.User) error {
 	}
 
 	defer func() {
-		if err = api.sessionManager.Logout(api.ctx); err != nil {
+		if err = api.sessionManager.Logout(api.ctx, s); err != nil {
 			log.Error(err)
 		}
 	}()

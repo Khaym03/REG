@@ -13,6 +13,7 @@ import (
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/joho/godotenv"
 )
@@ -34,11 +35,7 @@ func main() {
 
 	eventBus := event.NewBus()
 
-	sm := auth.NewSessionManager(eventBus)
-
-	if err := sm.Init(ctx); err != nil {
-		log.Fatal(err)
-	}
+	sm := mediator.NewSessionMediator(eventBus)
 
 	defer func() {
 		if err := sm.Close(); err != nil {

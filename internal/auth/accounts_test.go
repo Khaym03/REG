@@ -7,6 +7,7 @@ import (
 
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/Khaym03/REG/internal/session"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/joho/godotenv"
@@ -27,7 +28,7 @@ func (s *AccountServiceSuite) SetupTest() {
 
 	s.service = AccountService{
 		p:    p,
-		auth: NewLoginScraper(),
+		auth: NewLoginScraper(event.NewBus()),
 	}
 
 	envPath, _ := filepath.Abs("../../.env")
@@ -58,10 +59,9 @@ func (s *AccountServiceSuite) TestAuthUser() {
 		Trace(os.Getenv("REG_ROD_VERBOSE") == "1").
 		MustConnect()
 
-	rodSess, err := NewRodSession(b, event.NewBus(), true)
-	s.Require().NoError(err)
+	rodSess := session.NewRodSession(b.MustPage(), event.NewBus())
 	defer func() {
-		err := rodSess.Close(s.T().Context())
+		err := rodSess.Close()
 		s.Require().NoError(err)
 	}()
 
@@ -69,7 +69,7 @@ func (s *AccountServiceSuite) TestAuthUser() {
 		Username: os.Getenv("REG_TEST_USERNAME"),
 		Password: os.Getenv("REG_TEST_PASSWORD"),
 	}
-	err = s.service.AuthUser(s.T().Context(), user, rodSess)
+	err := s.service.AuthUser(s.T().Context(), user, rodSess)
 
 	s.Require().NoError(err)
 	users, err := s.service.p.Load()

@@ -9,6 +9,7 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow/app"
 	"github.com/Khaym03/REG/internal/workflow/command/guide"
 	"github.com/Khaym03/REG/internal/workflow/command/inventory"
@@ -28,14 +29,13 @@ type WorkFlowInput struct {
 
 type ReceptionWorkflow struct {
 	app           *app.Application
-	sessinManager auth.SessionManager
+	sessinManager mediator.SessionMediator
 }
 
 func NewReceptionWorkflow(
 	ctx context.Context,
 	eventBus *bus.Bus,
-	sm auth.SessionManager,
-
+	sm mediator.SessionMediator,
 ) (*ReceptionWorkflow, error) {
 	application, err := service.NewApplication(
 		ctx,
@@ -86,21 +86,21 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 		return err
 	}
 
-	err = w.sessinManager.Login(ctx, input.User)
+	session, err := w.sessinManager.Create(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = w.sessinManager.Login(ctx, session, input.User)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err = w.sessinManager.Logout(ctx)
+		err = w.sessinManager.Logout(ctx, session)
 		if err != nil {
 			log.Error(err)
 		}
 	}()
-
-	session, err := w.sessinManager.Session(ctx)
-	if err != nil {
-		return err
-	}
 
 	stats, err := w.app.Queries.Stats.Handle(ctx, session, stats.StatsQuery{})
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 
 	c "github.com/Khaym03/REG/internal/constants"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/Khaym03/REG/internal/session"
 	log "github.com/sirupsen/logrus"
 	"github.com/zalando/go-keyring"
 )
@@ -65,7 +66,7 @@ func (a AccountService) KnownUser(user User) bool {
 func (a *AccountService) AuthUser(
 	ctx context.Context,
 	user User,
-	session Session,
+	session session.Session,
 ) (err error) {
 
 	var existingUser *RegisterUsers = nil

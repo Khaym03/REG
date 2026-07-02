@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow/command/guide"
 	"github.com/Khaym03/REG/internal/workflow/command/inventory"
 	"github.com/Khaym03/REG/internal/workflow/command/reception"
@@ -10,8 +10,7 @@ import (
 )
 
 type Application struct {
-	SessionProvider *auth.Provider
-	SessionManger   auth.SessionManager
+	SessionMediator mediator.SessionMediator
 
 	EventBus *bus.Bus
 	Commands Commands

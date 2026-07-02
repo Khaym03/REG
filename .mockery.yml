@@ -32,3 +32,13 @@ packages:
     interfaces:
       Page:
       TableRow:
+
+  github.com/Khaym03/REG/internal/browser:
+    config:
+      all: false
+      dir: "{{.InterfaceDir}}"
+      filename: "mocks.go"
+      pkgname: "browser"
+      structname: "Mock{{.InterfaceName}}"
+    interfaces:
+      BrowserRuntime:

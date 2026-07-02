@@ -72,3 +72,20 @@ func SelectOption(page *rod.Page, parentSelector string, optionXPath string) (er
 
 	return page.WaitDOMStable(c.TimeoutShort, 0.5)
 }
+
+func CreatePageIfNotExist(b *rod.Browser) (*rod.Page, error) {
+	pages, err := b.Pages()
+	if err != nil {
+		return nil, err
+	}
+
+	if pages.Empty() {
+		page, err := b.Page(proto.TargetCreateTarget{URL: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		return page, nil
+	}
+	return pages.First(), nil
+}

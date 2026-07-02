@@ -7,16 +7,21 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/session"
 
 	"github.com/go-rod/rod"
 )
 
 var _ InventoryService = (*InventoryScraper)(nil)
 
-type InventoryScraper struct{}
+type InventoryScraper struct {
+	factory session.SessionFactory
+}
 
-func NewInventoryScraper() *InventoryScraper {
-	return &InventoryScraper{}
+func NewInventoryScraper(factory session.SessionFactory) *InventoryScraper {
+	return &InventoryScraper{
+		factory: factory,
+	}
 }
 
 func (i *InventoryScraper) Insert(
@@ -24,12 +29,12 @@ func (i *InventoryScraper) Insert(
 	session Session,
 	newItem Rubro,
 ) (err error) {
-	s, err := session.NewIsolated(ctx)
+	s, err := i.factory.CreateIsolated(ctx, session)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err = s.Close(ctx); err != nil {
+		if err = s.Close(); err != nil {
 			log.Println(err)
 		}
 	}()

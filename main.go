@@ -3,8 +3,8 @@ package main
 import (
 	"embed"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -12,7 +12,7 @@ import (
 
 func init() {
 	log.SetFormatter(&log.TextFormatter{
-		ForceColors:      false,
+		ForceColors:      true,
 		DisableTimestamp: true,
 	})
 
@@ -28,7 +28,7 @@ var assets embed.FS
 
 func main() {
 	evBus := event.NewBus()
-	manager := auth.NewSessionManager(evBus)
+	manager := mediator.NewSessionMediator(evBus)
 
 	app := application.New(application.Options{
 		Name: "REG",
@@ -38,7 +38,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(manager),
 			application.NewService(
-				NewAccountsAPI(manager),
+				NewAccountsAPI(manager, evBus),
 			),
 		},
 	})

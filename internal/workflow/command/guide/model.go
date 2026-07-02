@@ -3,12 +3,12 @@ package guide
 import (
 	"context"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/session"
 )
 
 type GuideCollector interface {
-	Collect(context.Context, auth.Session, domain.DateRange) ([]domain.Guide, error)
+	Collect(context.Context, Session, domain.DateRange) ([]domain.Guide, error)
 }
 
 type RubroExtractor interface {
@@ -16,8 +16,9 @@ type RubroExtractor interface {
 }
 
 type (
-	Session   = auth.Session
-	DateRange = domain.DateRange
-	Guide     = domain.Guide
-	Rubro     = domain.Rubro
+	Session        = session.Session
+	SessionFactory = session.SessionFactory
+	DateRange      = domain.DateRange
+	Guide          = domain.Guide
+	Rubro          = domain.Rubro
 )

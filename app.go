@@ -11,6 +11,7 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
 	"github.com/mustafaturan/bus/v3"
@@ -43,11 +44,11 @@ type App struct {
 	eventBus  *bus.Bus
 	app       *application.App
 
-	sessionManager auth.SessionManager
+	sessionManager mediator.SessionMediator
 }
 
 // NewAppService creates a new App application struct
-func NewAppService(app *application.App, sm auth.SessionManager) *App {
+func NewAppService(app *application.App, sm mediator.SessionMediator) *App {
 	return &App{
 		app:            app,
 		mu:             sync.Mutex{},
@@ -90,50 +91,44 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 
 	a.mu.Unlock()
 
-	done := make(chan struct{}, 1)
+	defer func() {
+		a.mu.Lock()
 
-	go func() {
-		defer func() {
-			a.mu.Lock()
-
-			if a.cancel != nil {
-				a.cancel = nil
-			}
-
-			a.mu.Unlock()
-
-			cancel(ErrWorkflowCanceled)
-		}()
-
-		defer func() {
-			done <- struct{}{}
-		}()
-
-		browserConf.LoggerOut = a.loggerOut
-
-		input.BrowserConf = browserConf
-
-		work, err := workflow.NewReceptionWorkflow(
-			ctx,
-			a.eventBus,
-			a.sessionManager,
-		)
-		if err != nil {
-			log.Error(err)
-			return
+		if a.cancel != nil {
+			a.cancel = nil
 		}
 
-		err = work.Run(
-			ctx,
-			input,
-		)
+		a.mu.Unlock()
 
-		if err != nil {
-			log.Println(err)
-		}
+		cancel(ErrWorkflowCanceled)
 	}()
 
-	<-done
+	browserConf.LoggerOut = a.loggerOut
+
+	input.BrowserConf = browserConf
+
+	work, err := workflow.NewReceptionWorkflow(
+		ctx,
+		a.eventBus,
+		a.sessionManager,
+	)
+	if err != nil {
+		log.Error(err)
+
+		return
+	}
+
+	err = work.Run(
+		ctx,
+		input,
+	)
+
+	if err != nil {
+		log.Printf("Run returned err=%v", err)
+		log.Printf("ctx.Err()=%v", ctx.Err())
+		log.Printf("context.Cause()=%v", context.Cause(ctx))
+	}
+
 }
 
 func (a *App) StopWorkflow() {
@@ -151,11 +146,13 @@ func (a *App) registerEventHandlers() {
 	const ev = string(event.Stats)
 	onStatResult := bus.Handler{
 		Handle: func(ctx context.Context, e bus.Event) {
+			log.Printf("HANDLER REGISTERED FOR: %s", e)
+
 			d, ok := e.Data.(stats.Stats)
 			if !ok {
 				return
 			}
-
+			log.Printf("EVENT RECEIVED: %+v", ev)
 			a.app.Event.Emit(ev, d)
 		},
 		Matcher: event.Matcher(ev),

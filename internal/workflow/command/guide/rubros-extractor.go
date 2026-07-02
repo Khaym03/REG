@@ -15,10 +15,14 @@ var _ RubroExtractor = (*RodRubroWorker)(nil)
 
 type RodRubroWorker struct {
 	workers int
+	factory SessionFactory
 }
 
-func NewRodRubroWorker(workers int) *RodRubroWorker {
-	return &RodRubroWorker{workers: workers}
+func NewRodRubroWorker(workers int, factory SessionFactory) *RodRubroWorker {
+	return &RodRubroWorker{
+		workers: workers,
+		factory: factory,
+	}
 }
 
 func (w *RodRubroWorker) FromGuides(
@@ -32,12 +36,12 @@ func (w *RodRubroWorker) FromGuides(
 	jobs := make(chan Guide)
 	rubrosMap := make(map[string]Rubro)
 
-	tempSession, err := session.NewIsolated(ctx)
+	tempSession, err := w.factory.CreateIsolated(ctx, session)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		if err := tempSession.Close(ctx); err != nil {
+		if err := tempSession.Close(); err != nil {
 			log.Println(err)
 		}
 	}()

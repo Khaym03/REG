@@ -6,23 +6,35 @@ import (
 
 	"github.com/Khaym03/REG/internal/browser"
 	c "github.com/Khaym03/REG/internal/constants"
+	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/session"
 	"github.com/go-rod/rod"
+	"github.com/mustafaturan/bus/v3"
 )
 
 var _ AuthService = (*LoginScraper)(nil)
 
-type LoginScraper struct{}
+type LoginScraper struct {
+	eventBus *bus.Bus
+}
 
-func NewLoginScraper() *LoginScraper {
-	return &LoginScraper{}
+func NewLoginScraper(eventBus *bus.Bus) *LoginScraper {
+	return &LoginScraper{
+		eventBus: eventBus,
+	}
 }
 
 func (l *LoginScraper) Login(
 	ctx context.Context,
-	s Session,
+	s session.Session,
 	user User,
 ) (err error) {
 	login := func(p *rod.Page) (err error) {
+		err = l.eventBus.Emit(ctx, string(event.Login), struct{}{})
+		if err != nil {
+			return err
+		}
+
 		loginPage := NewLoginPage(p)
 
 		if err = loginPage.Open(); err != nil {
@@ -47,9 +59,14 @@ func (l *LoginScraper) Login(
 
 func (l *LoginScraper) Logout(
 	ctx context.Context,
-	s Session,
+	s session.Session,
 ) (err error) {
 	logout := func(p *rod.Page) error {
+		err = l.eventBus.Emit(ctx, string(event.Logout), struct{}{})
+		if err != nil {
+			return err
+		}
+
 		logoutPage := NewLogoutPage(p)
 
 		if err = logoutPage.Open(); err != nil {

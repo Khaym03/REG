@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/session"
 	"github.com/mustafaturan/bus/v3"
 
 	"github.com/go-rod/rod"
@@ -53,7 +53,7 @@ func (s Stats) String() string {
 
 	builder.Grow(120)
 
-	fmt.Fprintf(&builder, "Outstanding Debt: %d\n", s.OutstandingDebt)
+	fmt.Fprintf(&builder, "\nOutstanding Debt: %d\n", s.OutstandingDebt)
 	fmt.Fprintf(&builder, "In-transit Guides: %d\n", s.InTransitGuides)
 	fmt.Fprintf(&builder, "Expired Guides: %d\n", s.ExpiredGuides)
 	fmt.Fprintf(&builder, "Pending Procedures: %d", s.PendingProcedures)
@@ -63,7 +63,7 @@ func (s Stats) String() string {
 
 func (svc *statsHandler) Handle(
 	ctx context.Context,
-	session auth.Session,
+	session session.Session,
 	_ StatsQuery,
 ) (Stats, error) {
 	var result Stats
