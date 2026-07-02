@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/Khaym03/REG/internal/auth"
 )
 
 type commandLoggingDecorator[C any] struct {
@@ -17,7 +15,7 @@ type commandLoggingDecorator[C any] struct {
 
 func (d commandLoggingDecorator[C]) Handle(
 	ctx context.Context,
-	session auth.Session,
+	session Session,
 	cmd C,
 ) (err error) {
 
@@ -48,7 +46,7 @@ type queryLoggingDecorator[C any, R any] struct {
 
 func (d queryLoggingDecorator[Q, R]) Handle(
 	ctx context.Context,
-	session auth.Session,
+	session Session,
 	query Q) (result R, err error) {
 
 	logger := d.logger.WithFields(logrus.Fields{

@@ -3,8 +3,8 @@ package reception
 import (
 	"context"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/session"
 )
 
 type ReceptionOptions struct {
@@ -31,7 +31,7 @@ type TableRow interface {
 }
 
 type (
-	Session         = auth.Session
+	Session         = session.Session
 	DateRange       = domain.DateRange
 	ReceptionResult = domain.ReceptionResult
 )

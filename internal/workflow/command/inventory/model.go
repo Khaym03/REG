@@ -3,8 +3,8 @@ package inventory
 import (
 	"context"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/session"
 )
 
 type InventoryService interface {
@@ -13,6 +13,6 @@ type InventoryService interface {
 }
 
 type (
-	Session = auth.Session
+	Session = session.Session
 	Rubro   = domain.Rubro
 )

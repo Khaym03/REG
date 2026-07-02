@@ -5,8 +5,6 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/Khaym03/REG/internal/auth"
 )
 
 var DefaultRetryConfig = RetryDecoratorConfig{
@@ -43,7 +41,7 @@ func NewRetryDecorator[C any](base CommandHandler[C], cfg RetryDecoratorConfig) 
 
 func (d RetryDecorator[C]) Handle(
 	ctx context.Context,
-	session auth.Session,
+	session Session,
 	cmd C,
 ) (err error) {
 	for attempt := 1; attempt <= d.attempts; attempt++ {

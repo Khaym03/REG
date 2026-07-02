@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
 	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
@@ -21,7 +21,7 @@ type CleanUpFunc func()
 func NewApplication(
 	ctx context.Context,
 	eventBus *bus.Bus,
-	sm auth.SessionManager,
+	sm mediator.SessionMediator,
 ) (*app.Application, error) {
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
@@ -41,11 +41,8 @@ func NewApplication(
 	receptionRepo := repo.NewJSONReceptionRepository(store)
 	rubroRepo := repo.NewJSONRubroRepository(store)
 
-	authService := auth.NewLoginScraper()
-	sessionProvider := auth.NewProvider(authService, eventBus)
-
 	scraperSvc := guide.NewGuidesScraper()
-	worker := guide.NewRodRubroWorker(1)
+	worker := guide.NewRodRubroWorker(1, sm)
 
 	statsHandler := stats.NewStatsHandler(logger, eventBus)
 	gatherHandler := guide.NewGatherGuidesHandler(
@@ -58,7 +55,7 @@ func NewApplication(
 	)
 	inventoryHandler := inventory.NewInventoryHandler(
 		rubroRepo,
-		inventory.NewInventoryScraper(),
+		inventory.NewInventoryScraper(sm),
 		logger,
 		eventBus,
 	)
@@ -71,8 +68,7 @@ func NewApplication(
 
 	return &app.Application{
 			EventBus:        eventBus,
-			SessionProvider: sessionProvider,
-			SessionManger:   sm,
+			SessionMediator: sm,
 			Commands: app.Commands{
 				GatherGuides:  gatherHandler,
 				SyncInventory: inventoryHandler,
