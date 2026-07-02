@@ -4,7 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/event"
+	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/joho/godotenv"
@@ -13,7 +14,7 @@ import (
 
 type RodSuite struct {
 	suite.Suite
-	provider *auth.Provider
+	SessionMediator mediator.SessionMediator
 }
 
 func (suite *RodSuite) SetupSuite() {
@@ -29,40 +30,31 @@ func (suite *RodSuite) SetupSuite() {
 	}
 }
 
-// func (suite *RodSuite) TearDownSuite() {
+func (suite *RodSuite) SetupTest() {
+	suite.SessionMediator = mediator.NewSessionMediator(
+		event.NewBus(),
+	)
+}
 
-// }
-
-// func (suite *RodSuite) SetupTest() {
-// 	// Open a fresh page for each test.
-// 	if suite.Browser != nil {
-// 		suite.Page = suite.Browser.MustPage()
-// 		suite.Page.MustNavigate(c.BaseURL)
-// 	}
-// }
-
-// func (suite *RodSuite) TearDownTest() {
-// 	if suite.Page != nil {
-// 		suite.Page.MustClose()
-// 		suite.Page = nil
-// 	}
-// }
+func (suite *RodSuite) TearDownTest() {
+	_ = suite.SessionMediator.Close()
+}
 
 func (suite *RodSuite) LoadCredential() (string, string) {
 	return os.Getenv("REG_TEST_USERNAME"), os.Getenv("REG_TEST_PASSWORD")
 }
 
 func (suite *RodSuite) NewBrowser() *rod.Browser {
-	envPath, _ := filepath.Abs("../.env")
-	rootDir := filepath.Dir(envPath)
-
 	datadir := "rod_data"
+
+	suite.T().TempDir()
+	path := filepath.Join(suite.T().TempDir(), datadir)
 
 	l := launcher.New().
 		Headless(os.Getenv("REG_HEADLESS") == "1").
 		Devtools(false).
 		Leakless(false).
-		UserDataDir(filepath.Join(rootDir, datadir))
+		UserDataDir(path)
 
 	return rod.New().
 		Context(suite.T().Context()).
