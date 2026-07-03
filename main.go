@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"os"
 
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
@@ -11,16 +12,16 @@ import (
 )
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{
-		ForceColors:      true,
-		DisableTimestamp: true,
-	})
-
-	log.SetReportCaller(true)
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
 
+	log.SetFormatter(&log.TextFormatter{
+		ForceColors:      os.Getenv("APP_ENV") == "dev",
+		DisableTimestamp: true,
+	})
+
+	log.SetReportCaller(true)
 }
 
 //go:embed all:frontend/dist
@@ -61,6 +62,10 @@ func main() {
 			Blue:  54,
 			Alpha: 1,
 		},
+	})
+
+	app.OnShutdown(func() {
+		manager.Close()
 	})
 
 	if err := app.Run(); err != nil {
