@@ -9,6 +9,8 @@ import (
 
 // Session provides controlled access to browser pages.
 // Pages are short-lived and managed by the Session.
+//
+//wails:internal
 type Session interface {
 	// Do executes fn with a managed page.
 	// The page must not be used outside fn.
@@ -26,4 +28,5 @@ type SessionFactory interface {
 
 type PageFunc = browser.PageFunc
 
+//wails:internal
 type SessionID string

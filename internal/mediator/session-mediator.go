@@ -19,6 +19,7 @@ var (
 	ErrSessionNotFound = errors.New("session not found")
 )
 
+//wails:internal
 type SessionMediator interface {
 	io.Closer
 	SessionFactory

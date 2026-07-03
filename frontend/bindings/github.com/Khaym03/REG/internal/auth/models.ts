@@ -34,12 +34,6 @@ export class RegisterUsers {
     }
 }
 
-/**
- * Session provides controlled access to browser pages.
- * Pages are short-lived and managed by the Session.
- */
-export type Session = any;
-
 export class User {
     "username": string;
     "password": string;
