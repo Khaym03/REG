@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 	"io"
-	"os"
 
 	"sync"
 
-	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
@@ -23,17 +21,6 @@ import (
 var (
 	ErrWorkflowCanceled = errors.New("workflow canceled")
 )
-
-type WailsLogWriter struct {
-	ctx context.Context
-	app *application.App
-}
-
-func (w *WailsLogWriter) Write(p []byte) (n int, err error) {
-	w.app.Event.Emit("LOG", string(p))
-
-	return len(p), nil
-}
 
 // App struct
 type App struct {
@@ -61,19 +48,6 @@ func NewAppService(app *application.App, sm mediator.SessionMediator) *App {
 // so we can call the runtime methods
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	a.ctx = ctx
-
-	writers := make([]io.Writer, 0, 2)
-	writers = []io.Writer{&WailsLogWriter{ctx: a.ctx, app: a.app}}
-
-	if config.IsDev() {
-		writers = append(writers, os.Stdout)
-	}
-
-	a.loggerOut = io.MultiWriter(
-		writers...,
-	)
-
-	log.SetOutput(a.loggerOut)
 
 	a.registerEventHandlers()
 
@@ -192,7 +166,3 @@ func (a *App) registerEventHandlers() {
 }
 
 func (a *App) Ignore(_ stats.Stats, _ event.Topic) {}
-
-func (a *App) GetUser() auth.User {
-	return auth.LoadCredential()
-}

@@ -7,6 +7,11 @@ import * as config from 'bindings/github.com/Khaym03/REG/internal/config'
 import { App } from 'bindings/github.com/Khaym03/REG'
 import type { WorkflowInput } from '@/types/types'
 import { useWorkflowStore } from '@/features/workflow/store'
+import { GetUserPassword } from 'bindings/github.com/Khaym03/REG/accountsapi'
+import { useAuthStore } from '@/auth/auth-store'
+import notifyErrToUI from '@/lib/notify'
+import { toast } from 'sonner'
+import { User } from 'bindings/github.com/Khaym03/REG/internal/auth'
 
 export type BrowserConfigForm = ReturnType<typeof useBrowserConfigFormInstance>
 const defaultBrowserConfig = new config.BrowserConfig({
@@ -32,6 +37,7 @@ const defaultWorkflowInput: WorkflowInput = {
 }
 export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
   const runWorkflow = useWorkflowStore(state => state.runWorkflow)
+  const registerUser = useAuthStore(state => state.user)
   return useForm({
     defaultValues: defaultWorkflowInput,
 
@@ -41,8 +47,15 @@ export function useWorkflowFormInstance(browserForm: BrowserConfigForm) {
       date.from = value.dateRange.from
       date.to = value.dateRange.to
 
+      if (!registerUser) {
+        toast.error('Error: trying run a workflow without a user')
+        return
+      }
+
+      const user = await GetUserPassword(registerUser.username)
+
       const work = new workflow.WorkFlowInput({
-        user: await App.GetUser(),
+        user: user,
         receive_guides_in_transit: value.receive_guides_in_transit
       })
 

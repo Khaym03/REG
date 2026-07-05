@@ -12,9 +12,6 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as auth$0 from "./internal/auth/models.js";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
 import * as config$0 from "./internal/config/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -25,12 +22,6 @@ import * as workflow$0 from "./internal/workflow/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as stats$0 from "./internal/workflow/queries/stats/models.js";
-
-export function GetUser(): $CancellablePromise<auth$0.User> {
-    return $Call.ByID(1190452316).then(($result: any) => {
-        return $$createType0($result);
-    });
-}
 
 export function Ignore($0: stats$0.Stats, $1: event$0.Topic): $CancellablePromise<void> {
     return $Call.ByID(3165805115, $0, $1);
@@ -43,6 +34,3 @@ export function RunWorkflow(input: workflow$0.WorkFlowInput, browserConf: config
 export function StopWorkflow(): $CancellablePromise<void> {
     return $Call.ByID(593648928);
 }
-
-// Private type creation functions
-const $$createType0 = auth$0.User.createFrom;
