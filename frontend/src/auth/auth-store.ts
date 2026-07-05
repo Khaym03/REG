@@ -4,6 +4,7 @@ import {
   User
 } from 'bindings/github.com/Khaym03/REG/internal/auth'
 import { AccountsAPI } from 'bindings/github.com/Khaym03/REG'
+import notifyErrToUI from '@/lib/notify'
 
 export type AuthState = {
   user: RegisterUsers | null
@@ -26,7 +27,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       registerUsers = await AccountsAPI.GetRegisterUsers()
       set({ registerUsers })
     } catch (e) {
-      console.log(e)
+      console.error(e)
+      notifyErrToUI(e)
       set({ registerUsers })
     }
 
@@ -48,7 +50,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: await AccountsAPI.CurrentUser()
       })
     } catch (e) {
-      console.log(e)
+      console.error(e)
+      notifyErrToUI(e)
       set({ user: null })
     }
   },
@@ -62,7 +65,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await AccountsAPI.UpdateUser(user)
     } catch (e) {
-      console.log(e)
+      console.error(e)
+      notifyErrToUI(e)
     }
 
     set({ user: null })
