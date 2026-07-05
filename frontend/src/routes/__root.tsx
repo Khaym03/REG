@@ -7,6 +7,7 @@ import { useAuthStore } from '@/auth/auth-store'
 
 import { AppFormsProvider } from '@/providers/app-provider'
 import TitleBarActions from '@/components/layout/title-bar-actions'
+import { Toaster } from '@/components/ui/sonner'
 
 export interface RouterContext {
   auth: typeof useAuthStore
@@ -30,6 +31,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 {/* Outlet renders the matching child route */}
                 <Outlet />
               </div>
+              <Toaster />
             </SidebarInset>
             <AppSidebar side="right" />
           </SidebarProvider>

@@ -80,7 +80,7 @@ func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) 
 	return nil
 }
 
-func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) {
+func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.BrowserConfig) error {
 	a.mu.Lock()
 	if a.cancel != nil {
 		a.cancel(ErrWorkflowCanceled)
@@ -114,8 +114,7 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 	)
 	if err != nil {
 		log.Error(err)
-
-		return
+		return err
 	}
 
 	err = work.Run(
@@ -127,8 +126,11 @@ func (a *App) RunWorkflow(input workflow.WorkFlowInput, browserConf config.Brows
 		log.Printf("Run returned err=%v", err)
 		log.Printf("ctx.Err()=%v", ctx.Err())
 		log.Printf("context.Cause()=%v", context.Cause(ctx))
+
+		return err
 	}
 
+	return nil
 }
 
 func (a *App) StopWorkflow() {

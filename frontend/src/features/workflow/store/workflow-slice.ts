@@ -8,6 +8,7 @@ import type { WorkFlowInput } from 'bindings/github.com/Khaym03/REG/internal/wor
 import { runDebouncer, stopDebouncer } from '@/lib/utils'
 import { buildInitialEdges, buildInitialNodes } from '../graph/adapter'
 import { Topic } from 'bindings/github.com/Khaym03/REG/internal/event/models'
+import notifyErrToUI from '@/lib/notify'
 
 export const createWorkflowSlice: StateCreator<
   RootStoreState,
@@ -24,11 +25,16 @@ export const createWorkflowSlice: StateCreator<
   runWorkflow: async (work: WorkFlowInput, conf: BrowserConfig) => {
     if (get().isWorkflowRunning || get().isDebouncing) return
 
-    await runDebouncer(
-      async () => await App.RunWorkflow(work, conf),
-      1000,
-      isWaiting => set({ isDebouncing: isWaiting })
-    )
+    const run = async () => {
+      try {
+        await App.RunWorkflow(work, conf)
+      } catch (e) {
+        console.error(e)
+        notifyErrToUI(e)
+      }
+    }
+
+    await runDebouncer(run, 1000, isWaiting => set({ isDebouncing: isWaiting }))
 
     set({ isDebouncing: false })
   },
@@ -36,10 +42,16 @@ export const createWorkflowSlice: StateCreator<
   stopWorkflow: async () => {
     if (!get().isWorkflowRunning) return
 
-    await stopDebouncer(
-      async () => await App.StopWorkflow(),
-      1000,
-      isWaiting => set({ isDebouncing: isWaiting })
+    const stop = async () => {
+      try {
+        await App.StopWorkflow()
+      } catch (e) {
+        console.error(e)
+        notifyErrToUI(e)
+      }
+    }
+    await stopDebouncer(stop, 1000, isWaiting =>
+      set({ isDebouncing: isWaiting })
     )
 
     set({ isDebouncing: false })
