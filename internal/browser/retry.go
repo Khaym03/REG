@@ -2,7 +2,6 @@ package browser
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -19,15 +18,15 @@ func WithRetry(
 		return func(p *rod.Page) error {
 			var err error
 
-			for i := 0; i < attempts; i++ {
+			for i := range attempts {
 				err = next(p)
 				if err == nil {
 					return nil
 				}
 
-				if !errors.Is(err, &rod.NavigationError{}) {
-					return err
-				}
+				// if !errors.Is(err, &rod.NavigationError{}) {
+				// 	return err
+				// }
 
 				if i == attempts-1 {
 					break

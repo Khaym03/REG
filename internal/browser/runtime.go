@@ -23,9 +23,13 @@ type browserRuntime struct {
 }
 
 func NewBrowserRunTime() *browserRuntime {
+	defaultConfig := config.BrowserConfig{
+		Headless: true,
+		Trace:    true,
+	}
 	return &browserRuntime{
 		initOnce:    sync.Once{},
-		browserConf: config.BrowserConfFromENV(),
+		browserConf: defaultConfig,
 		stateMu:     sync.Mutex{},
 		ready:       make(chan struct{}),
 	}
@@ -33,7 +37,7 @@ func NewBrowserRunTime() *browserRuntime {
 
 func (br *browserRuntime) Init(ctx context.Context) error {
 	br.initOnce.Do(func() {
-		b, err := BuildBrowser(ctx, config.BrowserConfFromENV())
+		b, err := BuildBrowser(ctx, br.browserConf)
 		if err != nil {
 			br.initErr = err
 			close(br.ready)
