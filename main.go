@@ -3,19 +3,19 @@ package main
 import (
 	"embed"
 	"os"
+	"path/filepath"
 
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
+	"github.com/Khaym03/REG/utils"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
+	loadEnvironmentFiles()
 
 	log.SetFormatter(&log.TextFormatter{
 		ForceColors:      os.Getenv("APP_ENV") == "dev",
@@ -42,7 +42,6 @@ func main() {
 	manager := mediator.NewSessionMediator(evBus)
 
 	services := [...]application.Service{
-		application.NewService(manager),
 		application.NewService(NewAccountsAPI(manager, evBus)),
 		application.NewService(NewAppService(app, manager, evBus)),
 	}
@@ -71,6 +70,37 @@ func main() {
 
 	if err := app.Run(); err != nil {
 		println("Error:", err.Error())
+	}
+}
+
+func loadEnvironmentFiles() {
+	candidates := []string{".env", ".env.example"}
+
+	if exePath, err := os.Executable(); err == nil {
+		baseDirProd := utils.BaseDir()
+		appDir := filepath.Dir(exePath)
+
+		candidates = append(
+			candidates,
+			filepath.Join(appDir, ".env"),
+			filepath.Join(appDir, ".env.example"),
+			filepath.Join(baseDirProd, ".env"),
+			filepath.Join(baseDirProd, ".env.example"),
+		)
+	}
+
+	for _, candidate := range candidates {
+		if candidate == "" {
+			continue
+		}
+
+		if _, err := os.Stat(candidate); err != nil {
+			continue
+		}
+
+		if err := godotenv.Load(candidate); err != nil {
+			log.Warnf("failed to load env file %s: %v", candidate, err)
+		}
 	}
 }
 
