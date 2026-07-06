@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"context"
+	"errors"
 
 	log "github.com/sirupsen/logrus"
 
@@ -17,6 +18,10 @@ import (
 	"github.com/Khaym03/REG/internal/workflow/service"
 
 	"github.com/Khaym03/REG/internal/domain"
+)
+
+var (
+	ErrActiableGuidesFound = errors.New("no actionable guides found")
 )
 
 type WorkFlowInput struct {
@@ -98,8 +103,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	}
 
 	if !stats.HasActionableGuides(input.ReceiveGuidesInTransit) {
-		log.Info("No actionable guides found")
-		return nil
+		return ErrActiableGuidesFound
 	}
 
 	err = w.app.Commands.GatherGuides.Handle(ctx, session, guide.GatherGuidesCommand{
