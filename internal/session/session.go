@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 
 	"github.com/Khaym03/REG/internal/browser"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/go-rod/rod"
 	"github.com/google/uuid"
-	"github.com/mustafaturan/bus/v3"
 )
 
 var _ Session = (*RodSession)(nil)
@@ -20,14 +20,14 @@ type RodSession struct {
 	page *rod.Page
 	mu   sync.Mutex
 
-	eventBus *bus.Bus
+	eventBus event.Bus
 	closed   atomic.Bool
 }
 
 // This implementation only allow 1 page
 func NewRodSession(
 	page *rod.Page,
-	eventBus *bus.Bus,
+	eventBus event.Bus,
 ) *RodSession {
 	return &RodSession{
 		page:     page,

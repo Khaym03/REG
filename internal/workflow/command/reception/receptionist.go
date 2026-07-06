@@ -9,9 +9,7 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/repo"
-	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 type ReceptionistCommand struct {
@@ -25,14 +23,14 @@ type receptionistHandler struct {
 	repo    repo.ReceptionRepository
 	scraper ReceptionService
 
-	eventBus *bus.Bus
+	eventBus event.Bus
 }
 
 func NewReceptionistHandler(
 	repo repo.ReceptionRepository,
 	scraper ReceptionService,
 	logger *logrus.Entry,
-	eventBus *bus.Bus,
+	eventBus event.Bus,
 ) ReceptionistHandler {
 	return decorator.ApplyCommandDecorators(
 		&receptionistHandler{
@@ -50,9 +48,7 @@ func (r *receptionistHandler) Handle(
 	cmd ReceptionistCommand,
 ) error {
 
-	if err := r.eventBus.Emit(ctx, string(event.Reception), struct{}{}); err != nil {
-		log.Error(err)
-	}
+	r.eventBus.Emit(string(event.Reception), struct{}{})
 
 	dates := domain.MonthlyDateRanges(cmd.Date.From, cmd.Date.To, time.Now())
 

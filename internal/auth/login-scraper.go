@@ -10,16 +10,15 @@ import (
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/session"
 	"github.com/go-rod/rod"
-	"github.com/mustafaturan/bus/v3"
 )
 
 var _ AuthService = (*LoginScraper)(nil)
 
 type LoginScraper struct {
-	eventBus *bus.Bus
+	eventBus event.Bus
 }
 
-func NewLoginScraper(eventBus *bus.Bus) *LoginScraper {
+func NewLoginScraper(eventBus event.Bus) *LoginScraper {
 	return &LoginScraper{eventBus: eventBus}
 }
 
@@ -33,9 +32,7 @@ func (l *LoginScraper) Login(
 	}
 
 	login := func(p *rod.Page) (err error) {
-		if err := l.eventBus.Emit(ctx, string(event.Login), struct{}{}); err != nil {
-			return fmt.Errorf("emit login event: %w", err)
-		}
+		l.eventBus.Emit(string(event.Login), event.Empty{})
 
 		loginPage := NewLoginPage(p)
 
@@ -72,9 +69,7 @@ func (l *LoginScraper) Logout(
 	}
 
 	logout := func(p *rod.Page) error {
-		if err := l.eventBus.Emit(ctx, string(event.Logout), struct{}{}); err != nil {
-			return fmt.Errorf("emit logout event: %w", err)
-		}
+		l.eventBus.Emit(string(event.Logout), event.Empty{})
 
 		logoutPage := NewLogoutPage(p)
 

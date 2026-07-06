@@ -5,17 +5,17 @@ import (
 	"fmt"
 
 	"github.com/Khaym03/REG/internal/browser"
-	"github.com/mustafaturan/bus/v3"
+	"github.com/Khaym03/REG/internal/event"
 )
 
 var _ SessionFactory = (*sessionFactory)(nil)
 
 type sessionFactory struct {
 	pool     browser.BrowserPool
-	eventBus *bus.Bus
+	eventBus event.Bus
 }
 
-func NewSessionFactory(bp browser.BrowserPool, eventBus *bus.Bus) *sessionFactory {
+func NewSessionFactory(bp browser.BrowserPool, eventBus event.Bus) *sessionFactory {
 	return &sessionFactory{
 		pool:     bp,
 		eventBus: eventBus,

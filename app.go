@@ -12,7 +12,6 @@ import (
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
-	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -28,18 +27,22 @@ type App struct {
 	cancel    context.CancelCauseFunc
 	mu        sync.Mutex
 	loggerOut io.Writer
-	eventBus  *bus.Bus
+	eventBus  event.Bus
 	app       *application.App
 
 	sessionManager mediator.SessionMediator
 }
 
 // NewAppService creates a new App application struct
-func NewAppService(app *application.App, sm mediator.SessionMediator) *App {
+func NewAppService(
+	app *application.App,
+	sm mediator.SessionMediator,
+	eventBus event.Bus,
+) *App {
 	return &App{
 		app:            app,
 		mu:             sync.Mutex{},
-		eventBus:       event.NewBus(),
+		eventBus:       eventBus,
 		sessionManager: sm,
 	}
 }
@@ -48,8 +51,6 @@ func NewAppService(app *application.App, sm mediator.SessionMediator) *App {
 // so we can call the runtime methods
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	a.ctx = ctx
-
-	a.registerEventHandlers()
 
 	return nil
 }
@@ -116,53 +117,6 @@ func (a *App) StopWorkflow() {
 		a.cancel(ErrWorkflowCanceled)
 		a.cancel = nil
 	}
-}
-
-func (a *App) registerEventHandlers() {
-	const ev = string(event.Stats)
-	onStatResult := bus.Handler{
-		Handle: func(ctx context.Context, e bus.Event) {
-			log.Printf("HANDLER REGISTERED FOR: %s", e)
-
-			d, ok := e.Data.(stats.Stats)
-			if !ok {
-				return
-			}
-			log.Printf("EVENT RECEIVED: %+v", ev)
-			a.app.Event.Emit(ev, d)
-		},
-		Matcher: event.Matcher(ev),
-	}
-	a.eventBus.RegisterHandler(ev, onStatResult)
-
-	activeEvents := []event.Topic{
-		event.WorkflowStarted,
-		event.Login,
-		event.BuildingBrowser,
-		event.GuidesGather,
-		event.InventorySync,
-		event.Reception,
-		event.Logout,
-		event.DestroyingBrowser,
-		event.WorkflowFinished,
-	}
-
-	justEmitEvent := func(e string) bus.Handler {
-		return bus.Handler{
-			Handle: func(ctx context.Context, ev bus.Event) {
-				log.Printf("HANDLER REGISTERED FOR: %s", e)
-				log.Printf("EVENT RECEIVED: %+v", ev)
-				a.app.Event.Emit(e, "")
-			},
-			Matcher: event.Matcher(e),
-		}
-	}
-
-	for _, e := range activeEvents {
-		ev := string(e)
-		a.eventBus.RegisterHandler(ev, justEmitEvent(ev))
-	}
-
 }
 
 func (a *App) Ignore(_ stats.Stats, _ event.Topic) {}

@@ -32,7 +32,7 @@ func (suite *RodSuite) SetupSuite() {
 
 func (suite *RodSuite) SetupTest() {
 	suite.SessionMediator = mediator.NewSessionMediator(
-		event.NewBus(),
+		event.NewFakeBus(),
 	)
 }
 

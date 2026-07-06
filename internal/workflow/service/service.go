@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/domain"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
-	"github.com/mustafaturan/bus/v3"
 	"github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
@@ -20,7 +20,7 @@ type CleanUpFunc func()
 
 func NewApplication(
 	ctx context.Context,
-	eventBus *bus.Bus,
+	eventBus event.Bus,
 	sm mediator.SessionMediator,
 ) (*app.Application, error) {
 

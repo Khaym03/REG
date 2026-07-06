@@ -9,10 +9,9 @@ import (
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/config"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/session"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/mustafaturan/bus/v3"
 )
 
 var (
@@ -42,7 +41,7 @@ type sessionMediator struct {
 }
 
 func NewSessionMediator(
-	eventBus *bus.Bus,
+	eventBus event.Bus,
 ) *sessionMediator {
 
 	pool := browser.NewBrowserPool(browser.BrowserPoolConfig{})

@@ -53,7 +53,7 @@ func (suite *LoginTestSuite) TestSessionAlreadyOpen() {
 	defer browser.MustClose()
 
 	page := browser.MustPage()
-	second := session.NewRodSession(page, event.NewBus())
+	second := session.NewRodSession(page, event.NewFakeBus())
 	defer func() {
 		require.NoError(t, second.Close())
 	}()
