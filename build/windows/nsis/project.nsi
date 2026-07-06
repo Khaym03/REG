@@ -90,7 +90,15 @@ Section
     !insertmacro wails.webview2runtime
 
     SetOutPath $INSTDIR
-    
+
+    ## Ensure a per-user config/data folder exists and copy the example env there
+    CreateDirectory "$LOCALAPPDATA\\REG\\rod_data"
+    SetOutPath "$LOCALAPPDATA\\REG"
+    File "..\..\..\.env.example"
+
+    ; Restore installer output path for application files
+    SetOutPath $INSTDIR
+
     !insertmacro wails.files
 
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"

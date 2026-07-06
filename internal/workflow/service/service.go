@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/Khaym03/REG/internal/domain"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/Khaym03/REG/utils"
 	"github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/workflow/app"
@@ -18,6 +20,8 @@ import (
 
 type CleanUpFunc func()
 
+const stateFilename = "state.json"
+
 func NewApplication(
 	ctx context.Context,
 	eventBus event.Bus,
@@ -26,8 +30,10 @@ func NewApplication(
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
+	stateFilepath := filepath.Join(utils.BaseDir(), stateFilename)
+
 	var persistance repo.Persistence[repo.RepositoryData] = repo.NewJSONPersistence(
-		"state.json",
+		stateFilepath,
 		func() repo.RepositoryData {
 			return repo.RepositoryData{
 				Months:         make(map[string][]domain.Guide),

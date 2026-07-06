@@ -51,9 +51,12 @@ func main() {
 	err = work.Run(
 		ctx,
 		workflow.WorkFlowInput{
-			User:        auth.LoadCredential(),
-			Date:        getDateRangeFromFlags(),
-			BrowserConf: config.BrowserConfFromENV(),
+			User: auth.LoadCredential(),
+			Date: getDateRangeFromFlags(),
+			BrowserConf: config.BrowserConfig{
+				Headless: true,
+				Trace:    true,
+			},
 		},
 	)
 

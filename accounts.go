@@ -2,17 +2,19 @@ package main
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/Khaym03/REG/internal/auth"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
+	"github.com/Khaym03/REG/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 const (
-	usersFilepath = "users.json"
+	usersFilename = "users.json"
 )
 
 type AccountsAPI struct {
@@ -22,8 +24,10 @@ type AccountsAPI struct {
 }
 
 func NewAccountsAPI(sm mediator.SessionMediator, eventBus event.Bus) *AccountsAPI {
+	userFilePath := filepath.Join(utils.BaseDir(), usersFilename)
+
 	var p repo.Persistence[[]auth.RegisterUsers] = repo.NewJSONPersistence(
-		usersFilepath,
+		userFilePath,
 		func() []auth.RegisterUsers {
 			return nil
 		},

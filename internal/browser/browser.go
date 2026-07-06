@@ -6,14 +6,17 @@ import (
 	"path/filepath"
 
 	"github.com/Khaym03/REG/internal/config"
+	"github.com/Khaym03/REG/utils"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 )
 
 func BuildBrowser(ctx context.Context, conf config.BrowserConfig) (*rod.Browser, error) {
-	rootDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
+	var baseDir = utils.BaseDir()
+
+	rodDir := filepath.Join(baseDir, "rod_data")
+	if err := os.MkdirAll(rodDir, 0o755); err != nil {
+		return nil, err
 	}
 
 	l := launcher.New().
@@ -21,7 +24,7 @@ func BuildBrowser(ctx context.Context, conf config.BrowserConfig) (*rod.Browser,
 		Headless(conf.Headless).
 		Devtools(false).
 		Leakless(false).
-		UserDataDir(filepath.Join(rootDir, "rod_data"))
+		UserDataDir(rodDir)
 
 	// Kill: If it finds a previous instance hanging on the same path, it kills it.
 	l.Kill()

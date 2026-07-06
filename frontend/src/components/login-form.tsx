@@ -46,8 +46,7 @@ export function LoginForm({
       }
     },
     validators: {
-      onChange: LoginFormSchema,
-      onBlur: LoginFormSchema
+      onChange: LoginFormSchema
     }
   })
 
