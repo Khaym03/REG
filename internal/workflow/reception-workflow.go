@@ -2,8 +2,8 @@ package workflow
 
 import (
 	"context"
+	"errors"
 
-	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Khaym03/REG/internal/auth"
@@ -20,6 +20,10 @@ import (
 	"github.com/Khaym03/REG/internal/domain"
 )
 
+var (
+	ErrActiableGuidesFound = errors.New("no actionable guides found")
+)
+
 type WorkFlowInput struct {
 	User                   auth.User        `json:"user"`
 	Date                   domain.DateRange `json:"date"`
@@ -34,7 +38,7 @@ type ReceptionWorkflow struct {
 
 func NewReceptionWorkflow(
 	ctx context.Context,
-	eventBus *bus.Bus,
+	eventBus event.Bus,
 	sm mediator.SessionMediator,
 ) (*ReceptionWorkflow, error) {
 	application, err := service.NewApplication(
@@ -55,31 +59,22 @@ func NewReceptionWorkflow(
 }
 
 func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error {
-	if err := w.app.EventBus.Emit(
-		ctx,
+	w.app.EventBus.Emit(
 		string(event.WorkflowStarted),
-		struct{}{},
-	); err != nil {
-		log.Error(err)
-	}
+		event.Empty{},
+	)
 
 	defer func() {
-		if err := w.app.EventBus.Emit(
-			ctx,
+		w.app.EventBus.Emit(
 			string(event.WorkflowFinished),
-			struct{}{},
-		); err != nil {
-			log.Error(err)
-		}
+			event.Empty{},
+		)
 	}()
 
-	if err := w.app.EventBus.Emit(
-		ctx,
+	w.app.EventBus.Emit(
 		string(event.BuildingBrowser),
-		struct{}{},
-	); err != nil {
-		log.Error(err)
-	}
+		event.Empty{},
+	)
 
 	err := w.sessinManager.Reconfigure(ctx, input.BrowserConf)
 	if err != nil {
@@ -108,8 +103,7 @@ func (w *ReceptionWorkflow) Run(ctx context.Context, input WorkFlowInput) error 
 	}
 
 	if !stats.HasActionableGuides(input.ReceiveGuidesInTransit) {
-		log.Info("No actionable guides found")
-		return nil
+		return ErrActiableGuidesFound
 	}
 
 	err = w.app.Commands.GatherGuides.Handle(ctx, session, guide.GatherGuidesCommand{

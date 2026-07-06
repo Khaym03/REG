@@ -28,7 +28,7 @@ func (s *AccountServiceSuite) SetupTest() {
 
 	s.service = AccountService{
 		p:    p,
-		auth: NewLoginScraper(event.NewBus()),
+		auth: NewLoginScraper(event.NewFakeBus()),
 	}
 
 	envPath, _ := filepath.Abs("../../.env")
@@ -59,7 +59,7 @@ func (s *AccountServiceSuite) TestAuthUser() {
 		Trace(os.Getenv("REG_ROD_VERBOSE") == "1").
 		MustConnect()
 
-	rodSess := session.NewRodSession(b.MustPage(), event.NewBus())
+	rodSess := session.NewRodSession(b.MustPage(), event.NewFakeBus())
 	defer func() {
 		err := rodSess.Close()
 		s.Require().NoError(err)

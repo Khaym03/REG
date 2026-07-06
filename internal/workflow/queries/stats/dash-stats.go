@@ -10,7 +10,6 @@ import (
 	"github.com/Khaym03/REG/internal/common/decorator"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/session"
-	"github.com/mustafaturan/bus/v3"
 
 	"github.com/go-rod/rod"
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,7 @@ type StatsHandler decorator.QueryHandler[StatsQuery, Stats]
 
 type statsHandler struct {
 	logger   *logrus.Entry
-	eventBus *bus.Bus
+	eventBus event.Bus
 }
 
 type Stats struct {
@@ -34,7 +33,7 @@ type Stats struct {
 	PendingProcedures uint16 `json:"pending_procedures"`
 }
 
-func NewStatsHandler(logger *logrus.Entry, eventBus *bus.Bus) StatsHandler {
+func NewStatsHandler(logger *logrus.Entry, eventBus event.Bus) StatsHandler {
 	return decorator.ApplyQueryDecorators(
 		&statsHandler{
 			logger:   logger,
@@ -97,7 +96,7 @@ func (svc *statsHandler) Handle(
 
 	log.Info(result.String())
 
-	svc.eventBus.Emit(ctx, string(event.Stats), result)
+	svc.eventBus.Emit(string(event.Stats), result)
 
 	return result, nil
 }

@@ -33,7 +33,7 @@ func main() {
 	)
 	defer stop()
 
-	eventBus := event.NewBus()
+	eventBus := event.NewFakeBus()
 
 	sm := mediator.NewSessionMediator(eventBus)
 

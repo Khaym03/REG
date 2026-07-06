@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/Khaym03/REG/internal/auth"
+	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
 	"github.com/Khaym03/REG/internal/repo"
-	"github.com/mustafaturan/bus/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -21,7 +21,7 @@ type AccountsAPI struct {
 	sessionManager mediator.SessionMediator
 }
 
-func NewAccountsAPI(sm mediator.SessionMediator, eventBus *bus.Bus) *AccountsAPI {
+func NewAccountsAPI(sm mediator.SessionMediator, eventBus event.Bus) *AccountsAPI {
 	var p repo.Persistence[[]auth.RegisterUsers] = repo.NewJSONPersistence(
 		usersFilepath,
 		func() []auth.RegisterUsers {
