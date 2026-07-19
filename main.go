@@ -105,12 +105,16 @@ func loadEnvironmentFiles() {
 }
 
 func registerEvents() {
-	for _, e := range event.AviableTopis {
-		switch e {
-		case string(event.Stats):
-			application.RegisterEvent[stats.Stats](e)
-		default:
-			application.RegisterEvent[event.Empty](e)
-		}
-	}
+	application.RegisterEvent[stats.Stats](string(event.Stats))
+
+	application.RegisterEvent[event.Empty](string(event.WorkflowStarted))
+	application.RegisterEvent[event.Empty](string(event.BuildingBrowser))
+	application.RegisterEvent[event.Empty](string(event.Login))
+	application.RegisterEvent[event.Empty](string(event.GuidesGather))
+	application.RegisterEvent[event.Empty](string(event.InventorySync))
+	application.RegisterEvent[event.Empty](string(event.Reception))
+	application.RegisterEvent[event.Empty](string(event.Logout))
+	application.RegisterEvent[event.Empty](string(event.DestroyingBrowser))
+	application.RegisterEvent[event.Empty](string(event.WorkflowFinished))
+
 }

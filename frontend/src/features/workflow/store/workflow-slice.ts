@@ -72,6 +72,8 @@ export const createWorkflowSlice: StateCreator<
 
     const activeTopics = Object.values(Topic)
 
+    console.assert(activeTopics.length > 7, "Missing Topics")
+
     const localUnsubscribers: (() => void)[] = []
 
     activeTopics.forEach(event => {

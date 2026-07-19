@@ -44,7 +44,7 @@ func (h *syncInventoryHandler) Handle(
 	cmd SyncInventoryCommand,
 ) error {
 
-	h.eventBust.Emit(string(event.InventorySync), struct{}{})
+	h.eventBust.Emit(string(event.InventorySync), event.Empty{})
 
 	remoteRubros, err := h.scraper.Snapshot(ctx, session)
 	if err != nil {

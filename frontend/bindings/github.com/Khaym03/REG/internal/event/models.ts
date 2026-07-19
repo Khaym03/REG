@@ -5,6 +5,23 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class Empty {
+
+    /** Creates a new Empty instance. */
+    constructor($$source: Partial<Empty> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Empty instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Empty {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Empty($$parsedSource as Partial<Empty>);
+    }
+}
+
 export enum Topic {
     /**
      * The Go zero value for the underlying type of the enum.

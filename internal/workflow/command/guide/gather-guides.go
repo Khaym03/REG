@@ -52,7 +52,7 @@ func (h gatherGuidesHandler) Handle(
 	cmd GatherGuidesCommand,
 ) (err error) {
 
-	h.eventBus.Emit(string(event.GuidesGather), struct{}{})
+	h.eventBus.Emit(string(event.GuidesGather), event.Empty{})
 
 	dates := domain.MonthlyDateRanges(cmd.From, cmd.To, time.Now())
 

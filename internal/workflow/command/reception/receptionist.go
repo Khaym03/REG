@@ -48,7 +48,7 @@ func (r *receptionistHandler) Handle(
 	cmd ReceptionistCommand,
 ) error {
 
-	r.eventBus.Emit(string(event.Reception), struct{}{})
+	r.eventBus.Emit(string(event.Reception), event.Empty{})
 
 	dates := domain.MonthlyDateRanges(cmd.Date.From, cmd.Date.To, time.Now())
 
