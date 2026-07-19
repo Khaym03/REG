@@ -6,4 +6,30 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-Object.freeze($Create.Events);
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as event$0 from "../../../../Khaym03/REG/internal/event/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as stats$0 from "../../../../Khaym03/REG/internal/workflow/queries/stats/models.js";
+
+function configure() {
+    Object.freeze(Object.assign($Create.Events, {
+        "bulding.browser": $$createType0,
+        "destroying.browser": $$createType0,
+        "guides.gather": $$createType0,
+        "inventory.sync": $$createType0,
+        "loggin": $$createType0,
+        "logout": $$createType0,
+        "reception": $$createType0,
+        "stats:result": $$createType1,
+        "workflow.finished": $$createType0,
+        "workflow.started": $$createType0,
+    }));
+}
+
+// Private type creation functions
+const $$createType0 = event$0.Empty.createFrom;
+const $$createType1 = stats$0.Stats.createFrom;
+
+configure();

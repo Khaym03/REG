@@ -1,17 +1,17 @@
 # This file contains the configuration for this project.
 # When you update `info` or `fileAssociations`, run `wails3 task common:update:build-assets` to update the assets.
 # Note that this will overwrite any changes you have made to the assets.
-version: "3"
+version: '3'
 
 # This information is used to generate the build assets.
 info:
-  companyName: "El pana Daniel Inc" # The name of the company
-  productName: "REG" # The name of the application
-  productIdentifier: "com.mycompany.myproduct" # The unique product identifier
-  description: "A program for handling receptions" # The application description
-  copyright: "(c) 2026, El pana Daniel Inc" # Copyright text
-  comments: "" # Comments
-  version: "1.0.0-beta.1" # The application version
+  companyName: 'El pana Daniel Inc' # The name of the company
+  productName: 'REG' # The name of the application
+  productIdentifier: 'com.mycompany.myproduct' # The unique product identifier
+  description: 'A program for handling receptions' # The application description
+  copyright: '(c) 2026, El pana Daniel Inc' # Copyright text
+  comments: '' # Comments
+  version: '1.0.0-beta.2' # The application version
   # cfBundleIconName: "appicon" # The macOS icon name in Assets.car icon bundles (optional)
   #                               # Should match the name of your .icon file without the extension
   #                               # If not set and Assets.car exists, defaults to "appicon"
@@ -45,11 +45,11 @@ dev_mode:
       - .DS_Store
       - .gitignore
       - .gitkeep
-      - "*_test.go"
+      - '*_test.go'
     watched_extension:
-      - "*.go"
-      - "*.js" # Watch for changes to JS/TS files included using the //wails:include directive.
-      - "*.ts" # The frontend directory will be excluded entirely by the setting above.
+      - '*.go'
+      - '*.js' # Watch for changes to JS/TS files included using the //wails:include directive.
+      - '*.ts' # The frontend directory will be excluded entirely by the setting above.
     git_ignore: true
   executes:
     - cmd: wails3 build DEV=true
