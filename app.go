@@ -10,6 +10,7 @@ import (
 	"github.com/Khaym03/REG/internal/config"
 	"github.com/Khaym03/REG/internal/event"
 	"github.com/Khaym03/REG/internal/mediator"
+	"github.com/Khaym03/REG/internal/version"
 	"github.com/Khaym03/REG/internal/workflow"
 	"github.com/Khaym03/REG/internal/workflow/queries/stats"
 	log "github.com/sirupsen/logrus"
@@ -120,3 +121,8 @@ func (a *App) StopWorkflow() {
 }
 
 func (a *App) Ignore(_ stats.Stats, _ event.Topic) {}
+
+// GetVersion returns the application's version and VCS metadata.
+func (a *App) GetVersion() version.Info {
+	return version.Get()
+}

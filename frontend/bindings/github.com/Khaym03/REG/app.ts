@@ -18,10 +18,22 @@ import * as config$0 from "./internal/config/models.js";
 import * as event$0 from "./internal/event/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as version$0 from "./internal/version/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as workflow$0 from "./internal/workflow/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as stats$0 from "./internal/workflow/queries/stats/models.js";
+
+/**
+ * GetVersion returns the application's version and VCS metadata.
+ */
+export function GetVersion(): $CancellablePromise<version$0.Info> {
+    return $Call.ByID(1049863377).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
 
 export function Ignore($0: stats$0.Stats, $1: event$0.Topic): $CancellablePromise<void> {
     return $Call.ByID(3165805115, $0, $1);
@@ -34,3 +46,6 @@ export function RunWorkflow(input: workflow$0.WorkFlowInput, browserConf: config
 export function StopWorkflow(): $CancellablePromise<void> {
     return $Call.ByID(593648928);
 }
+
+// Private type creation functions
+const $$createType0 = version$0.Info.createFrom;

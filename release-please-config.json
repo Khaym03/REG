@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-v-in-tag": true,
+  "versioning": "default",
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "build/config.yml",
+          "jsonpath": "$.info.version"
+        },
+        {
+          "type": "json",
+          "path": "build/windows/info.json",
+          "jsonpath": "$.fixed.file_version"
+        },
+        {
+          "type": "json",
+          "path": "build/windows/info.json",
+          "jsonpath": "$.info['0000'].ProductVersion"
+        },
+        {
+          "type": "json",
+          "path": "frontend/package.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}
