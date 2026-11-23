@@ -50,7 +50,8 @@ func (r *receptionistHandler) Handle(
 
 	r.eventBus.Emit(string(event.Reception), event.Empty{})
 
-	dates := domain.MonthlyDateRanges(cmd.Date.From, cmd.Date.To, time.Now())
+	now := time.Now()
+	dates := domain.MonthlyDateRanges(cmd.Date.From, cmd.Date.To, now)
 
 	for _, d := range dates {
 		completed, err := r.repo.IsCompleted(ctx, d)
@@ -58,13 +59,13 @@ func (r *receptionistHandler) Handle(
 			return err
 		}
 
-		isNotCurrentMonth := d.From.Month() != time.Now().Month()
+		isNotCurrentMonth := d.From.Year() != now.Year() || d.From.Month() != now.Month()
 		if completed && isNotCurrentMonth {
 			continue
 		}
 
 		result, err := r.scraper.Receive(ctx, session, ReceptionOptions{
-			Date:                   cmd.Date,
+			Date:                   d,
 			ReceiveGuidesInTransit: cmd.ReceiveGuidesInTransit,
 		})
 		r.repo.SaveProgress(ctx, d, result)
