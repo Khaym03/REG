@@ -54,6 +54,10 @@ func (i *InventoryScraper) Insert(
 			return err
 		}
 
+		if err := inventoryPage.WaitForRubro(newItem); err != nil {
+			return err
+		}
+
 		log.Info("New item added to UI:", newItem.Name)
 
 		return nil
