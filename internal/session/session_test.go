@@ -30,3 +30,28 @@ func TestIsolatedRodSessionClosePropagatesCleanupError(t *testing.T) {
 	err := s.Close()
 	assert.ErrorIs(t, err, expectedErr)
 }
+
+func TestRodSessionIDIsStableAndUnique(t *testing.T) {
+	s1 := NewRodSession(nil, nil)
+	s2 := NewIsolatedRodSession(nil, nil, nil)
+
+	assert.NotEmpty(t, s1.ID())
+	assert.Equal(t, s1.ID(), s1.ID(), "ID() must return the same value across calls")
+	assert.Equal(t, s2.ID(), s2.ID(), "isolated session ID() must return the same value across calls")
+	assert.NotEqual(t, s1.ID(), s2.ID(), "distinct sessions must have distinct IDs")
+}
+
+func TestSessionRegistryLookupWithStableRodSessionID(t *testing.T) {
+	reg := NewSessionRegistry()
+	s := NewRodSession(nil, nil)
+
+	reg.Add(s)
+
+	got, ok := reg.Get(s.ID())
+	require.True(t, ok, "session should be retrievable by its ID")
+	assert.Same(t, s, got)
+
+	reg.Remove(s.ID())
+	_, ok = reg.Get(s.ID())
+	assert.False(t, ok, "session should be removed by its ID")
+}
