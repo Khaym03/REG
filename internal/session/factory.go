@@ -2,10 +2,12 @@ package session
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Khaym03/REG/internal/browser"
 	"github.com/Khaym03/REG/internal/event"
+	"github.com/go-rod/rod/lib/proto"
 )
 
 var _ SessionFactory = (*sessionFactory)(nil)
@@ -66,13 +68,17 @@ func (s *sessionFactory) CreateIsolated(
 
 	err = browser.CopyCookies(b, incognito)
 	if err != nil {
+		_ = incognito.Close()
 		return nil, err
 	}
 
-	page, err := browser.CreatePageIfNotExist(incognito)
+	page, err := incognito.Page(proto.TargetCreateTarget{URL: ""})
 	if err != nil {
-		return nil, err
+		_ = incognito.Close()
+		return nil, fmt.Errorf("create isolated page: %w", err)
 	}
 
-	return NewRodSession(page, s.eventBus), nil
+	return NewIsolatedRodSession(page, s.eventBus, func() error {
+		return errors.Join(page.Close(), incognito.Close())
+	}), nil
 }

@@ -22,6 +22,7 @@ type RodSession struct {
 
 	eventBus event.Bus
 	closed   atomic.Bool
+	onClose  func() error
 }
 
 // This implementation only allow 1 page
@@ -33,6 +34,19 @@ func NewRodSession(
 		page:     page,
 		mu:       sync.Mutex{},
 		eventBus: eventBus,
+	}
+}
+
+func NewIsolatedRodSession(
+	page *rod.Page,
+	eventBus event.Bus,
+	onClose func() error,
+) *RodSession {
+	return &RodSession{
+		page:     page,
+		mu:       sync.Mutex{},
+		eventBus: eventBus,
+		onClose:  onClose,
 	}
 }
 
@@ -62,11 +76,13 @@ func (s *RodSession) ID() SessionID {
 }
 
 func (s *RodSession) Close() error {
-	if s.closed.Load() {
+	if s.closed.Swap(true) {
 		return nil
 	}
 
-	s.closed.Store(true)
+	if s.onClose != nil {
+		return s.onClose()
+	}
 
 	return nil
 }
