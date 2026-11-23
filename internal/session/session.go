@@ -17,6 +17,7 @@ var _ Session = (*RodSession)(nil)
 var SessionClosed = errors.New("session closed")
 
 type RodSession struct {
+	id   SessionID
 	page *rod.Page
 	mu   sync.Mutex
 
@@ -25,12 +26,17 @@ type RodSession struct {
 	onClose  func() error
 }
 
+func newSessionID() SessionID {
+	return SessionID("rod-session-" + uuid.New().String())
+}
+
 // This implementation only allow 1 page
 func NewRodSession(
 	page *rod.Page,
 	eventBus event.Bus,
 ) *RodSession {
 	return &RodSession{
+		id:       newSessionID(),
 		page:     page,
 		mu:       sync.Mutex{},
 		eventBus: eventBus,
@@ -43,6 +49,7 @@ func NewIsolatedRodSession(
 	onClose func() error,
 ) *RodSession {
 	return &RodSession{
+		id:       newSessionID(),
 		page:     page,
 		mu:       sync.Mutex{},
 		eventBus: eventBus,
@@ -72,7 +79,7 @@ func (s *RodSession) Do(ctx context.Context, fn browser.PageFunc) error {
 
 // ID implements [Session].
 func (s *RodSession) ID() SessionID {
-	return SessionID("rod-session-" + uuid.New().String())
+	return s.id
 }
 
 func (s *RodSession) Close() error {
