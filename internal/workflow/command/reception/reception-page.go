@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -73,17 +75,54 @@ func (rp *receptionPage) ConfirmReception() error {
 		return err
 	}
 
-	// Initialize a navigation waiter BEFORE the click.
-	// This forces Rod to wait until the browser finishes the redirect/reload.
-	wait := rp.page.MustWaitNavigation()
+	// Use a timeout-bounded Livewire request waiter instead of unbounded MustWaitNavigation,
+	// because Livewire validation/inventory errors close the modal and display a toast without reloading.
+	waitLivewire := rp.page.Timeout(constants.DefaultTimeout).
+		WaitRequestIdle(time.Second, []string{livewireEndpointPattern}, nil, nil)
 
 	log.Info("Confirming reception in modal...")
 	if err := browser.Click(rp.page, modalConfirmBtnSelector); err != nil {
 		return err
 	}
 
-	// Block execution here until navigation is complete
-	wait()
+	waitLivewire()
+
+	// Wait for either the modal to disappear (Livewire AJAX update) or the page to finish reloading.
+	if err := modal.Timeout(constants.DefaultTimeout).WaitInvisible(); err != nil {
+		if loadErr := rp.page.Timeout(constants.DefaultTimeout).WaitLoad(); loadErr != nil {
+			return fmt.Errorf("reception confirmation did not complete: %w", err)
+		}
+	}
+
+	if err := rp.page.Timeout(constants.DefaultTimeout).WaitDOMStable(c.TimeoutShort, 0.5); err != nil {
+		return fmt.Errorf("page did not stabilize after confirming reception: %w", err)
+	}
+
+	return rp.checkErrorToast()
+}
+
+func (rp *receptionPage) checkErrorToast() error {
+	toasts, err := rp.page.Elements(errorToastSelector)
+	if err != nil || toasts.Empty() {
+		return nil
+	}
+
+	for _, toast := range toasts {
+		visible, err := toast.Visible()
+		if err != nil || !visible {
+			continue
+		}
+
+		text, err := toast.Text()
+		if err != nil {
+			return fmt.Errorf("reception error toast detected")
+		}
+
+		msg := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), "×"))
+		if msg != "" {
+			return fmt.Errorf("reception failed: %s", msg)
+		}
+	}
 
 	return nil
 }
@@ -154,4 +193,6 @@ const (
 	dataIDColumnSelector    = `./td[@data-id_]`
 	modalSelector           = "#recepcionarGuia"
 	modalConfirmBtnSelector = "#recepcionarGuia button.btn-success"
+	errorToastSelector      = ".jq-toast-single.jq-icon-error"
+	livewireEndpointPattern = "/livewire/message/"
 )
